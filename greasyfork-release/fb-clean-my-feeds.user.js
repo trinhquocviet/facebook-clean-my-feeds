@@ -2451,7 +2451,7 @@ const masterKeyWords = {
             `details[${postAtt}][open] > span > div, ` + // -- usually aside components
             `div[${VARS.showAtt}]:not([id="fbcmf"])`,
             'max-height: 10000px; overflow: auto; margin-bottom:1rem !important; ' +
-            `border:3px dotted ${VARS.Options.CMF_BORDER_COLOUR} !important; border-radius:8px; padding:0.2rem 0.1rem 0.1rem 0.1rem;` // 4px
+            'border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; background-color: var(--card-background)'
         );
 
         // -- summary element - list-style removes the twistie symbol
@@ -2460,23 +2460,29 @@ const masterKeyWords = {
             `details[${postAtt}] > summary`,
             'cursor: pointer; list-style: none; ' +
             'position: relative; ' +
-            'margin: auto; padding:0.5rem 1rem; ' +
-            'border-radius:0.55rem; font-style:italic; ' +
-            'width: inherit; '+
+            'margin: auto; padding: 0.75rem; ' +
+            'border-radius: 0.5rem; font-style: italic; ' +
+            'width: inherit; ' +
+            'color: var(--primary-text); ' +
             ((VARS.Options.VERBOSITY_MESSAGE_COLOUR === '') ? '' : ` color: ${VARS.Options.VERBOSITY_MESSAGE_COLOUR}; `) +
             `background-color:${(VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR === '') ? masterKeyWords.defaults.VERBOSITY_MESSAGE_BG_COLOUR : VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR};`
         );
         addToSS(
+          `details[${postAtt}="~"] > summary`,
+          'margin: 0 1rem; '
+        );
+        addToSS(
             `details[${postAtt}] > summary:hover`,
-            'text-decoration: underline; background-color:white; color:black;'
+            'text-decoration: underline;'
         );
         // -- formatting of +/-
         addToSS(
             `details[${postAtt}] > summary::after`,
-            'background: darkgrey; color: white; border-radius: 50%;' +
+            'color: var(--color); ' +
+            'border-radius: 50%; font-style: normal; ' +
             'width: 24px; height: 24px; line-height: 20px;' +
             'font-size: 1rem; font-weight: bold; transform: translateY(-50%); text-align: center;' +
-            'position: absolute; top: 1rem; right: 0.25rem;'
+            'position: absolute; top: 50%; right: 0.25rem;'
         );
         addToSS(
             `details[${postAtt}] > summary::after`,
@@ -2486,15 +2492,19 @@ const masterKeyWords = {
             `details[${postAtt}][open] > summary::after`,
             'content: "\\2212";' // "-"
         );
+        addToSS(
+          `details[${postAtt}] > summary:hover::after`,
+          'background-color: var(--hover-overlay);'
+        );
 
         // -- reveal a hidden post
         addToSS(
             `details[${postAtt}][open]`,
-            'margin-bottom: 1rem;'
+            'margin-bottom: 1rem; '
         );
         addToSS(
             `details[${postAtt}][open] > summary`,
-            'margin-bottom: 0.5rem;'
+            'border-bottom-left-radius: 0; border-bottom-right-radius: 0;'
         );
 
         // -- hide a component (e.g. marketplace item)
@@ -2527,21 +2537,25 @@ const masterKeyWords = {
 
         // - dailog box CSS
         // --- dialog box; position + flex
-        let bColour = (VARS.Options.CMF_BORDER_COLOUR === '') ? masterKeyWords.defaults.CMF_BORDER_COLOUR : VARS.Options.CMF_BORDER_COLOUR;
+        // let bColour = (VARS.Options.CMF_BORDER_COLOUR === '') ? masterKeyWords.defaults.CMF_BORDER_COLOUR : VARS.Options.CMF_BORDER_COLOUR;
+        let bColour = 'var(--divider)';
         let tColour = 'var(--primary-text)';
         // - left / right done in fn addExtraCSS()
         addToSS(
             '.fb-cmf ',
             'position:fixed; top:0.15rem; bottom:0.15rem; display:flex; flex-direction:column; width: 100%; max-width:30rem; padding:0 1rem; z-index:5;' +
-            `border:2px solid ${bColour}; border-radius:1rem; opacity:0; visibility:hidden; color:${tColour};`
+            'box-shadow: 0 12px 28px 0 var(--shadow-2), 0 2px 4px 0 var(--shadow-1), inset 0 0 0 1px var(--shadow-inset);' +
+            `border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour};`
+            // `border:2px solid ${bColour}; border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour};`
         );
         // - dialog's background color
-        if (VARS.isDarkMode) {
-            addToSS('.fb-cmf', 'background-color:var(--web-wash);');
-        }
-        else {
-            addToSS('.fb-cmf', 'background-color:#fefefa;');
-        }
+        // if (VARS.isDarkMode) {
+        //     addToSS('.fb-cmf', 'background-color:var(--web-wash);');
+        // }
+        // else {
+        //     addToSS('.fb-cmf', 'background-color: var(--card-background);');
+        // }
+        addToSS('.fb-cmf', 'background-color: var(--card-background);');
 
         // addToSS('.__fb-light-mode .fb-cmf', 'background-color:#fefefa;');
         // addToSS('.__fb-dark-mode .fb-cmf', 'background-color:var(--web-wash);');
@@ -2596,7 +2610,7 @@ const masterKeyWords = {
         // -- content
         addToSS(
             '.fb-cmf div.content',
-            `flex:1; overflow: hidden scroll; border:2px double ${bColour}; border-radius:0.5rem; color: var(--primary-text);`
+            `flex:1; overflow: hidden auto; border:1px solid ${bColour}; border-radius:0.5rem; color: var(--primary-text);`
         );
         addToSS(
             '.fb-cmf fieldset',
