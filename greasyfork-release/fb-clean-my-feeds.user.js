@@ -2152,7 +2152,7 @@ const masterKeyWords = {
     PP_BLOCKED_RE: false,
     DLG_VERBOSITY: '1',
     VERBOSITY_DEBUG: false,
-    VERBOSITY_MESSAGE_BG_COLOUR: 'LightGrey',
+    VERBOSITY_MESSAGE_BG_COLOUR: 'var(--card-background)',
     CMF_BTN_OPTION: '0',
     CMF_DIALOG_OPTION: '0',
     CMF_BORDER_COLOUR: 'OrangeRed',
@@ -2460,7 +2460,9 @@ const masterKeyWords = {
             `details[${postAtt}] > summary`,
             'cursor: pointer; list-style: none; ' +
             'position: relative; ' +
-            'margin:1.5rem auto; padding:0.5rem 1rem; border-radius:0.55rem; width:85%; font-style:italic;' +
+            'margin: auto; padding:0.5rem 1rem; ' +
+            'border-radius:0.55rem; font-style:italic; ' +
+            'width: inherit; '+
             ((VARS.Options.VERBOSITY_MESSAGE_COLOUR === '') ? '' : ` color: ${VARS.Options.VERBOSITY_MESSAGE_COLOUR}; `) +
             `background-color:${(VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR === '') ? masterKeyWords.defaults.VERBOSITY_MESSAGE_BG_COLOUR : VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR};`
         );
@@ -2765,7 +2767,9 @@ const masterKeyWords = {
             // - cmfBtnLocation === "0" : bottom left
             // - has the buttons running down the side of the page (May 2022 ->).
             // styles = 'position:fixed; bottom:4.25rem; left:1.1rem; display:none;';
-            styles = 'position:fixed; bottom:4.25rem; left:1.1rem; display:none; z-index: 999;';
+            styles = 'position: fixed; bottom: 1rem; left: 1rem; display:none; z-index: 999;'; // position
+            styles += 'background: var(--secondary-button-background-floating); padding: 0.5rem; width: 3rem; height: 3rem; border: 0; border-radius: 1.5rem;'; // styles
+            styles += 'box-shadow: 0 2px 4px var(--shadow-1), 0 12px 28px var(--shadow-2);'; // drop shadow
         }
         if (styles.length > 0) {
             addToSS(
@@ -2773,8 +2777,8 @@ const masterKeyWords = {
                 styles
             );
             // - btn - basic styling.
-            addToSS('.fb-cmf-toggle', 'border-radius:0.3rem;');
-            addToSS('.fb-cmf-toggle svg', 'height:32px; width:32px;');
+            // addToSS('.fb-cmf-toggle', 'border-radius:0.3rem;');
+            addToSS('.fb-cmf-toggle svg', 'height: 95%; aspect-ratio : 1 / 1;');
             addToSS('.fb-cmf-toggle:hover', 'cursor:pointer;');
             // - dialog box's display
             addToSS(`.fb-cmf-toggle[${VARS.showAtt}]`, 'display:block;');
