@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         FB - Clean my feeds (5.02)
+// @name         FB - Clean my feeds - simplified UI (5.02.01)
 // @description  Hide Sponsored and Suggested posts in FB's News Feed, Groups Feed, Watch Videos Feed and Marketplace Feed
 // @namespace    https://greasyfork.org/users/812551
 // @supportURL   https://github.com/zbluebugz/facebook-clean-my-feeds/issues
-// @version      5.02
+// @version      5.02.01
 // @author       zbluebugz (https://github.com/zbluebugz/)
 // @match        https://www.facebook.com/*
 // @match        https://web.facebook.com/*
