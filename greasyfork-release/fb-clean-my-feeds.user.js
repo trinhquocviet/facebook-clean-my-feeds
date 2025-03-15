@@ -3757,42 +3757,57 @@ const masterKeyWords = {
             cnt.appendChild(fs);
 
             if (languageChanged === false) {
-
                 dlg.appendChild(cnt);
-
+              
                 // -- Actions (buttons) + status
                 footer = document.createElement('footer');
                 // footer.classList.add('buttons');
-                btn = document.createElement('button');
-                btn.textContent = KeyWords.DLG_BUTTONS[0]; // save
-                btn.setAttribute('id', 'BTNSave');
-                btn.addEventListener('click', saveUserOptions, false);
-                footer.appendChild(btn);
-                btn = document.createElement('button');
-                btn.textContent = KeyWords.DLG_BUTTONS[1]; // close
-                btn.setAttribute('id', 'BTNClose');
-                btn.addEventListener('click', toggleDialog, false);
-                footer.appendChild(btn);
-                btn = document.createElement('button');
-                btn.textContent = KeyWords.DLG_BUTTONS[2]; // export
-                btn.setAttribute('id', 'BTNExport');
-                btn.addEventListener('click', exportUserOptions, false);
-                footer.appendChild(btn);
-                btn = document.createElement('button');
-                btn.textContent = KeyWords.DLG_BUTTONS[3]; // import
-                btn.setAttribute('id', 'BTNImport');
-                footer.appendChild(btn);
-                btn = document.createElement('button');
-                btn.textContent = KeyWords.DLG_BUTTONS[4]; // reset
-                btn.setAttribute('id', 'BTNReset');
-                btn.addEventListener('click', resetUserOptions, false);
-                footer.appendChild(btn);
+              
+              // -- Make a list of buttons
+                const btnList = [
+                    {
+                        id: 'BTNSave', // save
+                        text: KeyWords.DLG_BUTTONS[0],
+                        event: saveUserOptions,
+                    },
+                    {
+                        id: 'BTNClose', // close
+                        text: KeyWords.DLG_BUTTONS[1],
+                        event: toggleDialog,
+                    },
+                    {
+                        id: 'BTNExport', // export
+                        text: KeyWords.DLG_BUTTONS[2],
+                        event: exportUserOptions,
+                    },
+                    {
+                        id: 'BTNImport', // import
+                        text: KeyWords.DLG_BUTTONS[3],
+                        event: importUserOptions,
+                    },
+                    {
+                        id: 'BTNReset', // reset
+                        text: KeyWords.DLG_BUTTONS[4],
+                        event: resetUserOptions,
+                    }
+                ];
+
+                for (const btnAttrs of btnList) {
+                  const btnEl = document.createElement('button');
+                  btnEl.setAttribute('id', btnAttrs.id);
+                  btnEl.classList.add('fbcmf-btn');
+                  btnEl.textContent = btnAttrs.text;
+                  btnEl.addEventListener('click', btnAttrs.event, false);
+                  footer.appendChild(btnEl);
+                }
+
                 // -- file input field is hidden, but triggered by the Import button.
-                let fileImport = document.createElement('input');
+                const fileImport = document.createElement('input');
                 fileImport.setAttribute('type', 'file');
                 fileImport.setAttribute('id', `FI${postAtt}`);
                 fileImport.classList.add('fileInput');
                 footer.appendChild(fileImport);
+
                 // -- save/export/import/reset status/results
                 div = document.createElement('div');
                 div.classList.add('fileResults');
