@@ -2501,7 +2501,7 @@ const masterKeyWords = {
 
         // -- reveal a hidden post
         addToSS(
-            `details[${postAtt}][open]`,
+            `details[${postAtt}]`,
             'margin-bottom: 1rem; '
         );
         addToSS(
