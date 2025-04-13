@@ -5158,7 +5158,12 @@ esversion: 8;
     // const queryFollow = ':scope h4[id] > span > div > span';
     // - 09/2024 - added the extra query
     //const queryFollow = ':scope h4[id] > span > div > span, :scope h4[id] > span > span > div > span, :scope h4[id] > div > span > span[class] > div[class] > span[class]';
-    const queryFollow = [':scope h4[id] > span > div > span', ':scope h4[id] > span > span > div > span', ':scope h4[id] > div > span > span[class] > div[class] > span[class]', ':scope h4[id] > span > span > span > span'];
+    const queryFollow = [
+      ':scope h4[id] > span > div > span',
+      ':scope h4[id] > span > span > div > span',
+      ':scope h4[id] > div > span > span[class] > div[class] > span[class]',
+      ':scope h4[id] > span > span > span > span'
+    ];
     const elementsFollow = querySelectorAllNoChildren(post, queryFollow, 0, false);
     // if (elementsFollow.length > 0) console.info(log + "nf_isFollow(post); elementsFollow:", elementsFollow, post);
     return (elementsFollow.length !== 1) ? '' : KeyWords.NF_FOLLOW;
@@ -5982,8 +5987,12 @@ esversion: 8;
 
       // -- mostly English users:
       // -- FB's April 2025 update #1:
-      'h3[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
-      'h2[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
+      'h3[dir="auto"] ~ div:not([class]) > span > span > span > div > div',
+      'h2[dir="auto"] ~ div:not([class]) > span > span > span > div > div',
+
+      // -- FB's April 2025 update #1:
+      // 'h3[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
+      // 'h2[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
 
       // -- FB's October 2024 update #2:
       'h3[dir="auto"] ~ div:not([class]) > div > div > div > div > div',
