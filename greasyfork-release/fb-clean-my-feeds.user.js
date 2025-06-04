@@ -209,6 +209,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animated GIFs',
         NF_ANIMATED_GIFS_PAUSE: 'Pause animated GIFs',
         NF_SHARES: '# shares',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Auto-redirect to "Most Recent" page',
         NF_LIKES_MAXIMUM: 'Maximum number of Likes',
         GF_PAID_PARTNERSHIP: 'Paid partnership',
         GF_SUGGESTIONS: 'Suggestions / Recommendations',
@@ -292,6 +293,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'صور GIF المتحركة',
         NF_ANIMATED_GIFS_PAUSE: 'وقفة ملفات GIF المتحركة',
         NF_SHARES: '# مشاركات',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'إعادة التوجيه التلقائي إلى صفحة "الأحدث"',
         NF_LIKES_MAXIMUM: 'الحد الأقصى لعدد الإعجابات',
         GF_PAID_PARTNERSHIP: 'شراكة مدفوعة',
         GF_SUGGESTIONS: 'الاقتراحات / التوصيات',
@@ -375,6 +377,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Анимирани GIF файлове',
         NF_ANIMATED_GIFS_PAUSE: 'Пауза на анимирани GIF файлове',
         NF_SHARES: '# споделяния',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Автоматично пренасочване към страницата „Най-нови“',
         NF_LIKES_MAXIMUM: 'Максимален брой Харесвания',
         GF_PAID_PARTNERSHIP: 'Платено партньорство',
         GF_SUGGESTIONS: 'Предложения / Препоръки',
@@ -458,6 +461,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animované GIFy',
         NF_ANIMATED_GIFS_PAUSE: 'Pozastavit animované GIFy',
         NF_SHARES: '# sdílení',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automatické přesměrování na stránku „Nejnovější“',
         NF_LIKES_MAXIMUM: 'Maximální počet hodnocení Líbí se mi',
         GF_PAID_PARTNERSHIP: 'Placené partnerství',
         GF_SUGGESTIONS: 'Návrhy / Doporučení',
@@ -542,6 +546,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animierte GIFs',
         NF_ANIMATED_GIFS_PAUSE: 'Animierte GIFs pausieren',
         NF_SHARES: '# Mal geteilt',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automatische Weiterleitung zur Seite „Neueste“',
         NF_LIKES_MAXIMUM: 'Maximale Anzahl an Likes',
         GF_PAID_PARTNERSHIP: 'Bezahlte Werbepartnerschaft',
         GF_SUGGESTIONS: 'Vorschläge / Empfehlungen',
@@ -625,6 +630,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Κινούμενες εικόνες GIF',
         NF_ANIMATED_GIFS_PAUSE: 'Παύση κινούμενων GIF',
         NF_SHARES: '# μερίδια',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Αυτόματη ανακατεύθυνση στη σελίδα "Πιο πρόσφατα"',
         NF_LIKES_MAXIMUM: 'Μέγιστα "Μου αρέσει"',
         GF_PAID_PARTNERSHIP: 'Πληρωμένη συνεργασία',
         GF_SUGGESTIONS: 'Προτάσεις / Συστάσεις',
@@ -708,6 +714,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIF animados',
         NF_ANIMATED_GIFS_PAUSE: 'Pausar GIF animados',
         NF_SHARES: '# veces compartida',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Redirección automática a la página "Más recientes"',
         NF_LIKES_MAXIMUM: 'Número máximo de Me gusta',
         GF_PAID_PARTNERSHIP: 'Colaboración pagada',
         GF_SUGGESTIONS: 'Sugerencias / Recomendaciones',
@@ -791,6 +798,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animoidut GIF-kuvat',
         NF_ANIMATED_GIFS_PAUSE: 'Pysäytä animoidut GIF-kuvat',
         NF_SHARES: '# jakoa',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automaattinen uudelleenohjaus "Uusin"-sivulle',
         NF_LIKES_MAXIMUM: 'Maksimimäärä tykkäyksiä',
         GF_PAID_PARTNERSHIP: 'Maksettu kumppanuus',
         GF_SUGGESTIONS: 'Ehdotuksia / Suosituksia',
@@ -874,6 +882,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIF animés',
         NF_ANIMATED_GIFS_PAUSE: 'Mettre en pause les GIF animés',
         NF_SHARES: '# partages',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Redirection automatique vers la page « La plus récente »',
         NF_LIKES_MAXIMUM: 'Nombre maximum de J\'aime',
         GF_PAID_PARTNERSHIP: 'Partenariat rémunéré',
         GF_SUGGESTIONS: 'Suggestions / Recommandations',
@@ -957,6 +966,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'קובצי GIF מונפשים',
         NF_ANIMATED_GIFS_PAUSE: 'השהה קובצי GIF מונפ',
         NF_SHARES: '# שיתופים',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'הפניה אוטומטית לדף "האחרון ביותר"',
         NF_LIKES_MAXIMUM: 'מספר לייקים מקסימלי',
         GF_PAID_PARTNERSHIP: 'שותפות בתשלום',
         GF_SUGGESTIONS: 'הצעות / המלצות',
@@ -1040,6 +1050,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIF animasi',
         NF_ANIMATED_GIFS_PAUSE: 'Jeda GIF animasi',
         NF_SHARES: '# Kali dibagikan',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Pengalihan otomatis ke halaman "Terbaru"',
         NF_LIKES_MAXIMUM: 'Jumlah maksimum Suka',
         GF_PAID_PARTNERSHIP: 'Kemitraan berbayar',
         GF_SUGGESTIONS: 'Saran / Rekomendasi',
@@ -1123,6 +1134,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIF animate',
         NF_ANIMATED_GIFS_PAUSE: 'Metti in pausa le GIF animate',
         NF_SHARES: 'Condivisioni: #',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Reindirizzamento automatico alla pagina "Più recenti"',
         NF_LIKES_MAXIMUM: 'Numero massimo di Mi piace',
         GF_PAID_PARTNERSHIP: 'Partnership pubblicizzata',
         GF_SUGGESTIONS: 'Suggerimenti / Raccomandazioni',
@@ -1206,6 +1218,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'アニメーション GIF',
         NF_ANIMATED_GIFS_PAUSE: 'アニメーション GIF を一時停止する',
         NF_SHARES: 'シェア#件',
+        NF_AUTO_REDIR_TO_MOST_RECENT: '「最新」ページに自動リダイレクト',
         NF_LIKES_MAXIMUM: '「いいね！」の最大数',
         GF_PAID_PARTNERSHIP: '有償パートナーシップ',
         GF_SUGGESTIONS: '提案/推奨事項',
@@ -1289,6 +1302,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animētos GIF',
         NF_ANIMATED_GIFS_PAUSE: 'Apturiet animētos GIF',
         NF_SHARES: '# dalījās',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automātiska novirzīšana uz lapu “Jaunākā”',
         NF_LIKES_MAXIMUM: 'Maksimālais atzīmju Patīk skaits',
         GF_PAID_PARTNERSHIP: 'Apmaksāta sadarbība',
         GF_SUGGESTIONS: 'Ieteikumi',
@@ -1372,6 +1386,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Geanimeerde GIF\'s',
         NF_ANIMATED_GIFS_PAUSE: 'Geanimeerde GIF\'s pauzeren',
         NF_SHARES: '# keer gedeeld',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automatisch doorverwijzen naar de pagina "Meest recent"',
         NF_LIKES_MAXIMUM: 'Maximaal aantal likes',
         GF_PAID_PARTNERSHIP: 'Betaald partnerschap',
         GF_SUGGESTIONS: 'Suggesties / Aanbevelingen',
@@ -1455,6 +1470,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animowane GIF-y',
         NF_ANIMATED_GIFS_PAUSE: 'Wstrzymaj animowane GIF-y',
         NF_SHARES: '# udostępnienia',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Automatyczne przekierowanie do strony „Najnowsze”',
         NF_LIKES_MAXIMUM: 'Maksymalna ilość "Lubię to!"',
         GF_PAID_PARTNERSHIP: 'Post sponsorowany',
         GF_SUGGESTIONS: 'Sugestie / Zalecenia',
@@ -1538,6 +1554,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIFs animados',
         NF_ANIMATED_GIFS_PAUSE: 'Pausar GIFs animados',
         NF_SHARES: '# partilhas',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Redireccionamento automático para a página "Mais recente"',
         NF_LIKES_MAXIMUM: 'Número máximo de curtidas',
         GF_PAID_PARTNERSHIP: 'Parceria paga',
         GF_SUGGESTIONS: 'Sugestões / Recomendações',
@@ -1621,6 +1638,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Анимированные GIF-файлы',
         NF_ANIMATED_GIFS_PAUSE: 'Приостановить анимированные GIF',
         NF_SHARES: '# поделились',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Автоматическое перенаправление на страницу «Самые последние»',
         NF_LIKES_MAXIMUM: 'Максимальное количество «Нравится»',
         GF_PAID_PARTNERSHIP: 'Платное партнерство',
         GF_SUGGESTIONS: 'Предложения / Рекомендации',
@@ -1703,6 +1721,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Animasyonlu GIF\'ler',
         NF_ANIMATED_GIFS_PAUSE: 'Hareketli GIF\'leri duraklat',
         NF_SHARES: '# Paylaşım',
+        NF_AUTO_REDIR_TO_MOST_RECENT: '"En Son" sayfasına otomatik yönlendirme',
         NF_LIKES_MAXIMUM: 'Maksimum Beğeni sayısı',
         GF_PAID_PARTNERSHIP: 'ücretli ortaklık',
         GF_SUGGESTIONS: 'Öneriler',
@@ -1786,6 +1805,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'Анімовані GIF-файли',
         NF_ANIMATED_GIFS_PAUSE: 'Призупинити анімовані GIF-файли',
         NF_SHARES: '# Поширити',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Автоматичне перенаправлення на сторінку «Найновіші»',
         NF_LIKES_MAXIMUM: 'Максимальна кількість «Подобається».',
         GF_PAID_PARTNERSHIP: 'Оплачуване партнерство',
         GF_SUGGESTIONS: 'Пропозиції / Рекомендації',
@@ -1869,6 +1889,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: 'GIF động',
         NF_ANIMATED_GIFS_PAUSE: 'Tạm dừng các ảnh GIF động',
         NF_SHARES: '# lượt chia sẻ',
+        NF_AUTO_REDIR_TO_MOST_RECENT: 'Tự động chuyển đến "Bài gần đây"',
         NF_LIKES_MAXIMUM: 'Số lượt thích tối đa',
         GF_PAID_PARTNERSHIP: 'Mối quan hệ tài trợ',
         GF_SUGGESTIONS: 'Đề xuất / Khuyến nghị',
@@ -1952,6 +1973,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: '动图 GIF',
         NF_ANIMATED_GIFS_PAUSE: '暂停动画 GIF',
         NF_SHARES: '#次分享',
+        NF_AUTO_REDIR_TO_MOST_RECENT: '自动重定向到“最新”页面',
         NF_LIKES_MAXIMUM: '最大点赞数',
         GF_PAID_PARTNERSHIP: '有偿合作',
         GF_SUGGESTIONS: '建议/建议',
@@ -2035,6 +2057,7 @@ esversion: 8;
         NF_ANIMATED_GIFS_POSTS: '動態 GIF',
         NF_ANIMATED_GIFS_PAUSE: '暫停 GIF 動畫',
         NF_SHARES: '#次分享',
+        NF_AUTO_REDIR_TO_MOST_RECENT: '自動重定向到「最新」頁面',
         NF_LIKES_MAXIMUM: '最大按讚數',
         GF_PAID_PARTNERSHIP: '付費合作',
         GF_SUGGESTIONS: '建議/推薦',
@@ -2117,6 +2140,7 @@ esversion: 8;
       NF_ANIMATED_GIFS_POSTS: false,
       NF_ANIMATED_GIFS_PAUSE: false,
       NF_SHARES: false,
+      NF_AUTO_REDIR_TO_MOST_RECENT: false,
       NF_LIKES_MAXIMUM: false,
       GF_PAID_PARTNERSHIP: true,
       GF_SUGGESTIONS: false,
@@ -7329,6 +7353,23 @@ esversion: 8;
     setTimeout(processPage, sleepDuration);
   }
 
+  
+
+  function registerRedirToMostRecent() {
+    const redirToMostRecent = () => {
+      const { origin, pathname, search } = window.location;
+      const targetUrl = `${origin}/?sk=h_chr`;
+
+      if (pathname === '/' && search.length === 0) {
+        window.location.href = targetUrl;
+      }
+    }
+
+    if (VARS.Options.NF_AUTO_REDIR_TO_MOST_RECENT) {
+      redirToMostRecent();
+    }
+  }
+
   function startUp() {
     // -- run code soon as the elements HEAD, BDDY and variable Options are ready/available.
     // -- or when page url has changed ...
@@ -7345,6 +7386,8 @@ esversion: 8;
         buildDictionaries();
         firstRun = false;
       }
+      // -- check registerRedirToMostRecent
+      registerRedirToMostRecent();
 
       // -- add some event listeners to detect if something is being changed ...
       window.addEventListener('scroll', function () {
