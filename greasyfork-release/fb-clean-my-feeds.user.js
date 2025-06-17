@@ -6014,7 +6014,7 @@ esversion: 8;
       // -- mostly English users:
 
       // Optimize:
-      Array.from({length: 4}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} .x1lliihq:is(div, span)`),
+      Array.from({length: 4}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} [class="x1lliihq"]:is(div, span)`),
       Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, rootSelector),
       Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} > * * * * *`),
       
@@ -6120,7 +6120,6 @@ esversion: 8;
 
     for (const query of queries) {
       const nodeList = document.querySelectorAll(query);
-
       if (nodeList.length > 0) {
         posts = Array.from(nodeList);
         break;
