@@ -3,6 +3,8 @@
 // @description  Hide Sponsored and Suggested posts in FB's News Feed, Groups Feed, Watch Videos Feed and Marketplace Feed
 // @namespace    https://greasyfork.org/users/812551
 // @supportURL   https://github.com/zbluebugz/facebook-clean-my-feeds/issues
+// @downloadURL  https://github.com/trinhquocviet/facebook-clean-my-feeds/raw/refs/heads/simplified_ui/greasyfork-release/fb-clean-my-feeds.user.js
+// @updateURL    https://github.com/trinhquocviet/facebook-clean-my-feeds/raw/refs/heads/simplified_ui/greasyfork-release/fb-clean-my-feeds.user.js
 // @version      5.02.02
 // @author       zbluebugz (https://github.com/zbluebugz/)
 // @match        https://www.facebook.com/*
