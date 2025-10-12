@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         FB - Clean my feeds - simplified UI (5.02.01)
+// @name         FB - Clean my feeds - simplified UI (5.02.02)
 // @description  Hide Sponsored and Suggested posts in FB's News Feed, Groups Feed, Watch Videos Feed and Marketplace Feed
 // @namespace    https://greasyfork.org/users/812551
 // @supportURL   https://github.com/zbluebugz/facebook-clean-my-feeds/issues
-// @version      5.02.01
+// @version      5.02.02
 // @author       zbluebugz (https://github.com/zbluebugz/)
 // @match        https://www.facebook.com/*
 // @match        https://web.facebook.com/*
@@ -6007,17 +6007,36 @@ esversion: 8;
     // -- various news feed queries
 
     const rootSelector = '[dir=auto]:is(h2, h3) ~ div:not([class])';
+
+    // 2025-10-12: handle custom tag - detect customTag
+    // ? is customTag -> ignore general rule
+    // ? is not customTag -> ignore general rule
+    const customTag = ((tagName) => {
+      // customtag format [a-zA-Z0-9]+-[a-zA-Z0-9] example: ybrgmpsb-unlrhoua
+      return /[a-zA-Z0-9]+-[a-zA-Z0-9]+/.test(tagName) ? tagName : '';
+    })(document.querySelector(`${rootSelector} [class="x1lliihq"]:is(div, span)~*:not(div, span)`).tagName);
+    
+
     const queries = [
       // -- grab child div in each post having a class.
       // -- nb: <details> is injected in between some <div>s - effectively kicking it out of the collection.
 
       // -- mostly English users:
 
-      // Optimize:
-      Array.from({length: 4}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} [class="x1lliihq"]:is(div, span)`),
-      Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, rootSelector),
-      Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} > * * * * *`),
-      
+      // ? 2025-10-12: handle custom tag
+      ...(
+        (customTag.length > 0)
+        ? [
+            Array.from({length: 10}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} ${customTag}`)
+          ]
+        : [
+            // Optimize:
+            Array.from({length: 4}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} [class="x1lliihq"]:is(div, span)`),
+            Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, rootSelector),
+            Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} > * * * * *`),
+        ]
+      ),
+
       // -- FB's April 2025 update #5:
       // 'h3[dir=auto] ~ div:not([class]) > * * * * * > div > div > div > div > div',
       // 'h2[dir=auto] ~ div:not([class]) > * * * * * > div > div > div > div > div',
