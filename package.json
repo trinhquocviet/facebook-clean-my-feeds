@@ -1,0 +1,26 @@
+{
+  "name": "fb-clean-my-feeds-ts",
+  "version": "1.0.0",
+  "description": "Facebook Clean My Feeds - TypeScript userscript",
+  "main": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/watch.js",
+    "build": "bun run build:userscript",
+    "build:watch": "bun run build:userscript --watch",
+    "build:userscript": "bun scripts/build-userscript.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist/"
+  },
+  "devDependencies": {
+    "@types/bun": "~1.3.1",
+    "@types/greasemonkey": "^4.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "idb-keyval": "^6.2.2"
+  }
+}

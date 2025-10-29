@@ -1,0 +1,8 @@
+[build]
+target = "browser"
+minify = true
+sourcemap = "external"
+
+[install]
+cache = true
+peer = true
