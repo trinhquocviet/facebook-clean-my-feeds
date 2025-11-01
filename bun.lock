@@ -4,14 +4,14 @@
     "": {
       "name": "fb-clean-my-feeds-ts",
       "dependencies": {
-        "idb-keyval": "^6.2.2",
+        "idb-keyval": "~6.2.2",
       },
       "devDependencies": {
         "@types/bun": "~1.3.1",
-        "@types/greasemonkey": "^4.0.0",
+        "@types/greasemonkey": "~4.0.0",
       },
       "peerDependencies": {
-        "typescript": "^5.9.3",
+        "typescript": "~5.9.3",
       },
     },
   },

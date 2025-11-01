@@ -66,6 +66,8 @@ export class CMFToggleBtn extends HTMLElement {
     `;
   }
 }
-export const htmlTag = 'cmf-toggle-btn';
 
+
+const htmlTag = 'cmf-toggle-btn';
 customElements.define(htmlTag, CMFToggleBtn);
+export { htmlTag as cmfToggleBtnTag };

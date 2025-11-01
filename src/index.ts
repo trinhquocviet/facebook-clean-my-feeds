@@ -1,20 +1,23 @@
 import { get, set, del, createStore } from 'idb-keyval';
 import masterKeyWords from 'modules/masterKeywords';
 import type { Language } from 'modules/masterKeywords/types';
-import { generateRandomString } from 'utils/string';
+import { generateRandomString, cleanText } from 'utils/string';
+import { findFirstMatch, findFirstMatchRegExp } from 'utils/post';
 import { isDarkMode } from 'utils/darkmode';
 import { buildSS } from 'utils/stylesheet';
-import { CMFToggleBtn, htmlTag as cmfToggleBtnHtmlTag } from 'components/cmfToggleBtn';
+import { log } from 'utils/debug';
+import { CMFToggleBtn, cmfToggleBtnTag } from 'components/cmfToggleBtn';
+import { CMFConfigModal, cmfConfigModalTag } from 'components/cmfConfigModal';
 import images from 'constants/images';
+import { type FeedSettings } from 'modules/feedSettings';
+import { nf_getCollectionOfPosts } from 'utils/nf';
+import { cmfSessionManager } from './modules/windowStorage';
 
- (async function () {
+(async function () {
   'use strict';
-
+  
   // -- TM doesn't like spacesin version number, so convert to human-readable-format.
   const SCRIPT_VERSION = 'v' + GM.info.script.version.replaceAll('-', ' ');
-
-  // - console log "label" - used for filtering console logs.
-  const log = '-- fbcmf :: ';
 
   // - override idb-keyval's default db and store names.
   let DBVARS = {
@@ -44,107 +47,20 @@ import images from 'constants/images';
   // - ...
   const mainColumnAtt = 'cmfmc';
 
+  // ! cmfCongfigModalHerere
+  let cmfCongfigModal = document.createElement(cmfConfigModalTag) as CMFConfigModal;
+  document.body.appendChild(cmfCongfigModal);
+
   // - Feed Details variables
   // -- nb: setFeedSettings() adjusts some of these settings.
-  const VARS: {
-    [key: string]: any
-  } = {
-    // - how many times to scan a post
-    scanCountStart: 0,
-    scanCountMaxLoop: 15, // Nov 2023; changed from 12 to 15, need to make code a tad bit more aggressive.
-
-    noChangeCounter: 0, // number of consecutive loops that reported no change in html structure.
-
-    // - langauge (default to EN)
-    language: '',
-    // - user options
-    Options: {},
-    optionsReady: false,
-    // - blocked text
-    Filters: {},
-    // - blocked text separator
-    SEP: '¦¦',
-
-    dictionarySponsored: {},
-    dictionaryReelsAndShortVideos: {},
-
-    // - Feed toggles
-    isNF: false, // news
-    isGF: false, // groups
-    isVF: false, // videos
-    isMF: false, // marketplace
-    isAF: false, // all feeds
-    isSF: false, // search feed
-    isRF: false, // reel feed
-    isPP: false, // profile page
-
-    isRF_InTimeoutMode: false, // -- processing Reel videos in timeout calls instead of mutations
-
-    // groups feed type : 'group' = single group; 'groups' = multiple groups;
-    gfType: '',
-
-    // watch/videos feed type : 'vidoes' = normal feed; 'search' = search videos;
-    vfType: '',
-
-    // marketplace feed type: 'marketplace' = default view; 'category' = category view; 'item' = viewing an item; 'search' = search results;
-    mpType: '',
-
-    // remember current URL - used for page change detection
-    prevURL: '',
-    prevPathname: '',
-
-    // element containing echo message about post(s) being hidden
-    echoEl: null,
-    echoElFirstNote: null, // for restoring "missing" echo message
-    echoElCreatedCount: 0,
-    echoELFirstPost: null,
-    // how many consecutive posts have been hidden
-    echoCount: 0,
-    // current consecutive posts id
-    echoCPID: '',
-
-    // dark-mode ..
-    isDarkMode: null,
-
-    // StyleSheet Id
-    cssID: '',
-    cssOID: '',
-
-    // Attribute names
-    hideAtt: '',
-    showAtt: '',
-
-    // special attribute
-    b1Att: '',
-    b2Att: '',
-
-    // CSS class names
-    cssHideEl: '',
-    cssEcho: '',
-    cssHideNumberOfShares: '',
-
-    // toggle dialog button (visible if is a Feed page)
-    btnToggleEl: null,
-    // - icon close / times
-    iconClose: images.iconClose,
-    // - script's logo
-    logoHTML: images.logo,
-    // - new window icon
-    iconNewWindow: images.iconNewWindow,
-    iconNewWindowClass: 'cmf-link-new',
-    // - for reels - chromium browsers needs more space for video controls...
-    isChromium: false,
-    tempStyleSheetCode: '',
-  };
+  const VARS: FeedSettings = cmfSessionManager.getFeedSettings();
 
   let KeyWords: Language = masterKeyWords.translations['en'];
   function cloneKeywords() {
-    if (VARS.language && VARS.language !== '') {
-      KeyWords = { ...masterKeyWords.translations[VARS.language] };
+    const { language } = cmfSessionManager.getFeedSettings();
+    if (language) {
+      KeyWords = { ...masterKeyWords.translations[language] };
     }
-    // else {
-    //   KeyWords = { ...masterKeyWords.translations['en'] };
-    // }
   }
 
   // -- which language is the FB page in?
@@ -653,26 +569,23 @@ import images from 'constants/images';
         return 0;
       }
     }).catch((err) => {
-      console.info(`${log}getuserOptions() > get() - Error:`, err);
+      log.info(`getuserOptions() > get() - Error:`, err);
     });
 
+    let language =  document.head.parentNode.lang || 'en';
     if (!VARS.Options.hasOwnProperty('CMF_DIALOG_LANGUAGE')) {
-      const lang = document.head.parentNode.lang || 'en';
-      VARS.language = masterKeyWords.translations.hasOwnProperty(lang) ? lang : 'en';
+      cmfSessionManager.updateFeedSettings({ language });
     } else {
       const uiLang = VARS.Options.CMF_DIALOG_LANGUAGE || 'en';
-      const lang = document.head.parentNode.lang || 'en';
-
-      VARS.language = masterKeyWords.translations.hasOwnProperty(uiLang)
+      language = masterKeyWords.translations.hasOwnProperty(uiLang)
       ? uiLang
-      : masterKeyWords.translations.hasOwnProperty(lang)
-        ? lang
+      : masterKeyWords.translations.hasOwnProperty(language)
+        ? language
         : 'en';
 
-      // console.info(log + 'getUserOptions();  language:', uiLang, lang, VARS.language);
-      // console.info(log + 'getUserOptions(); masterKeywords.transations:', masterKeyWords.translations);
+      cmfSessionManager.updateFeedSettings({ language })
     }
-    VARS.Options.CMF_DIALOG_LANGUAGE = VARS.language;
+    VARS.Options.CMF_DIALOG_LANGUAGE = language;
 
     cloneKeywords();
 
@@ -695,9 +608,9 @@ import images from 'constants/images';
 
     // -- which option has been enabled / disabled?
     VARS.hideAnInfoBox = false;
-    console.log(log + 'KeyWords:', KeyWords);
+    log('KeyWords: ', KeyWords);
     for (const key in KeyWords) {
-      console.log(log + 'getUserOptions() > key:', key);
+      log( 'getUserOptions() > key:', key);
       if (key.slice(0, 3) === 'NF_' && key.slice(0, 10) !== 'NF_BLOCKED') {
         if (!VARS.Options.hasOwnProperty(key)) {
           VARS.Options[key] = masterKeyWords.defaults[key];
@@ -864,15 +777,15 @@ import images from 'constants/images';
       let result = await set(DBVARS.DBKey, JSON.stringify(VARS.Options), DBVARS.ostore).then(() => {
         return true;
       }).catch((err) => {
-        console.info(`${log}getUserOptions() > changed > saving - failed, Error: ${err}`);
+        log.info(`getUserOptions() > changed > saving - failed, Error: ${err}`);
         return false;
       });
       if (VARS.Options.VERBOSITY_DEBUG) {
         if (result) {
-          console.info(`${log}Changed - success`);
+          log.info(`Changed - success`);
         }
         else {
-          console.info(`${log}Changed - failed`);
+          log.info(`Changed - failed`);
         }
       }
     }
@@ -1028,8 +941,8 @@ import images from 'constants/images';
       VARS.Filters.PP_BLOCKED_TEXT_LC = VARS.Filters.PP_BLOCKED_TEXT.map(btext => btext.toLowerCase());
     }
 
-    // console.info(log + 'getUserOptions() - Options:', VARS.Options);
-    // console.info(log + 'getUserOptions() - Filters:', VARS.Filters);
+    // log.info( 'getUserOptions() - Options:', VARS.Options);
+    // log.info( 'getUserOptions() - Filters:', VARS.Filters);
 
     VARS.optionsReady = true;
   }
@@ -1043,7 +956,7 @@ import images from 'constants/images';
     // build the dialog box component ...
     // -- BODY must be available for use.
     // -- used for displaying/getting/setting the various options
-    console.log(log + 'buildMoppingDialog()');
+    log( 'buildMoppingDialog()');
     function createSingleCB(cbName, cbReadOnly = false) {
       // -- create toggle style checkboxes
       const CBTYPE = 'T'; // checkbox, single value, Toggle style
@@ -1196,13 +1109,12 @@ import images from 'constants/images';
       elSelect.name = 'CMF_DIALOG_LANGUAGE';
       // let elOption = document.createElement('option');
       // elOption.value = 'default';
-      // elOption.textContent = masterKeyWords.translations[VARS.language].CMF_DIALOG_LANGUAGE_DEFAULT;
       // elSelect.appendChild(elOption);
       Object.keys(masterKeyWords.translations).forEach(languageCode => {
         const elOption = document.createElement('option');
         elOption.value = languageCode;
         elOption.textContent = masterKeyWords.translations[languageCode].CMF_DIALOG_LANGUAGE;
-        if (languageCode === VARS.language) {
+        if (languageCode === cmfSessionManager.getFeedSettings().language) {
           elOption.setAttribute('selected', '');
         }
         elSelect.appendChild(elOption);
@@ -1215,7 +1127,7 @@ import images from 'constants/images';
       let dlg, hdr, hdr1, hdr2, hdr3, htxt, stxt, btn, cnt, fs, l, s, ta, div, footer;
 
       if (languageChanged) {
-        VARS.language = VARS.Options.CMF_DIALOG_LANGUAGE;
+        cmfSessionManager.updateFeedSettings({ language: VARS.Options.CMF_DIALOG_LANGUAGE });
         cloneKeywords();
       }
 
@@ -1231,7 +1143,7 @@ import images from 'constants/images';
         hdr = document.createElement('header');
         hdr1 = document.createElement('div');
         hdr1.className = 'fb-cmf-icon';
-        hdr1.innerHTML = VARS.logoHTML;
+        hdr1.innerHTML = images.logo;
 
         hdr2 = document.createElement('div');
         hdr2.className = 'fb-cmf-title';
@@ -1239,7 +1151,7 @@ import images from 'constants/images';
         hdr3 = document.createElement('div');
         hdr3.className = 'fb-cmf-close';
         btn = document.createElement('button');
-        btn.innerHTML = VARS.iconClose;
+        btn.innerHTML = images.iconClose;
         btn.addEventListener('click', toggleDialog, false);
         hdr3.appendChild(btn);
 
@@ -1270,7 +1182,7 @@ import images from 'constants/images';
           cnt.removeChild(cnt.firstChild);
         }
       }
-      dlg.setAttribute('dir', masterKeyWords.translations[VARS.language].LANGUAGE_DIRECTION);
+      dlg.setAttribute('dir', masterKeyWords.translations[cmfSessionManager.getFeedSettings().language].LANGUAGE_DIRECTION);
 
       // -- header - title block
       htxt = document.createElement('div');
@@ -1280,7 +1192,7 @@ import images from 'constants/images';
       s.appendChild(document.createTextNode(` (${SCRIPT_VERSION})`));
       htxt.appendChild(s);
       hdr2.appendChild(htxt);
-      if (VARS.language !== 'en') {
+      if (cmfSessionManager.getFeedSettings().language !== 'en') {
         stxt = document.createElement('small');
         stxt.textContent = `(${KeyWords.DLG_TITLE})`;
         hdr2.appendChild(stxt);
@@ -1790,7 +1702,7 @@ import images from 'constants/images';
         });
 
         // -- did the ui language change?
-        languageChanged = (VARS.language !== VARS.Options.CMF_DIALOG_LANGUAGE);
+        languageChanged = (cmfSessionManager.getFeedSettings().language !== VARS.Options.CMF_DIALOG_LANGUAGE);
       }
       else if (source === 'reset') {
         languageChanged = true;
@@ -1809,7 +1721,7 @@ import images from 'constants/images';
       for (let key in VARS.Options) {
         if (!validNames.includes(key)) {
           if (VARS.Options.VERBOSITY_DEBUG) {
-            console.info(log + 'saveUserOptions(); Deleting key:', key);
+            log.info( 'saveUserOptions(); Deleting key:', key);
           }
           delete VARS.Options[key];
         }
@@ -1823,11 +1735,11 @@ import images from 'constants/images';
         });
         return result2;
       }).catch((err) => {
-        console.info(`${log}saveUserOptions() > set() -> Error:`, err);
+        log.info(`saveUserOptions() > set() -> Error:`, err);
         return false;
       });
       if (VARS.Options.VERBOSITY_DEBUG) {
-        console.info(`${log}saveUserOptions() > set() -> Saved:`, result);
+        log.info(`saveUserOptions() > set() -> Saved:`, result);
       }
 
       // - update some variables.
@@ -1925,7 +1837,7 @@ import images from 'constants/images';
           mopUpTheReelFeed('saveUserOptions');
         }
       }
-      // console.info(log + 'saveUserOptions(); OPTIONS:', VARS.Options);
+      // log.info( 'saveUserOptions(); OPTIONS:', VARS.Options);
     }
 
     function exportUserOptions() {
@@ -1956,7 +1868,7 @@ import images from 'constants/images';
             fileContent.hasOwnProperty('MP_SPONSORED')
           ) {
             VARS.Options = fileContent;
-            // console.info(log + 'importUserOptions() > reader.onload: Options:', VARS.Options);
+            // log.info( 'importUserOptions() > reader.onload: Options:', VARS.Options);
             // -- save the file to the db
             // -- save will run getUserOptions();
             let result = saveUserOptions(null, 'file').then(() => {
@@ -1981,7 +1893,7 @@ import images from 'constants/images';
       // -- reset the options to original state (before customisations)
       del(DBVARS.DBKey, DBVARS.ostore)
         .then(() => {
-          // console.info(log + 'resetUserOptions();', 'Data deleted successfully');
+          // log.info( 'resetUserOptions();', 'Data deleted successfully');
 
           // - reset language - setLanguageAndOptions() > getUserOptions() will correct this value.
           VARS.Options.CMF_DIALOG_LANGUAGE = '';
@@ -1992,12 +1904,12 @@ import images from 'constants/images';
           });
         })
         .catch((error) => {
-          console.info(log + 'resetUserOptions(); Error - unable to delete Data.', error);
+          log.info( 'resetUserOptions(); Error - unable to delete Data.', error);
         });
     }
 
     function createToggleButton() {
-      let cmfToggleBtn = document.createElement(cmfToggleBtnHtmlTag) as CMFToggleBtn;
+      let cmfToggleBtn = document.createElement(cmfToggleBtnTag) as CMFToggleBtn;
       cmfToggleBtn.setAttribute('title', KeyWords.DLG_TITLE);
 
       document.body.appendChild(cmfToggleBtn);
@@ -2028,7 +1940,8 @@ import images from 'constants/images';
 
   // -- toggleDialog() function placed here to allow a GM.registerMenuCommand(...) to call it.
   function toggleDialog() {
-    console.log(log + 'toggleDialog()');
+    cmfCongfigModal?.toggle();
+
     const elDialog = document.getElementById('fbcmf');
     if (elDialog.hasAttribute(VARS.showAtt)) {
       elDialog.removeAttribute(VARS.showAtt);
@@ -2171,7 +2084,7 @@ import images from 'constants/images';
       // -- reset the no-change-counter
       VARS.noChangeCounter = 0;
 
-      // console.info(`${log}setFeedSettings() :: isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF}; isPP: ${VARS.isPP}`);
+      // log.info(`setFeedSettings() :: isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF}; isPP: ${VARS.isPP}`);
 
       return true;
     }
@@ -2226,7 +2139,7 @@ import images from 'constants/images';
         const elParentTN = elParent.tagName.toLowerCase();
         const val = cleanText(currentNode.textContent).trim();
 
-        // console.info(log + '---> scanTreeForText(); currentNode:', currentNode, elParent, elParentTN, val);
+        // log.info( '---> scanTreeForText(); currentNode:', currentNode, elParent, elParentTN, val);
 
         if (val === '' || val.toLowerCase() === 'facebook') {
           // -- skip this node
@@ -2257,7 +2170,7 @@ import images from 'constants/images';
         // --- previously, we skipped when a div has a button role.
         const elGeneric = elParent.closest('div[role="button"]');
         const elGenericDescendantsCount = elGeneric ? countDescendants(elGeneric) : 0;
-        // console.info(log + 'scanTreeForText(); final test:', elGeneric, elParent, currentNode, elGenericDescendantsCount, val);
+        // log.info( 'scanTreeForText(); final test:', elGeneric, elParent, currentNode, elGenericDescendantsCount, val);
         if (elGenericDescendantsCount < 2 && val.length > 1) {
           // - keep 2+ char strings.
           arrayTextValues.push(...val.split('\n'));
@@ -2269,7 +2182,7 @@ import images from 'constants/images';
     }
 
     // -- remove duplicates and return results.
-    // console.info(log + 'scanTreeForText(); returning::', theNode, arrayTextValues);
+    // log.info( 'scanTreeForText(); returning::', theNode, arrayTextValues);
     return [...new Set(arrayTextValues)];
   }
 
@@ -2455,7 +2368,7 @@ import images from 'constants/images';
     // -- Verbosity_Level: 0 = hide; 1 = single info note; 2 = consecutive info notes
     // -- return : nothing
 
-    // console.info(log + 'gf_hidePost(); v_L:', VARS.Options.VERBOSITY_LEVEL, VARS.echoEl, VARS.echoCount, reason, post);
+    // log.info( 'gf_hidePost(); v_L:', VARS.Options.VERBOSITY_LEVEL, VARS.echoEl, VARS.echoCount, reason, post);
 
     post.setAttribute(postAtt, sanitizeReason(reason));
 
@@ -2487,7 +2400,7 @@ import images from 'constants/images';
         else {
           // - 2+ consecutive posts being hidden
 
-          // console.info(log + 'gf_hidePost(); echoEL:', VARS.echoEl, VARS.echoCount, reason, post);
+          // log.info( 'gf_hidePost(); echoEL:', VARS.echoEl, VARS.echoCount, reason, post);
 
           // -- get the primary details element
           const elDetails = VARS.echoEl.closest('details');
@@ -2513,7 +2426,7 @@ import images from 'constants/images';
         }
       }
 
-      //console.info(log+'gf_hidePost():', VARS.echoElFirst);
+      //log.info('gf_hidePost():', VARS.echoElFirst);
     }
     else {
       // -- verbosity_level = 0
@@ -2555,7 +2468,7 @@ import images from 'constants/images';
         post.setAttribute(VARS.showAtt, '');
       }
     }
-    //console.info(log+'nf_hidePost():', VARS.echoElFirst);
+    //log.info('nf_hidePost():', VARS.echoElFirst);
   }
 
   function nf_hidePost(post, reason, marker = '~') {
@@ -2585,7 +2498,7 @@ import images from 'constants/images';
         post.setAttribute(VARS.showAtt, '');
       }
     }
-    //console.info(log+'nf_hidePost():', VARS.echoElFirst);
+    //log.info('nf_hidePost():', VARS.echoElFirst);
   }
 
   function hideBlock(block, link, reason) {
@@ -2595,16 +2508,6 @@ import images from 'constants/images';
     if (VARS.Options.VERBOSITY_DEBUG) {
       block.setAttribute(VARS.showAtt, '');
     }
-  }
-
-  function cleanText(text) {
-    // - fb is using ASCII code 160 for whitespace ...
-    // -- also "normalise" the text (i.e. convert unicode magic to normal ascii code)
-    // -- (unicode magic used to bold/italic/etc characters without html/css/style)
-    // return text.replaceAll(String.fromCharCode(160), String.fromCharCode(32)).normalize('NFKC');
-    // -- normalise(NKFC) will convert 160(00A0) to 32(0020)
-    // -- https://www.unicode.org/charts/normalization/index.html
-    return text.normalize('NFKC');
   }
 
 
@@ -2628,12 +2531,13 @@ import images from 'constants/images';
           // -- Check if the span's text content is 'Sponsored' (in user's language)
           let lcText = elSpan.textContent.trim().toLowerCase();
           hasSponsoredText = VARS.dictionarySponsored.includes(lcText);
-          // console.info(log + 'nf_isSponsored_ShadowRoot1(); results : ' + hasSponsoredText + "; context: " + elSpan.textContent);
+          // log.info( 'nf_isSponsored_ShadowRoot1(); results : ' + hasSponsoredText + "; context: " + elSpan.textContent);
         }
       }
     }
     return hasSponsoredText;
   }
+
   function nf_isSponsored_ShadowRoot2(post) {
     // -- works for some languages - can be quite accurate.
     // -- in the early start, this function may have a late hit rate - fb sometimes tad bit slow in loading <element> holding the sponsored text.
@@ -2651,8 +2555,8 @@ import images from 'constants/images';
           // -- Check if the text's text content is 'Sponsored' (in user's language)
           let lcText = elText.textContent.trim().toLowerCase();
           hasSponsoredText = VARS.dictionarySponsored.includes(lcText);
-          // console.info(log + 'nf_isSponsored_ShadowRoot2(); results : ' + hasSponsoredText + "; context: " + elText.textContent + "; lcText: " + lcText);
-          // console.info(log + 'nf_isSponsored_ShadowRoot2(); dictionary : ' +VARS.dictionarySponsored );
+          // log.info( 'nf_isSponsored_ShadowRoot2(); results : ' + hasSponsoredText + "; context: " + elText.textContent + "; lcText: " + lcText);
+          // log.info( 'nf_isSponsored_ShadowRoot2(); dictionary : ' +VARS.dictionarySponsored );
         }
       }
     }
@@ -2671,7 +2575,7 @@ import images from 'constants/images';
       if (!elSpan.querySelector('svg')) {
         const lcText = elSpan.textContent.trim().toLowerCase();
         hasSponsoredText = VARS.dictionarySponsored.includes(lcText);
-        //console.info(log + 'nf_isSponsored_Plain(); results: ' + hasSponsoredText + "; context: " + elSpan.textContent);
+        //log.info( 'nf_isSponsored_Plain(); results: ' + hasSponsoredText + "; context: " + elSpan.textContent);
       }
     });
 
@@ -2696,7 +2600,7 @@ import images from 'constants/images';
           isSponsoredPost = nf_isSponsored_ShadowRoot2(post);
         }
       }
-      // console.info(log + 'isSponsoredNF(); isSponsoredPost: ', isSponsoredPost, post);
+      // log.info( 'isSponsoredNF(); isSponsoredPost: ', isSponsoredPost, post);
     }
     if (isSponsoredPost === false) {
       // - try method #4 - structure ... tricky to get the size right .. prone to some false-hits.
@@ -2717,7 +2621,7 @@ import images from 'constants/images';
       }
       else if (VARS.isVF) {
         // -- watch videos feed has a slightly different html structure for sponsored posts.
-        // console.info(log + "isSponsored(); video post:", post);
+        // log.info( "isSponsored(); video post:", post);
         elLinks = Array.from(post.querySelectorAll(`div > div > div > div > span > span > div > a[href*="${PARAM_FIND}"]`));
       }
       else if (VARS.isSF) {
@@ -2736,13 +2640,13 @@ import images from 'constants/images';
         for (let i = 0; i < elMax; i++) {
           let el = elLinks[i];
           let pos = el.href.indexOf(PARAM_FIND);
-          //if (VARS.isNF) console.info(log + "isSponsored(); isNF():: " + i + "; pos >= 0 : " + (pos >= 0) + "; " + el.href.slice(pos).length, (el.href.slice(pos).length >= PARAM_MIN_SIZE), el);
-          //if (VARS.isVF) console.info(log + "isSponsored(); isVF():: " + i + "; pos >= 0 : " + (pos >= 0) + "; " + el.href.slice(pos).length, (el.href.slice(pos).length >= PARAM_MIN_SIZE), el);
+          //if (VARS.isNF) log.info( "isSponsored(); isNF():: " + i + "; pos >= 0 : " + (pos >= 0) + "; " + el.href.slice(pos).length, (el.href.slice(pos).length >= PARAM_MIN_SIZE), el);
+          //if (VARS.isVF) log.info( "isSponsored(); isVF():: " + i + "; pos >= 0 : " + (pos >= 0) + "; " + el.href.slice(pos).length, (el.href.slice(pos).length >= PARAM_MIN_SIZE), el);
           if (pos >= 0) {
-            // console.info(log + "isSponsored(); testing: " + el.href.slice(pos).length, (el.href.slice(pos).length > PARAM_MIN_SIZE), post);
+            // log.info( "isSponsored(); testing: " + el.href.slice(pos).length, (el.href.slice(pos).length > PARAM_MIN_SIZE), post);
             if (el.href.slice(pos).length >= PARAM_MIN_SIZE) {
-              // console.info(log + "isSponsored(); sliced: " + i + "; " + el.href.slice(pos).length, el.href, post);
-              // console.info(log + "isSponsored(); # links: " + elLinks.length, post);
+              // log.info( "isSponsored(); sliced: " + i + "; " + el.href.slice(pos).length, el.href, post);
+              // log.info( "isSponsored(); # links: " + elLinks.length, post);
               isSponsoredPost = true;
               break;
             }
@@ -2816,7 +2720,7 @@ import images from 'constants/images';
       const pattern = /([0-9]|[\u0660-\u0669]|[\u06F0-\u06F9]|[\u0966-\u096F]|[\u09E6-\u09EF]|[\u1040-\u1049]|[\u0E50-\u0E59]|[\u0F20-\u0F29])/;
       // -- if text starts with a number, return nothing, else the trigger word.
       const firstCharacter = cleanText(elSuggestion[0].textContent).trim().slice(0, 1);
-      // console.info(log+'isSuggested - match test:', firstCharacter, pattern.test(firstCharacter), pattern.test(firstCharacter) ? 'No': 'Yes' );
+      // log.info('isSuggested - match test:', firstCharacter, pattern.test(firstCharacter), pattern.test(firstCharacter) ? 'No': 'Yes' );
       return (pattern.test(firstCharacter)) ? '' : KeyWords.NF_SUGGESTIONS;
     }
     else if (nf_isGroupsYouMightLike(post)) {
@@ -2903,8 +2807,8 @@ import images from 'constants/images';
     const buttonDiv = post.querySelector('div[role="button"] > i ~ div');
     if (buttonDiv && buttonDiv.textContent) {
       const buttonText = buttonDiv.textContent.trim().toLowerCase();
-      // console.info(log + "nf_isReelsAndShortVideos(); buttonText: ", buttonText);
-      // console.info(log + "nf_isReelsAndShortVideos(); dictionary: ", VARS.dictionaryReelsAndShortVideos)
+      // log.info( "nf_isReelsAndShortVideos(); buttonText: ", buttonText);
+      // log.info( "nf_isReelsAndShortVideos(); dictionary: ", VARS.dictionaryReelsAndShortVideos)
       if (VARS.dictionaryReelsAndShortVideos.find(item => item === buttonText)) {
         return KeyWords.NF_REELS_SHORT_VIDEOS;
       }
@@ -2949,7 +2853,7 @@ import images from 'constants/images';
       ':scope h4[id] > span > span > span > span'
     ];
     const elementsFollow = querySelectorAllNoChildren(post, queryFollow, 0, false);
-    // if (elementsFollow.length > 0) console.info(log + "nf_isFollow(post); elementsFollow:", elementsFollow, post);
+    // if (elementsFollow.length > 0) log.info( "nf_isFollow(post); elementsFollow:", elementsFollow, post);
     return (elementsFollow.length !== 1) ? '' : KeyWords.NF_FOLLOW;
   }
 
@@ -2960,24 +2864,24 @@ import images from 'constants/images';
     return (elementsParticipate.length !== 1) ? '' : KeyWords.NF_PARTICIPATE;
   }
 
-  function findFirstMatch(postFullText, textValuesToFind) {
-    const foundText = textValuesToFind.find(text => postFullText.includes(text));
-    return foundText !== undefined ? foundText : '';
-  }
+  // function findFirstMatch(postFullText, textValuesToFind) {
+  //   const foundText = textValuesToFind.find(text => postFullText.includes(text));
+  //   return foundText !== undefined ? foundText : '';
+  // }
 
-  function findFirstMatchRegExp(postFullText, regexpTextValuesToFind) {
-    // -- using Regular Expressions
-    // -- user supplied the RE patterns
-    for (const pattern of regexpTextValuesToFind) {
-      // -- do not use 'g' - want to reset lastindex to 0 for each test.
-      // --'i' flag for case-insensitive matching;
-      const regex = new RegExp(pattern, 'i');
-      if (regex.test(postFullText)) {
-        return pattern;
-      }
-    }
-    return '';
-  }
+  // function findFirstMatchRegExp(postFullText, regexpTextValuesToFind) {
+  //   // -- using Regular Expressions
+  //   // -- user supplied the RE patterns
+  //   for (const pattern of regexpTextValuesToFind) {
+  //     // -- do not use 'g' - want to reset lastindex to 0 for each test.
+  //     // --'i' flag for case-insensitive matching;
+  //     const regex = new RegExp(pattern, 'i');
+  //     if (regex.test(postFullText)) {
+  //       return pattern;
+  //     }
+  //   }
+  //   return '';
+  // }
 
   function nf_isBlockedText(post) {
     // - check for blocked text - partial text match
@@ -3063,24 +2967,24 @@ import images from 'constants/images';
   function findDuplicateVideos(urlQuery, postQuery, patternUsed) {
     // - scan the document for all videos having the same video id.
     const watchVideos = document.querySelectorAll(urlQuery);
-    // console.info(log + 'findDuplicateVideos(); video: ', urlQuery, ' count:', watchVideos.length);
+    // log.info( 'findDuplicateVideos(); video: ', urlQuery, ' count:', watchVideos.length);
     if (watchVideos.length < 2) {
       return;
     }
     // - flag those duplicates ...
     // for (let i = watchVideos.length - 1; i >= 1; i--) {
     //     const videoPost = watchVideos[i].closest(postQuery);
-    //     // console.info(log + 'findDuplicateVideos(); found duplicate?', videoPost);
+    //     // log.info( 'findDuplicateVideos(); found duplicate?', videoPost);
     //     if (videoPost) {
-    //         console.info(log + 'findDuplicateVideos(); duplicate: ', urlQuery, postQuery, patternUsed, videoPost);
+    //         log.info( 'findDuplicateVideos(); duplicate: ', urlQuery, postQuery, patternUsed, videoPost);
     //         vf_hidePost(videoPost, KeyWords.VF_DUPLICATE_VIDEOS, '');
     //     }
     // }
     for (let i = 1; i < watchVideos.length; i++) {
       const videoPost = watchVideos[i].closest(postQuery);
-      // console.info(log + 'findDuplicateVideos(); found duplicate?', videoPost);
+      // log.info( 'findDuplicateVideos(); found duplicate?', videoPost);
       if (videoPost) {
-        console.info(log + 'findDuplicateVideos(); duplicate: ', urlQuery, postQuery, patternUsed, videoPost);
+        log.info( 'findDuplicateVideos(); duplicate: ', urlQuery, postQuery, patternUsed, videoPost);
         vf_hidePost(videoPost, KeyWords.VF_DUPLICATE_VIDEOS, '');
       }
     }
@@ -3129,7 +3033,7 @@ import images from 'constants/images';
       return;
     }
     thirdBlock.setAttribute(VARS.hideAtt, 'Sponsored Content');
-    console.info(log + 'vf_hideSponsoredBlock(); third block hidden:', thirdBlock);
+    log.info( 'vf_hideSponsoredBlock(); third block hidden:', thirdBlock);
   }
 
   function getVideoPublisherPathFromURL(videoURL) {
@@ -3207,7 +3111,7 @@ import images from 'constants/images';
         const span2 = document.createElement('span');
         const linkNew = document.createElement('a');
         linkNew.setAttribute('href', newLink);
-        linkNew.innerHTML = VARS.iconNewWindow;
+        linkNew.innerHTML = images.iconNewWindow;
         linkNew.setAttribute('target', '_blank');
         span2.appendChild(linkNew);
         container.appendChild(span2);
@@ -3216,7 +3120,7 @@ import images from 'constants/images';
       }
     }
     catch (error) {
-      console.error('vf_setPostLinkToOpenInNewTab(); Error:', post, error);
+      log.error('vf_setPostLinkToOpenInNewTab(); Error:', post, error);
     }
   }
 
@@ -3336,7 +3240,7 @@ import images from 'constants/images';
     // :: return <nothing>
     const query = getMosquitosQuery();
     const animatedGIFs = post.querySelectorAll(query);
-    // console.info(log + 'swatTheMosquitos(); animatedGIFs::', animatedGIFs, post);
+    // log.info( 'swatTheMosquitos(); animatedGIFs::', animatedGIFs, post);
     for (const gif of animatedGIFs) {
       // mimic user clicking on animating gif
       // - which will trigger fb's click event.
@@ -3348,13 +3252,13 @@ import images from 'constants/images';
         parent = climbUpTheTree(gif, 3);
         sibling = parent.querySelector(':scope > a');
       }
-      // console.info(log + 'swatTheMosquitos(); gif / parent / sibling:', gif, parent, sibling);
+      // log.info( 'swatTheMosquitos(); gif / parent / sibling:', gif, parent, sibling);
       if (sibling) {
         const sibingCS = window.getComputedStyle(sibling);
         if (sibingCS.opacity === '0') {
           // 0 = animating; 1 = paused;
           gif.parentElement.click();
-          // console.info(log + 'swatTheMosquitos() - paused', gif);
+          // log.info( 'swatTheMosquitos() - paused', gif);
         }
         gif.parentElement.setAttribute(postAtt, '1');
       }
@@ -3406,7 +3310,7 @@ import images from 'constants/images';
       const queryForAnimatedGIF = getMosquitosQuery();
       const animatedGIFs = contentBlock.querySelectorAll(queryForAnimatedGIF);
       const animatedGIFsText = (animatedGIFs.length > 0) ? KeyWords.GF_ANIMATED_GIFS_POSTS : '';
-      // console.info(log + 'nf_hasAnimatedGifContent(); results::', contentBlock, animatedGIFs.length, animatedGIFsText, post);
+      // log.info( 'nf_hasAnimatedGifContent(); results::', contentBlock, animatedGIFs.length, animatedGIFsText, post);
       return animatedGIFsText;
     }
     return '';
@@ -3425,7 +3329,7 @@ import images from 'constants/images';
       const queryForAnimatedGIF = getMosquitosQuery();
       const animatedGIFs = contentBlock.querySelectorAll(queryForAnimatedGIF);
       const animatedGIFsText = (animatedGIFs.length > 0) ? KeyWords.GF_ANIMATED_GIFS_POSTS : '';
-      // console.info(log + 'gf_hasAnimatedGifContent(); results::', contentBlock, animatedGIFs.length, animatedGIFsText, post);
+      // log.info( 'gf_hasAnimatedGifContent(); results::', contentBlock, animatedGIFs.length, animatedGIFsText, post);
       return animatedGIFsText;
     }
     return '';
@@ -3444,7 +3348,7 @@ import images from 'constants/images';
       // -- parent is 4 levels up.
       const elParent = climbUpTheTree(elTabList, 4);
       if (elParent) {
-        hideFeature(elParent, (KeyWords.NF_TABLIST_STORIES_REELS_ROOMS[VARS.language]).replaceAll('"', ''), false);
+        hideFeature(elParent, (KeyWords.NF_TABLIST_STORIES_REELS_ROOMS[cmfSessionManager.getFeedSettings().language]).replaceAll('"', ''), false);
         elTabList.setAttribute(postAttChildFlag, 'tablist');
         return;
       }
@@ -3539,7 +3443,7 @@ import images from 'constants/images';
     // -- mopping up the groups feed aside panel - suggested
     // :: return : <nothing>
 
-    // console.info(log + 'gf_cleanTheConsoleTable() - fix me!');
+    // log.info( 'gf_cleanTheConsoleTable() - fix me!');
 
     // return;
 
@@ -3568,7 +3472,7 @@ import images from 'constants/images';
     // -- (there's no equivalent function for news feed posts - no quick way of getting the post's URL)
     // :: return <nothing>
 
-    // console.info(log + 'gf_setPostLinkToOpenInNewTab(); post:', post);
+    // log.info( 'gf_setPostLinkToOpenInNewTab(); post:', post);
 
     try {
       if (post.hasAttribute('class') && post.classList.length > 0) {
@@ -3619,7 +3523,7 @@ import images from 'constants/images';
         const span2 = document.createElement('span');
         const linkNew = document.createElement('a');
         linkNew.setAttribute('href', newLink);
-        linkNew.innerHTML = VARS.iconNewWindow;
+        linkNew.innerHTML = images.iconNewWindow;
         linkNew.setAttribute('target', '_blank');
         span2.appendChild(linkNew);
         container.appendChild(span2);
@@ -3628,7 +3532,7 @@ import images from 'constants/images';
       }
     }
     catch (error) {
-      console.error(log + 'gf_setPostLinkToOpenInNewTab(); Error:', post, error);
+      log.error( 'gf_setPostLinkToOpenInNewTab(); Error:', post, error);
     }
   }
 
@@ -3646,7 +3550,7 @@ import images from 'constants/images';
         hiding = true;
       }
     }
-    //console.info(log+'scrubInfoBoxes():', hiding, VARS.Options.OTHER_INFO_BOX_CORONAVIRUS, masterKeyWords.pathInfo.OTHER_INFO_BOX_CORONAVIRUS.pathMatch, post);
+    //log.info('scrubInfoBoxes():', hiding, VARS.Options.OTHER_INFO_BOX_CORONAVIRUS, masterKeyWords.pathInfo.OTHER_INFO_BOX_CORONAVIRUS.pathMatch, post);
     if (!hiding && VARS.Options.OTHER_INFO_BOX_CORONAVIRUS) {
       const elLink = post.querySelector(`a[href*="${masterKeyWords.pathInfo.OTHER_INFO_BOX_CORONAVIRUS.pathMatch}"]:not([${postAtt}])`);
       if (elLink !== null) {
@@ -3698,7 +3602,7 @@ import images from 'constants/images';
       const postLikesCount = getFullNumber(elLikes[0].textContent.trim());
       // const postLikesCount = parseInt(elLikes[0].textContent);
       const results = postLikesCount >= maxLikes ? KeyWords.NF_LIKES_MAXIMUM : '';
-      // console.info(log + 'nf_postExceedsLikeCount(); results:', results, maxLikes, postLikesCount, post);
+      // log.info( 'nf_postExceedsLikeCount(); results:', results, maxLikes, postLikesCount, post);
       return results;
     }
     return false;
@@ -3738,7 +3642,7 @@ import images from 'constants/images';
         nvalue = parseInt(value, 10);
       }
     }
-    // console.info('results:', value, nvalue);
+    // log.info('results:', value, nvalue);
     return nvalue;
   }
 
@@ -3757,162 +3661,11 @@ import images from 'constants/images';
     }
   }
 
-  function nf_getCollectionOfPosts() {
-    // -- get a collection of posts
-    // -- fb serves a mixture of html structures
-    // -- so, we have a set of queries to try until we have found something...
-    // :: return : collection of posts.
-
-    let posts = [];
-    // -- various news feed queries
-
-    const rootSelector = '[dir=auto]:is(h2, h3) ~ div:not([class])';
-
-    // 2025-10-12: handle custom tag - detect customTag
-    // ? is customTag -> ignore general rule
-    // ? is not customTag -> ignore general rule
-    const customTag = ((tagName) => {
-      // customtag format [a-zA-Z0-9]+-[a-zA-Z0-9] example: ybrgmpsb-unlrhoua
-      return /[a-zA-Z0-9]+-[a-zA-Z0-9]+/.test(tagName) ? tagName : '';
-    })(document.querySelector(`${rootSelector} [class="x1lliihq"]:is(div, span)~*:not(div, span)`).tagName);
-    
-
-    const queries = [
-      // -- grab child div in each post having a class.
-      // -- nb: <details> is injected in between some <div>s - effectively kicking it out of the collection.
-
-      // -- mostly English users:
-
-      // ? 2025-10-12: handle custom tag
-      ...(
-        (customTag.length > 0)
-        ? [
-            Array.from({length: 10}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} ${customTag}`)
-          ]
-        : [
-            // Optimize:
-            Array.from({length: 4}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} [class="x1lliihq"]:is(div, span)`),
-            Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, rootSelector),
-            Array.from({length: 5}, () => '*:is(span, div)').reduce((prv, s) => `${prv} > ${s}`, `${rootSelector} > * * * * *`),
-        ]
-      ),
-
-      // -- FB's April 2025 update #5:
-      // 'h3[dir=auto] ~ div:not([class]) > * * * * * > div > div > div > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > * * * * * > div > div > div > div > div',
-
-      // -- FB's April 2025 update #4:
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > div > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > span > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > span > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > span > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > span > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > div > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > div > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > div > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > span > div > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > span > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > span > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > span > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > span > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > div > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > div > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > div > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > span > div > div > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > span > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > span > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > span > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > span > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > div > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > div > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > div > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > span > div > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > span > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > span > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > span > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > span > div > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > div > span > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > div > span > div',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > div > div > span',
-      // 'h2[dir=auto] ~ div:not([class]) > div > div > div > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > span > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > span > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > span > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > span > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > div > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > div > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > div > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > span > div > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > span > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > span > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > span > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > span > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > div > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > div > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > div > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > span > div > div > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > span > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > span > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > span > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > span > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > div > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > div > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > div > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > span > div > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > span > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > span > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > span > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > span > div > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > div > span > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > div > span > div',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > div > div > span',
-      // 'h3[dir=auto] ~ div:not([class]) > div > div > div > div > div',
-
-      // -- FB's April 2025 update #3:
-      // 'h3[dir="auto"] ~ div:not([class]) > span > span > div > div > div',
-      // 'h2[dir="auto"] ~ div:not([class]) > span > span > div > div > div',
-
-      // -- FB's April 2025 update #2:
-      // 'h3[dir="auto"] ~ div:not([class]) > span > span > span > div > div',
-      // 'h2[dir="auto"] ~ div:not([class]) > span > span > span > div > div',
-
-      // -- FB's April 2025 update #1:
-      // 'h3[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
-      // 'h2[dir="auto"] ~ div:not([class]) > span > span > span > span > div',
-
-      // -- FB's October 2024 update #2:
-      // 'h3[dir="auto"] ~ div:not([class]) > div > div > div > div > div',
-      // 'h2[dir="auto"] ~ div:not([class]) > div > div > div > div > div',
-
-      // 'h3[dir="auto"] ~ div:not([class]) .x1lliihq > div > div > div > div',
-      // 'h2[dir="auto"] ~ div:not([class]) .x1lliihq > div > div > div > div',
-
-      // -- mostly non-English users:
-      'div[role="feed"] > h3[dir="auto"] ~ div:not([class]) > div[data-pagelet*="FeedUnit_"] > div > div > div > div',
-      'div[role="feed"] > h2[dir="auto"] ~ div:not([class]) > div[data-pagelet*="FeedUnit_"] > div > div > div > div',
-
-      // -- FB's October 2024 update #1:
-      // 'h3[dir="auto"] ~ div:not([class]) > div[class] > div > div > div > div',
-      // 'h2[dir="auto"] ~ div:not([class]) > div[class] > div > div > div > div',
-
-    ];
-
-    for (const query of queries) {
-      const nodeList = document.querySelectorAll(query);
-      if (nodeList.length > 0) {
-        posts = Array.from(nodeList);
-        break;
-      }
-    }
-
-    return posts;
-  }
-
   function hasSizeChanged(oldValue, newValue) {
     // -- any changes in the size of the html structure?
     // -- nb: fb is constantly changing something small ... hence the tolerance
     const tolerance = 16;
-    // console.info(log + `hasSizeChanged(${oldValue}, ${newValue}); results: ${Math.abs(parseInt(newValue, 10) - parseInt(oldValue, 10))}`);
+    // log.info( `hasSizeChanged(${oldValue}, ${newValue}); results: ${Math.abs(parseInt(newValue, 10) - parseInt(oldValue, 10))}`);
     return Math.abs(parseInt(newValue, 10) - parseInt(oldValue, 10)) > tolerance;
   }
 
@@ -4069,7 +3822,7 @@ import images from 'constants/images';
       }
     }
     // -- either main column not found or no change in size.
-    // console.info(log + 'nf_isTheHouseDirty(); - no mainColumn found / no change in size');
+    // log.info( 'nf_isTheHouseDirty(); - no mainColumn found / no change in size');
     VARS.noChangeCounter++;
     return null;
   }
@@ -4091,7 +3844,7 @@ import images from 'constants/images';
       }
     }
 
-    // console.info(log + 'nf_isTheHouseDirty(); - no mainColumn found / no change in size');
+    // log.info( 'nf_isTheHouseDirty(); - no mainColumn found / no change in size');
     VARS.noChangeCounter++;
     return null;
   }
@@ -4115,7 +3868,7 @@ import images from 'constants/images';
       // - bypass the "new videos for you * 1" ...
       mainColumn = mainColumns[mainColumns.length - 1];
     }
-    // console.info(log + 'vf_isTheHouseDirty(); mainColumn(1):', mainColumn);
+    // log.info( 'vf_isTheHouseDirty(); mainColumn(1):', mainColumn);
     if (mainColumn) {
       if (mainColumn.hasAttribute(mainColumnAtt) === false) {
         // -- first  timer
@@ -4130,7 +3883,7 @@ import images from 'constants/images';
     // -- dialog box (clicked 'expand' from video feed)
     // -- nb: vfType === 'item'
     const elDialog = document.querySelector('div[role="dialog"] div[role="main"]');
-    // console.info(log + 'vf_isTheHouseDirty(); mainColumn(2):', elDialog);
+    // log.info( 'vf_isTheHouseDirty(); mainColumn(2):', elDialog);
     if (elDialog) {
       if (elDialog.hasAttribute(mainColumnAtt) === false) {
         arrReturn[1] = elDialog;
@@ -4212,7 +3965,7 @@ import images from 'constants/images';
       // -- news feed stream ...
       const posts = nf_getCollectionOfPosts();
 
-      // console.info(log + 'mopUpTheNewsFeed(); number of posts:', posts.length);
+      // log.info( 'mopUpTheNewsFeed(); number of posts:', posts.length);
 
       for (const post of posts) {
 
@@ -4229,7 +3982,7 @@ import images from 'constants/images';
           }
           // else if ((post[postPropDS] !== undefined) && (parseInt(post[postPropDS]) >= VARS.scanCountMaxLoop)) {
           //     // -- skip these - already been scanned a few times
-          //     console.info(log, 'mopping(); skipping:' + post[postPropDS] + '; ' + post);
+          //     log.info(log, 'mopping(); skipping:' + post[postPropDS] + '; ' + post);
           // }
           else {
             doLightDusting(post);
@@ -4324,7 +4077,7 @@ import images from 'constants/images';
   function mopUpTheGroupsFeed() {
     // -- mopping up the groups feed page
 
-    // console.info(log+'mopUpTheGroupsFeed(), gfType:', VARS.gfType, '; hide an info box:', VARS.hideAnInfoBox);
+    // log.info('mopUpTheGroupsFeed(), gfType:', VARS.gfType, '; hide an info box:', VARS.hideAnInfoBox);
 
     const [mainColumn, elDialog] = gf_isTheHouseDirty();
     if (mainColumn === null && elDialog === null) {
@@ -4348,7 +4101,7 @@ import images from 'constants/images';
         const query = VARS.gfType === 'groups-recent' ? 'h2[dir="auto"] + div > div' : 'div[role="feed"] > div';
         const posts = Array.from(document.querySelectorAll(query));
         if (posts.length > 0) {
-          // console.info(log+'---> mopUpTheGroupsFeed() - multiple groups');
+          // log.info('---> mopUpTheGroupsFeed() - multiple groups');
           const count = posts.length;
           const start = (count < 25) ? 0 : (count - 25);
 
@@ -4385,7 +4138,7 @@ import images from 'constants/images';
                 hideReason = gf_isSuggested(post);
               }
               // if (hideReason === '' && VARS.Options.GF_PAID_PARTNERSHIP) {
-              //     //console.info(log + 'mopUpTheGroupsFeed(), ---- Paid partnership - needs code ----')
+              //     //log.info( 'mopUpTheGroupsFeed(), ---- Paid partnership - needs code ----')
               // }
               if (hideReason === '' && VARS.Options.GF_SHORT_REEL_VIDEO) {
                 hideReason = gf_isShortReelVideo(post);
@@ -4412,7 +4165,7 @@ import images from 'constants/images';
               VARS.echoCount = 0;
               // -- run pause animation (useful to hide those animated comments)
               if (VARS.Options.GF_ANIMATED_GIFS_PAUSE) {
-                // console.info(log + 'pausing animations ...');
+                // log.info( 'pausing animations ...');
                 swatTheMosquitos(post);
               }
               // -- hide info boxes
@@ -4424,17 +4177,17 @@ import images from 'constants/images';
                 gf_hideNumberOfShares(post);
               }
             }
-            // console.info(log+'mopUpTheGroupsFeed:', hideReason, VARS.echoCount, post);
+            // log.info('mopUpTheGroupsFeed:', hideReason, VARS.echoCount, post);
           }
         }
-        // console.info(log+'<--- mopUpTheGroupsFeed() - multiple groups');
+        // log.info('<--- mopUpTheGroupsFeed() - multiple groups');
       }
       else {
         // - single group ...
         const query = 'div[role="feed"] > div';
         const posts = Array.from(document.querySelectorAll(query));
         if (posts.length) {
-          // console.info(log+'---> mopUpTheGroupsFeed() - single group');
+          // log.info('---> mopUpTheGroupsFeed() - single group');
           for (const post of posts) {
 
             if (post.innerHTML.length === 0) {
@@ -4449,7 +4202,7 @@ import images from 'constants/images';
             }
             // else if ((post[postPropDS] !== undefined) && (parseInt(post[postPropDS]) >= VARS.scanCountMaxLoop)) {
             //     // -- skip these - already scanned a few times
-            //     // console.info(log + 'skipping:', post);
+            //     // log.info( 'skipping:', post);
             // }
             else {
               doLightDusting(post);
@@ -4479,7 +4232,7 @@ import images from 'constants/images';
               VARS.echoCount = 0;
               // -- run pause animation (useful to hide those animated posts/comments)
               if (VARS.Options.GF_ANIMATED_GIFS_PAUSE) {
-                // console.info(log + 'pausing animations ...');
+                // log.info( 'pausing animations ...');
                 swatTheMosquitos(post);
               }
               // -- hide info boxes
@@ -4492,7 +4245,7 @@ import images from 'constants/images';
               }
             }
           }
-          // console.info(log+'<--- mopUpTheGroupsFeed() - single group');
+          // log.info('<--- mopUpTheGroupsFeed() - single group');
         }
       }
 
@@ -4515,13 +4268,13 @@ import images from 'constants/images';
     // -- mopping up the watch videos feed page
 
     const [mainColumn, elDialog] = vf_isTheHouseDirty();
-    // console.info(log + 'mopUpTheWatchVideosFeed(); video type:', VARS.vfType, '; mainColumn:', mainColumn, '; elDialog:', elDialog);
+    // log.info( 'mopUpTheWatchVideosFeed(); video type:', VARS.vfType, '; mainColumn:', mainColumn, '; elDialog:', elDialog);
     if (mainColumn === null && elDialog === null) {
       return;
     }
 
     const container = (elDialog ? elDialog : mainColumn);
-    // console.info(log + 'mopUpTheWatchVideosFeed(); container:', container);
+    // log.info( 'mopUpTheWatchVideosFeed(); container:', container);
     if (container) {
       let query;
       let queryBlocks;
@@ -4545,11 +4298,11 @@ import images from 'constants/images';
         return;
       }
 
-      //            console.info(log + 'mopUpTheWatchVideosFeed(); container:', container, '; type:', VARS.vfType, '; query:', query);
+      //            log.info( 'mopUpTheWatchVideosFeed(); container:', container, '; type:', VARS.vfType, '; query:', query);
 
       if (VARS.vfType !== 'search') {
         const posts = container.querySelectorAll(query);
-        // console.info(log + 'mopUpTheWatchVideosFeed(); container:', container, '; type:', VARS.vfType, '; query:', query, '; posts:', posts);
+        // log.info( 'mopUpTheWatchVideosFeed(); container:', container, '; type:', VARS.vfType, '; query:', query, '; posts:', posts);
         for (const post of posts) {
           // if (post.innerHTML.length === 0) {
           //     continue;
@@ -4557,7 +4310,7 @@ import images from 'constants/images';
           if (countDescendants(post) < 3) {
             // -- bad post - purge it.
             // -- fb sometimes "forget" to finish creating a post
-            // console.info(log + 'videos - dummy post found and removed ... next post:', post.parentElement.nextElementSibling);
+            // log.info( 'videos - dummy post found and removed ... next post:', post.parentElement.nextElementSibling);
             // -- disabled the .remove() as it can sometimes be a bit too aggressive ...
             // post.parentElement.remove();
             continue;
@@ -4576,7 +4329,7 @@ import images from 'constants/images';
           }
           // else if ((post[postPropDS] !== undefined) && (parseInt(post[postPropDS]) >= VARS.scanCountMaxLoop)) {
           //     // -- skip these - already been scanned a few times
-          //     // console.info(log + 'video; skipping;', post[postPropDS], VARS.scanCountMaxLoop, post);
+          //     // log.info( 'video; skipping;', post[postPropDS], VARS.scanCountMaxLoop, post);
           // }
           else {
             doLightDusting(post);
@@ -4602,7 +4355,7 @@ import images from 'constants/images';
             if (hideReason === '' && VARS.Options.VF_BLOCKED_ENABLED) {
               hideReason = vf_isBlockedText(post, queryBlocks);
             }
-            // console.info(log + 'mopUpTheWatchVideosFeed(); ::: hideReason:', hideReason, post, queryBlocks);
+            // log.info( 'mopUpTheWatchVideosFeed(); ::: hideReason:', hideReason, post, queryBlocks);
           }
 
           if (hideReason.length > 0) {
@@ -4615,7 +4368,7 @@ import images from 'constants/images';
             // -- not a hidden post
             // -- run pause animation (useful to hide those animated posts/comments)
             if (VARS.Options.VF_ANIMATED_GIFS_PAUSE) {
-              // console.info(log + 'pausing animations ...');
+              // log.info( 'pausing animations ...');
               swatTheMosquitos(post);
             }
             // -- hide info boxes
@@ -4717,14 +4470,14 @@ import images from 'constants/images';
     // -- mopping up parts of the Marketplace ...
 
     const mainColumn = mp_isTheHouseDirty();
-    // console.info(log + 'clean(); mainColumn:', mainColumn, VARS.mpType);
+    // log.info( 'clean(); mainColumn:', mainColumn, VARS.mpType);
     if (mainColumn === null) {
       return;
     }
 
     mp_stopTrackingDirtIntoMyHouse();
 
-    // console.info(log + 'mopUpTheMarketplaceFeed(); mpType:', VARS.mpType);
+    // log.info( 'mopUpTheMarketplaceFeed(); mpType:', VARS.mpType);
 
     if (VARS.mpType === 'marketplace' || VARS.mpType === 'item') {
       // - standard marketplace page
@@ -4749,9 +4502,9 @@ import images from 'constants/images';
           items = document.querySelectorAll(queryItems);
         }
 
-        // console.info(log+'marketplace(); headings:', headings);
-        // console.info(log+'marketplace(); items:', items);
-        // console.info(log+'marketplace(); bool:', (VARS.Options.MP_SPONSORED && (headings.length > 0) && (items.length > 0)));
+        // log.info('marketplace(); headings:', headings);
+        // log.info('marketplace(); items:', items);
+        // log.info('marketplace(); bool:', (VARS.Options.MP_SPONSORED && (headings.length > 0) && (items.length > 0)));
 
         if (VARS.Options.MP_SPONSORED && (headings.length > 0) && (items.length > 0)) {
           for (const heading of headings) {
@@ -4805,7 +4558,7 @@ import images from 'constants/images';
         // const query = `a[href*="/ads/"]:not([${postAtt}])`;
         // const elements = document.querySelectorAll(query);
         // for (const element of elements) {
-        //     // console.info(log + 'mp-clean:', element);
+        //     // log.info( 'mp-clean:', element);
         //     element.setAttribute(postAtt, element.innerHTML.length);
         //     const itemBox = climbUpTheTree(element.parentElement.closest('a'), 3);
         //     mp_hideBox(itemBox, KeyWords.SPONSORED);
@@ -4872,7 +4625,7 @@ import images from 'constants/images';
           VARS.echoCount = 0;
           // -- run pause animation (useful to hide those animated comments)
           if (VARS.Options.NF_ANIMATED_GIFS_PAUSE) {
-            // console.info(log + 'pausing animations ...');
+            // log.info( 'pausing animations ...');
             swatTheMosquitos(post);
           }
           // -- hide info boxes
@@ -4900,7 +4653,7 @@ import images from 'constants/images';
 
     // -- nb: setting VARS.isRF determines if this function is called or not.
 
-    // console.info(log + 'mopUpTheReelFeed(); ', VARS.isRF, VARS.isRF_InTimeoutMode);
+    // log.info( 'mopUpTheReelFeed(); ', VARS.isRF, VARS.isRF_InTimeoutMode);
 
     if (!VARS.isRF) {
       // -- no longer in Reels Feed
@@ -4915,7 +4668,7 @@ import images from 'constants/images';
     const videoRules = `[data-video-id] video:not([${rvAtt}])`;
     const videos = document.querySelectorAll(videoRules);
 
-    // console.info(log + 'mopUpTheReelFeed(); videos:', caller, videos);
+    // log.info( 'mopUpTheReelFeed(); videos:', caller, videos);
 
     for (const video of videos) {
       // -- get the video's container's child element
@@ -4965,18 +4718,18 @@ import images from 'constants/images';
     // -- profile pages
 
     const proceed = VARS.Options.PP_BLOCKED_ENABLED || VARS.Options.PP_ANIMATED_GIFS_POSTS || VARS.Options.PP_ANIMATED_GIFS_PAUSE;
-    // console.info(log + "mopUpTheProfilePage(); proceed:", proceed, "PP_BLOCKED_ENABLED:", VARS.Options.PP_BLOCKED_ENABLED, "PP_ANIMATED_GIFS_POSTS:", VARS.Options.PP_ANIMATED_GIFS_POSTS, "PP_ANIMATED_GIFS_PAUSE:", VARS.Options.PP_ANIMATED_GIFS_PAUSE);
+    // log.info( "mopUpTheProfilePage(); proceed:", proceed, "PP_BLOCKED_ENABLED:", VARS.Options.PP_BLOCKED_ENABLED, "PP_ANIMATED_GIFS_POSTS:", VARS.Options.PP_ANIMATED_GIFS_POSTS, "PP_ANIMATED_GIFS_PAUSE:", VARS.Options.PP_ANIMATED_GIFS_PAUSE);
     if (!proceed) {
       return;
     }
 
     const [mainColumn, elDialog] = pp_isTheHouseDirty();
-    // console.info(log + "mopUpTheProfilePage(); mainC:", mainColumn, "elDialog:", elDialog);
+    // log.info( "mopUpTheProfilePage(); mainC:", mainColumn, "elDialog:", elDialog);
     if (mainColumn === null && elDialog === null) {
       return;
     }
 
-    // console.info(log + 'mopUpTheProfilePage(); size changed, doing some cleaning ... (mainColumn / elDialog)', mainColumn, elDialog);
+    // log.info( 'mopUpTheProfilePage(); size changed, doing some cleaning ... (mainColumn / elDialog)', mainColumn, elDialog);
 
     if (mainColumn) {
       // profile page feed stream ...
@@ -4985,7 +4738,7 @@ import images from 'constants/images';
       const query = 'div[role="main"] > div > div > div > div:nth-of-type(2) > div:not([class]) > div > div[class]';
       const posts = Array.from(document.querySelectorAll(query));
 
-      //console.info(log + 'mopUpTheProfilePage(); # of posts: ' + posts.length);
+      //log.info( 'mopUpTheProfilePage(); # of posts: ' + posts.length);
 
       for (const post of posts) {
         if (post.innerHTML.length === 0) {
@@ -5007,7 +4760,7 @@ import images from 'constants/images';
           }
         }
 
-        //console.info(log + 'mopUpTheProfilePage(); hideReason:', hideReason, post );
+        //log.info( 'mopUpTheProfilePage(); hideReason:', hideReason, post );
 
         if (hideReason.length > 0) {
           if (hideReason !== 'hidden') {
@@ -5017,7 +4770,7 @@ import images from 'constants/images';
         else {
           // -- run pause animation (useful to hide those animated comments)
           if (VARS.Options.PP_ANIMATED_GIFS_PAUSE) {
-            // console.info(log + 'pausing animations ...');
+            // log.info( 'pausing animations ...');
             swatTheMosquitos(post);
           }
           // -- hide info boxes
@@ -5050,7 +4803,7 @@ import images from 'constants/images';
 
   function processPage(eventType = 'timing') {
 
-    // console.info(log + 'processPage(); (being) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
+    // log.info( 'processPage(); (being) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
 
     const currentTime = new Date().getTime();
     const elapsedTime = currentTime - lastCleaningTime;
@@ -5061,7 +4814,7 @@ import images from 'constants/images';
     if (eventType == 'url-changed') {
       // -- url has changed ...
       setFeedSettings();
-      // console.info(`${log}processPage(); :: url has changed; isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF};`);
+      // log.info(`processPage(); :: url has changed; isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF};`);
     }
     else if (eventType === 'scrolling') {
       // -- page is scrolling ...
@@ -5069,13 +4822,13 @@ import images from 'constants/images';
       if (sleepDuration < 151) {
         // -- .. and sleep duration is quite short ...
         // return;
-        // console.log('processPage => sleepDuration < 151, remove this to hotfix Apr 12nd, 2025')
+        // log('processPage => sleepDuration < 151, remove this to hotfix Apr 12nd, 2025')
       }
       // -- else: sleep duration is quite long, so trigger a clean up request now ...
     }
     else if (elapsedTime < sleepDuration) {
       // -- called to early ...
-      // console.info(log + 'processPage(); (early) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
+      // log.info( 'processPage(); (early) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
       return;
     }
 
@@ -5122,12 +4875,12 @@ import images from 'constants/images';
       }
     }
 
-    // console.info(`${log}processPage(); > setFeedSettings() :: isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF};`);
-    // console.info(log + 'processPage(); 3 :: timing: ', timing, '; counter: ', VARS.noChangeCounter, '; isScrolling: ', isScrolling);
+    // log.info(`processPage(); > setFeedSettings() :: isAF: ${VARS.isAF}; isNF: ${VARS.isNF}; isGF: ${VARS.isGF}; isVF: ${VARS.isVF}; isMF: ${VARS.isMF}; isSF: ${VARS.isSF}; isRF: ${VARS.isRF};`);
+    // log.info( 'processPage(); 3 :: timing: ', timing, '; counter: ', VARS.noChangeCounter, '; isScrolling: ', isScrolling);
 
     // -- have a nap and then scan again...
     lastCleaningTime = currentTime;
-    // console.info(log + 'processPage(); (end) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
+    // log.info( 'processPage(); (end) :: currentTime:', currentTime, '; lastCleaningTime:', lastCleaningTime, '; oldDuration:', oldDuration, '; sleepDuration:', sleepDuration, '; elapsedTime:', elapsedTime, '; counter: ', VARS.noChangeCounter);
     setTimeout(processPage, sleepDuration);
   }
 
@@ -5151,7 +4904,7 @@ import images from 'constants/images';
   function startUp() {
     // -- run code soon as the elements HEAD, BDDY and variable Options are ready/available.
     // -- or when page url has changed ...
-    // console.log(log + 'firstRun:', firstRun, '; OptionsReady:', VARS.optionsReady);
+    // log( 'firstRun:', firstRun, '; OptionsReady:', VARS.optionsReady);
     if (document.head && document.body && VARS.optionsReady) {
       if (firstRun) {
         GM.registerMenuCommand(KeyWords.GM_MENU_SETTINGS, toggleDialog);
@@ -5188,7 +4941,7 @@ import images from 'constants/images';
       let timerId = setInterval(function () {
         // -- watch the url-change (new page being loaded)
         if (VARS.prevURL !== window.location.href) {
-          // console.info(log + 'url-changed:', VARS.prevURL, window.location.href);
+          // log.info( 'url-changed:', VARS.prevURL, window.location.href);
           processPage('url-changed');
         }
       }, 500);
