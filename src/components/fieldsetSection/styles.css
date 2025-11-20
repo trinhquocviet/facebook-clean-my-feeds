@@ -1,0 +1,96 @@
+div.fieldset {
+  border-radius: max(0px, min(var(--card-corner-radius), calc((100vw - 4px - 100%) * 9999))) / var(--card-corner-radius);
+  box-shadow: 0 1px 2px var(--shadow-2);
+  border: 1px solid var(--divider);
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  overflow: hidden;
+
+  .fieldset-content {
+    transition: max-height 0.4s ease-in-out,
+                opacity 0.4s ease-in-out,
+                padding 0.2s ease-in-out;
+    max-height: 1000px;
+    padding-top: 10px;
+    padding-bottom: 0;
+    opacity: 1;
+  }
+
+  &.collapsed {
+    .fieldset-content {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  
+    .indicator::before {
+      transform: rotate(0);
+    }
+  }
+}
+
+.fieldset-button {
+  border-radius: inherit;
+  color: var(--primary-text);
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  background-color: var(--card-background);
+  transition: color 0.2s, background-color 0.2s;
+  width: 100%;
+  
+  .title {
+    font-weight: 600;
+    font-size: .9375rem;
+    line-height: 1.3333;
+    padding: 0 0.75rem;
+    smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .indicator {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    aspect-ratio: 1 / 1;
+    background-color: var(--secondary-button-background);
+    color: var(--primary-text);
+    border-radius: 50%;
+
+    &::before {
+      content: '\25be';
+      transform: rotate(180deg);
+      transition: transform 0.2s;
+    }
+  }
+
+  &:hover {
+    background-color: var(--hover-overlay);
+  }
+}
+
+.fieldset-divider {
+  --divider-spacing: 10px;
+
+  display: block;
+  padding: var(--divider-spacing);
+  margin-top: calc(var(--divider-spacing) * -1);
+  
+  &::before {
+    content: '';
+    display: block;
+    border-top: 1px solid var(--divider);
+  }
+}
+
+.fieldset-inner {
+  display: block;
+  max-width: 100%;
+  position: relative;
+  padding: 10px;
+}

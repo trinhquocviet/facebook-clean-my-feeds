@@ -12,10 +12,11 @@ export default function nf_getCollectionOfPosts(): Array<HTMLElement> {
   // 2025-10-12: handle custom tag - detect customTag
   // ? is customTag -> ignore general rule
   // ? is not customTag -> ignore general rule
+  const customTagSelector = `${rootSelector} [class="x1lliihq"]:is(div, span)~*:not(div, span)`;
   const customTag = ((tagName) => {
     // customtag format [a-zA-Z0-9]+-[a-zA-Z0-9] example: ybrgmpsb-unlrhoua
     return /[a-zA-Z0-9]+-[a-zA-Z0-9]+/.test(tagName) ? tagName : '';
-  })(document.querySelector(`${rootSelector} [class="x1lliihq"]:is(div, span)~*:not(div, span)`).tagName);
+  })(document.querySelector(customTagSelector)?.tagName || '');
   
 
   const queries = [

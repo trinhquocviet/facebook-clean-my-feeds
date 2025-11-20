@@ -1,7 +1,7 @@
 [build]
 target = "browser"
 minify = true
-sourcemap = "external"
+sourcemap = "false"
 
 [install]
 cache = true

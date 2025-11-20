@@ -1,0 +1,38 @@
+label {
+  display: block;
+  position: relative;
+  margin-bottom: 0.25rem;
+
+  &:has(input[type="checkbox"]), &:has(input[type="radio"]) {
+    padding-left: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s linear-in;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+  }
+  input {
+    &[type="checkbox"], &[type="radio"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      margin: 0;
+    }
+  }
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  box-sizing: border-box;
+}
+
+textarea, input[type="text"] {
+  border: none;
+  padding: 5px;
+  color: var(--primary-text);
+  border-radius: var(--input-corner-radius);
+  background-color: var(--comment-background);
+}

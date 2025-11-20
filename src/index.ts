@@ -8,6 +8,7 @@ import { buildSS } from 'utils/stylesheet';
 import { log } from 'utils/debug';
 import { CMFToggleBtn, cmfToggleBtnTag } from 'components/cmfToggleBtn';
 import { CMFConfigModal, cmfConfigModalTag } from 'components/cmfConfigModal';
+import { register } from'config-sections';
 import images from 'constants/images';
 import { type FeedSettings } from 'modules/feedSettings';
 import { nf_getCollectionOfPosts } from 'utils/nf';
@@ -49,6 +50,7 @@ import { cmfSessionManager } from './modules/windowStorage';
 
   // ! cmfCongfigModalHerere
   let cmfCongfigModal = document.createElement(cmfConfigModalTag) as CMFConfigModal;
+  cmfCongfigModal.appendChild(register());
   document.body.appendChild(cmfCongfigModal);
 
   // - Feed Details variables
@@ -608,9 +610,8 @@ import { cmfSessionManager } from './modules/windowStorage';
 
     // -- which option has been enabled / disabled?
     VARS.hideAnInfoBox = false;
-    log('KeyWords: ', KeyWords);
+
     for (const key in KeyWords) {
-      log( 'getUserOptions() > key:', key);
       if (key.slice(0, 3) === 'NF_' && key.slice(0, 10) !== 'NF_BLOCKED') {
         if (!VARS.Options.hasOwnProperty(key)) {
           VARS.Options[key] = masterKeyWords.defaults[key];

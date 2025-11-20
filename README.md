@@ -5,11 +5,11 @@ A TypeScript-based userscript that hides sponsored and suggested posts from Face
 ## Features
 
 - 🚫 Hide sponsored posts
-- 🚫 Hide suggested posts  
+- 🚫 Hide suggested posts
 - 🚫 Hide marketplace posts
 - 🚫 Hide groups posts
 - 🚫 Hide watch videos posts
-- 🎛️ Menu commands for toggling features
+- 🎛️ Configurable settings modal to toggle features on and off
 - 🐛 Debug mode for troubleshooting
 - 📱 Works on all Facebook domains
 
@@ -18,7 +18,6 @@ A TypeScript-based userscript that hides sponsored and suggested posts from Face
 ### Prerequisites
 
 - [Bun](https://bun.sh/) runtime
-- TypeScript 5.9.3+
 
 ### Setup
 
@@ -38,18 +37,35 @@ A TypeScript-based userscript that hides sponsored and suggested posts from Face
    ```
 
 ### Project Structure
-
-```
 src/
-├── index.ts                 # Main userscript code
-├── userscript-header.txt    # UserScript metadata
-└── types/                   # Type definitions (if needed)
+├── index.ts                 # Main userscript entry point
+├── components/              # UI components (e.g., settings modal)
+├── constants/               # Constants (e.g., images)
+├── modules/                 # Core modules (e.g., feed settings, master keywords)
+├── utils/                   # Utility functions
+└── global.d.ts              # Global type definitions
 
 scripts/
-└── build-userscript.js      # Build script
+├── build.ts                 # Build script
+└── watch.ts                 # Watch script for development
 
 dist/
 └── fb-clean-my-feeds.user.js # Built userscript
+
+```
+├───dist/
+│   ├───fb-clean-my-feeds.user.js # Built userscript
+├───legacy/
+├───scripts/
+│   ├───build.ts                  # Build script
+│   ├───watch.ts                  # Watch script for development
+└───src/
+│   ├── index.ts                  # Main userscript entry point
+│   ├── components/               # UI components (e.g., settings modal)
+│   ├── constants/                # Constants (e.g., images)
+│   ├── modules/                  # Core modules (e.g., feed settings, master keywords)
+│   ├── utils/                    # Utility functions
+│   └── global.d.ts               # Global type definitions
 ```
 
 ### Build Process
@@ -59,32 +75,18 @@ The build process:
 2. Preserves UserScript metadata headers
 3. Outputs a single `.user.js` file ready for installation
 
-### TypeScript Features
-
-- Full TypeScript support with strict mode
-- Greasemonkey API types
-- Modern ES2022 target
-- DOM types included
-- Vanilla JavaScript compatibility
-
 ## Installation
 
-1. Install a userscript manager (Tampermonkey, Greasemonkey, etc.)
+1. Install a userscript manager (e.g., [Tampermonkey](https://www.tampermonkey.net/), [Greasemonkey](https://www.greasespot.net/))
 2. Install the built userscript from `dist/fb-clean-my-feeds.user.js`
 3. Visit Facebook and the script will automatically run
 
 ## Usage
 
-The userscript provides menu commands accessible through your userscript manager:
-- Toggle Sponsored Posts
-- Toggle Suggested Posts  
-- Toggle Debug Mode
-- Reload Script
+The userscript adds a "Clean My Feeds" button to the Facebook header. Clicking this button opens a settings modal where you can configure which types of posts to hide.
 
 ## Development Notes
 
-- The `legacy/` directory is preserved and not modified
-- All source code is in the `src/` directory
-- TypeScript allows vanilla JavaScript for legacy compatibility
-- UserScript headers are preserved during build
-- Bun is used for fast compilation and bundling
+- The `legacy/` directory contains the old JavaScript version of the script and is not actively developed.
+- All new development happens in the `src/` directory.
+- The project is built with [Bun](https://bun.sh), a fast all-in-one JavaScript runtime.
