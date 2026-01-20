@@ -5188,7 +5188,9 @@ esversion: 8;
       ':scope h4[id] > span > div > span',
       ':scope h4[id] > span > span > div > span',
       ':scope h4[id] > div > span > span[class] > div[class] > span[class]',
-      ':scope h4[id] > span > span > span > span'
+      ':scope h4[id] > span > span > span > span',
+      ':scope h4 > span > span > span > span > span',
+      ':scope h4 > span > span > span > div > span'
     ];
     const elementsFollow = querySelectorAllNoChildren(post, queryFollow, 0, false);
     // if (elementsFollow.length > 0) console.info(log + "nf_isFollow(post); elementsFollow:", elementsFollow, post);
