@@ -2316,6 +2316,8 @@ esversion: 8;
     isChromium: false,
   };
 
+  let NF_SPONSORED_XLINK_TEXT_ID = null;
+
   // -- user's language portion of the masterKeywords
   let KeyWords = {};
   function cloneKeywords() {
@@ -4900,7 +4902,66 @@ esversion: 8;
     }
     return hasSponsoredText;
   }
+  function nf_isSponsored_xlink(post) {
+    // Resolve & cache Sponsored SVG text ID (once)
+    if (!NF_SPONSORED_XLINK_TEXT_ID) {
+      const svgRoots = document.querySelectorAll('svg[id]');
 
+      for (const svg of svgRoots) {
+        const firstUse = svg.querySelector('use');
+        if (!firstUse) continue;
+
+        let href =
+          firstUse.getAttribute('xlink:href') ||
+          firstUse.getAttribute('href');
+        if (!href) continue;
+
+        let currentId = href.replace(/^#/, '');
+        let depth = 0;
+
+        while (currentId && depth < 4) {
+          const el = document.getElementById(currentId);
+          if (!el) break;
+
+          // Found final Sponsored text
+          if (
+            el.tagName.toLowerCase() === 'text' &&
+            VARS.dictionarySponsored.includes(
+              el.textContent.trim().toLowerCase()
+            )
+          ) {
+            // CACHE THE INDIRECT ID (the one posts reference)
+            NF_SPONSORED_XLINK_TEXT_ID = svg.id;
+
+            // console.info('[xlink] cached indirect Sponsored ID:', svg.id);
+            break;
+          }
+
+          // Follow chain
+          const nextUse = el.querySelector?.('use');
+          if (!nextUse) break;
+
+          const nextHref =
+            nextUse.getAttribute('xlink:href') ||
+            nextUse.getAttribute('href');
+
+          if (!nextHref) break;
+
+          currentId = nextHref.replace(/^#/, '');
+          depth++;
+        }
+
+        if (NF_SPONSORED_XLINK_TEXT_ID) break;
+      }
+    }
+
+    // If still not resolved, we cannot detect yet
+    if (!NF_SPONSORED_XLINK_TEXT_ID) return false;
+
+    return !!post.querySelector(
+      `svg use[xlink\\:href="#${NF_SPONSORED_XLINK_TEXT_ID}"], svg use[href="#${NF_SPONSORED_XLINK_TEXT_ID}"]`
+    );
+  }
   function nf_isSponsored_Plain(post) {
     // -- works for some languages - more accurate than the other methods.
     // -- simple structure.
@@ -4928,12 +4989,17 @@ esversion: 8;
     let isSponsoredPost = false;
 
     if (VARS.isNF) {
+      // - 2026 xlink
+      isSponsoredPost = nf_isSponsored_xlink(post);
+
       // - try method #1 - content
-      isSponsoredPost = nf_isSponsored_Plain(post);
-      if (isSponsoredPost == false) {
+      if (!isSponsoredPost) {
+        isSponsoredPost = nf_isSponsored_Plain(post);
+      }
+      if (isSponsoredPost === false) {
         // - try method #2 - shadow root
         isSponsoredPost = nf_isSponsored_ShadowRoot1(post);
-        if (isSponsoredPost == false) {
+        if (isSponsoredPost === false) {
           // - try method #3 - shadow root
           isSponsoredPost = nf_isSponsored_ShadowRoot2(post);
         }
