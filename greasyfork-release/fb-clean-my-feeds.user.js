@@ -4997,13 +4997,14 @@ esversion: 8;
   }
 
   function querySelectorAllNoChildren(container = document, queries = [], minText = 0, executeAllQueries = false) {
+    // -- if no queries are provided, return an empty array.
+    if (!queries || (Array.isArray(queries) && queries.length === 0)) {
+      return [];
+    }
+
     // -- nb: .querySelectorAll(..) can have multiple queries and will execute them all (regardless of results)
     if (!Array.isArray(queries)) {
       queries = [queries];
-    }
-
-    if (queries.length === 0) {
-      return [];
     }
 
     if (executeAllQueries) {
