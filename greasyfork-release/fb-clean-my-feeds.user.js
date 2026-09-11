@@ -5,7 +5,7 @@
 // @supportURL   https://github.com/zbluebugz/facebook-clean-my-feeds/issues
 // @downloadURL  https://github.com/trinhquocviet/facebook-clean-my-feeds/raw/refs/heads/simplified_ui/greasyfork-release/fb-clean-my-feeds.user.js
 // @updateURL    https://github.com/trinhquocviet/facebook-clean-my-feeds/raw/refs/heads/simplified_ui/greasyfork-release/fb-clean-my-feeds.user.js
-// @version      5.02.04
+// @version      5.02.05
 // @author       zbluebugz (https://github.com/zbluebugz/)
 // @match        https://www.facebook.com/*
 // @match        https://web.facebook.com/*
@@ -4627,6 +4627,15 @@ esversion: 8;
     return reason.replaceAll('"', '');
   }
 
+  function nf_isPostAlreadyHidden(post) {
+    // -- checks both directions: the candidate might now be a descendant of
+    // -- an earlier wrap, or (the common real-world case, per your captures)
+    // -- a broader ancestor that already CONTAINS an earlier wrap.
+    return post.hasAttribute(postAtt)
+      || post.closest(`details[${postAtt}]`) !== null
+      || post.querySelector(`details[${postAtt}]`) !== null;
+  }
+
   function hideFeature(post, reason, marker = '') {
     // -- hide something (not part of a regular feed)
     // -- no consecutive counts (VARS.echoCount is ignored)
@@ -5131,6 +5140,10 @@ esversion: 8;
     else if (nf_isGroupsYouMightLike(post)) {
       return KeyWords.NF_SUGGESTIONS;
     }
+    else if (nf_isUnjoinedGroupPost(post)) {
+      // -- a regular-looking post that's actually from a group you haven't joined
+      return KeyWords.NF_SUGGESTIONS;
+    }
     return '';
   }
 
@@ -5139,6 +5152,21 @@ esversion: 8;
     const query = 'a[href*="/groups/discover"]';
     const results = post.querySelectorAll(query);
     return (results.length > 0);
+  }
+
+  function nf_isUnjoinedGroupPost(post) {
+    // -- ordinary-looking News Feed post that actually comes from a Group
+    // -- the user has NOT joined (FB slots these in amongst normal posts).
+    // -- structural signature (language- and class-name-independent):
+    // -- the post's byline (h4) contains BOTH a link to the group AND a
+    // -- role="button" element (the "Join" button) next to it.
+    // -- when already a member, that role="button" element is simply absent.
+    const groupLink = post.querySelector('h4 a[href*="/groups/"][role="link"]');
+    if (!groupLink) {
+      return false;
+    }
+    const header = groupLink.closest('h4');
+    return !!(header && header.querySelector('span[dir] [role="button"]'));
   }
 
   function gf_isSuggested(post) {
@@ -5260,8 +5288,32 @@ esversion: 8;
       ':scope h4 > span > span > span > div > span'
     ];
     const elementsFollow = querySelectorAllNoChildren(post, queryFollow, 0, false);
-    // if (elementsFollow.length > 0) console.info(log + "nf_isFollow(post); elementsFollow:", elementsFollow, post);
-    return (elementsFollow.length !== 1) ? '' : KeyWords.NF_FOLLOW;
+    if (elementsFollow.length === 1) {
+      return KeyWords.NF_FOLLOW;
+    }
+
+    // -- fallback (2025): other byline layouts FB rotates in — e.g. check-in
+    // -- style "<name> is in <place>." posts — aren't caught by the depth-based
+    // -- queries above. Structural signature: the post's h4 byline contains a
+    // -- role="button" element (the "Follow" button), which FB only renders
+    // -- when you don't already follow that person/page. Group posts are
+    // -- excluded — those are handled by nf_isUnjoinedGroupPost().
+    if (nf_hasUnfollowedButtonInHeader(post)) {
+      return KeyWords.NF_FOLLOW;
+    }
+
+    return '';
+  }
+
+  function nf_hasUnfollowedButtonInHeader(post) {
+    const header = post.querySelector('h4');
+    if (!header) {
+      return false;
+    }
+    if (header.querySelector('a[href*="/groups/"]')) {
+      return false; // -- group posts (Join button) are handled separately
+    }
+    return !!header.querySelector('[role="button"]');
   }
 
   function nf_isParticipate(post) {
@@ -6534,7 +6586,7 @@ esversion: 8;
           let hideReason = '';
           let isSponsoredPost = false;
 
-          if (post.hasAttribute(postAtt)) {
+          if (nf_isPostAlreadyHidden(post)) {
             // -- already flagged ...
             hideReason = 'hidden';
           }
@@ -6678,7 +6730,7 @@ esversion: 8;
               gf_setPostLinkToOpenInNewTab(post);
             }
 
-            if (post.hasAttribute(postAtt)) {
+            if (nf_isPostAlreadyHidden(post)) {
               // -- already flagged
               hideReason = 'hidden';
             }
@@ -6754,7 +6806,7 @@ esversion: 8;
 
             let hideReason = '';
 
-            if (post.hasAttribute(postAtt)) {
+            if (nf_isPostAlreadyHidden(post)) {
               // -- already flagged
               hideReason = 'hidden';
             }
@@ -6881,7 +6933,7 @@ esversion: 8;
             vf_setPostLinkToOpenInNewTab(post);
           }
 
-          if (post.hasAttribute(postAtt)) {
+          if (nf_isPostAlreadyHidden(post)) {
             // -- already hidden
             hideReason = 'hidden';
           }
@@ -6905,7 +6957,7 @@ esversion: 8;
               // -- vf_hideDuplicateVideos() will hide the duplicates
               // -- returns nothing.
               vf_hideDuplicateVideos(post, query);
-              if (post.hasAttribute(postAtt)) {
+              if (nf_isPostAlreadyHidden(post)) {
                 // -- prevent doubling up of hiding the video post.
                 hideReason === 'hidden';
               }
@@ -6952,7 +7004,7 @@ esversion: 8;
 
           let hideReason = '';
 
-          if (post.hasAttribute(postAtt)) {
+          if (nf_isPostAlreadyHidden(post)) {
             // -- already hidden
             hideReason = 'hidden';
           }
@@ -7156,7 +7208,7 @@ esversion: 8;
         let hideReason = '';
         let isSponsoredPost = false;
 
-        if (post.hasAttribute(postAtt)) {
+        if (nf_isPostAlreadyHidden(post)) {
           hideReason = 'hidden';
         }
         else {
@@ -7306,7 +7358,7 @@ esversion: 8;
         let hideReason = '';
         const isSponsoredPost = false;
 
-        if (post.hasAttribute(postAtt)) {
+        if (nf_isPostAlreadyHidden(post)) {
           hideReason = 'hidden';
         }
         else {
