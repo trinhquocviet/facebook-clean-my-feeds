@@ -82,8 +82,6 @@ export default {
     " gönderi gizlendi",
     "7 gönderi gizlendi ~ (yalnızca Grup Beslemesi)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Metin rengi",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Arka plan rengi",
   "VERBOSITY_DEBUG": "\"Gizli\" gönderileri vurgulayın",
   "CMF_CUSTOMISATIONS": "özelleştirmeler",
   "CMF_BTN_LOCATION": "\"Feed'lerimi temizle\" için düğmenin konumu",
@@ -101,7 +99,6 @@ export default {
     "sol yan",
     "sağ yan"
   ],
-  "CMF_BORDER_COLOUR": "Kenarlık rengi",
   "DLG_TIPS": "Ipuçları",
   "DLG_TIPS_CONTENT": "Tarayıcınızın önbelleğini temizlemek, ayarlarınızı varsayılan değerlerine sıfırlayacaktır. \n\nÖzelleştirilmiş ayarlarınızı yedeklemek ve geri yüklemek için \"Dışa Aktar\" ve \"İçe Aktar\" düğmelerini kullanın.",
   "DLG_BUTTONS": [

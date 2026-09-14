@@ -82,8 +82,6 @@ export default {
     " posts verborgen",
     "7 posts verborgen ~ (alleen in Groepen Feed)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Tekstkleur",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Achtergrondkleur",
   "VERBOSITY_DEBUG": "Highlight \"verborgen\" artikelen",
   "CMF_CUSTOMISATIONS": "Personalisaties",
   "CMF_BTN_LOCATION": "Locatie van de knop Mijn feeds opschonen",
@@ -101,7 +99,6 @@ export default {
     "linkerkant",
     "rechterkant"
   ],
-  "CMF_BORDER_COLOUR": "Randkleur",
   "DLG_TIPS": "Tips",
   "DLG_TIPS_CONTENT": "Als u de cache van uw browser wist, worden uw instellingen teruggezet naar hun standaardwaarden.\n\nGebruik de knoppen \"Exporteren\" en \"Importeren\" om een back-up te maken van uw aangepaste instellingen en deze te herstellen.",
   "DLG_BUTTONS": [

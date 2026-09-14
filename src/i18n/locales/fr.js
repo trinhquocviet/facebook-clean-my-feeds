@@ -82,8 +82,6 @@ export default {
     " posts cachés",
     "7 posts cachés ~ (uniquement dans le flux de groupes)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Couleur du texte",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Couleur de fond",
   "VERBOSITY_DEBUG": "Mettez en surbrillance les messages « cachés »",
   "CMF_CUSTOMISATIONS": "Personnalisations",
   "CMF_BTN_LOCATION": "Emplacement du bouton Nettoyer mes flux",
@@ -101,7 +99,6 @@ export default {
     "côté gauche",
     "côté droit"
   ],
-  "CMF_BORDER_COLOUR": "Couleur de bordure",
   "DLG_TIPS": "Des astuces",
   "DLG_TIPS_CONTENT": "Vider le cache de votre navigateur réinitialisera vos paramètres à leurs valeurs par défaut.\n\nUtilisez les boutons \"Exporter\" et \"Importer\" pour sauvegarder et restaurer vos paramètres personnalisés.",
   "DLG_BUTTONS": [

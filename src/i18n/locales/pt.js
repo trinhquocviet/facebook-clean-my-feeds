@@ -82,8 +82,6 @@ export default {
     " postagens ocultas",
     "7 postagens ocultas ~ (apenas no Feed de Grupos)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Cor do texto",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Cor de fundo",
   "VERBOSITY_DEBUG": "Destacar postagens \"ocultas\"",
   "CMF_CUSTOMISATIONS": "Personalizações",
   "CMF_BTN_LOCATION": "Localização do botão Limpe meus feeds",
@@ -101,7 +99,6 @@ export default {
     "lado esquerdo",
     "lado direito"
   ],
-  "CMF_BORDER_COLOUR": "Cor da borda",
   "DLG_TIPS": "Pontas",
   "DLG_TIPS_CONTENT": "Limpar o cache do navegador redefinirá suas configurações para os valores padrão.\n\nUse os botões \"Exportar\" e \"Importar\" para fazer backup e restaurar suas configurações personalizadas.",
   "DLG_BUTTONS": [

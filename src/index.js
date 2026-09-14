@@ -178,8 +178,7 @@ import {
       'border-radius: 0.5rem; font-style: italic; ' +
       'width: inherit; ' +
       'color: var(--primary-text); ' +
-      ((VARS.Options.VERBOSITY_MESSAGE_COLOUR === '') ? '' : ` color: ${VARS.Options.VERBOSITY_MESSAGE_COLOUR}; `) +
-      `background-color:${(VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR === '') ? masterKeyWords.defaults.VERBOSITY_MESSAGE_BG_COLOUR : VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR};`
+      `background-color: var(--card-background);`
     );
     addToSS(
       `details[${postAtt}="~"] > summary`,
@@ -238,8 +237,7 @@ import {
     addToSS(
       `h6[${postAttTab}]`,
       'border-radius: 0.55rem 0.55rem 0 0; width:75%; margin:0 auto; padding: 0.45rem 0.25rem; font-style:italic; text-align:center; font-weight:normal;' +
-      ((VARS.Options.VERBOSITY_MESSAGE_COLOUR === '') ? '' : `  color: ${VARS.Options.VERBOSITY_MESSAGE_COLOUR}; `) +
-      `background-color:${(VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR === '') ? masterKeyWords.defaults.VERBOSITY_MESSAGE_BG_COLOUR : VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR}; `
+      `background-color: var(--card-background); `
     );
 
 
@@ -251,7 +249,6 @@ import {
 
     // - dailog box CSS
     // --- dialog box; position + flex
-    // let bColour = (VARS.Options.CMF_BORDER_COLOUR === '') ? masterKeyWords.defaults.CMF_BORDER_COLOUR : VARS.Options.CMF_BORDER_COLOUR;
     let bColour = 'var(--divider)';
     let tColour = 'var(--primary-text)';
     // - left / right done in fn addExtraCSS()
@@ -741,19 +738,7 @@ import {
       VARS.Options.VERBOSITY_LEVEL = masterKeyWords.defaults.DLG_VERBOSITY;
       changed = true;
     }
-    if (!VARS.Options.hasOwnProperty('VERBOSITY_MESSAGE_COLOUR')) {
-      VARS.Options.VERBOSITY_MESSAGE_COLOUR = '';
-      changed = true;
-    }
     // - nb: test conditions, undefined needs to be tested before using .toString(), otherwise JS complains...
-    if (
-      (!VARS.Options.hasOwnProperty('VERBOSITY_MESSAGE_BG_COLOUR')) ||
-      (VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR === undefined) ||
-      (VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR.toString() === '')
-    ) {
-      VARS.Options.VERBOSITY_MESSAGE_BG_COLOUR = masterKeyWords.defaults.VERBOSITY_MESSAGE_BG_COLOUR;
-      changed = true;
-    }
     if (
       (!VARS.Options.hasOwnProperty('VERBOSITY_DEBUG')) ||
       (VARS.Options.VERBOSITY_DEBUG === undefined) ||
@@ -769,14 +754,6 @@ import {
     }
     if (!VARS.Options.hasOwnProperty('CMF_DIALOG_OPTION')) {
       VARS.Options.CMF_DIALOG_OPTION = masterKeyWords.defaults.CMF_DIALOG_OPTION;
-      changed = true;
-    }
-    if (
-      (!VARS.Options.hasOwnProperty('CMF_BORDER_COLOUR')) ||
-      (VARS.Options.CMF_BORDER_COLOUR.toString() === undefined) ||
-      (VARS.Options.CMF_BORDER_COLOUR.toString() === '')
-    ) {
-      VARS.Options.CMF_BORDER_COLOUR = masterKeyWords.defaults.CMF_BORDER_COLOUR;
       changed = true;
     }
     if (!VARS.Options.hasOwnProperty('NF_LIKES_MAXIMUM_COUNT')) {
@@ -1440,9 +1417,6 @@ import {
       fs.appendChild(createRB('VERBOSITY_LEVEL', '1', `${KeyWords.VERBOSITY_MESSAGE[1]}______`));
       fs.appendChild(createRB('VERBOSITY_LEVEL', '2', `${KeyWords.VERBOSITY_MESSAGE[3]}`));
       fs.appendChild(document.createElement('br'));
-      fs.appendChild(createInput('VERBOSITY_MESSAGE_COLOUR', `${KeyWords.VERBOSITY_MESSAGE_COLOUR}:`));
-      fs.appendChild(createInput('VERBOSITY_MESSAGE_BG_COLOUR', `${KeyWords.VERBOSITY_MESSAGE_BG_COLOUR}:`));
-      fs.appendChild(document.createElement('br'));
       fs.appendChild(createSingleCB('VERBOSITY_DEBUG'));
       cnt.appendChild(fs);
 
@@ -1464,8 +1438,6 @@ import {
       fs.appendChild(s);
       fs.appendChild(createRB('CMF_DIALOG_OPTION', '0', KeyWords.CMF_DIALOG_OPTION[0]));
       fs.appendChild(createRB('CMF_DIALOG_OPTION', '1', KeyWords.CMF_DIALOG_OPTION[1]));
-      fs.appendChild(document.createElement('br'));
-      fs.appendChild(createInput('CMF_BORDER_COLOUR', `${KeyWords.CMF_BORDER_COLOUR}:`));
 
       // - ui language
       // fs.appendChild(document.createElement('br'));

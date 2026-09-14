@@ -84,8 +84,6 @@ export default {
     " posts hidden",
     "7 posts hidden ~ (Groups Feed only)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Text colour",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Background colour",
   "VERBOSITY_DEBUG": "Highlight \"hidden\" posts",
   "CMF_CUSTOMISATIONS": "Customisations",
   "CMF_BTN_LOCATION": "Location of Clean my feeds' button",
@@ -103,7 +101,6 @@ export default {
     "left side",
     "right side"
   ],
-  "CMF_BORDER_COLOUR": "Border colour",
   "DLG_TIPS": "Tips",
   "DLG_TIPS_CONTENT": "Clearing your browser's cache will reset your settings to their default values.\n\nUse the \"Export\" and \"Import\" buttons to backup and restore your customised settings.",
   "DLG_BUTTONS": [

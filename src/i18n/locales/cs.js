@@ -82,8 +82,6 @@ export default {
     " příspěvků skrytých",
     "7 příspěvků skrytých ~ (pouze ve skupinovém zpravodaji)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Barva textu",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Barva pozadí",
   "VERBOSITY_DEBUG": "Zvýrazněte „skryté“ příspěvky",
   "CMF_CUSTOMISATIONS": "Přizpůsobení",
   "CMF_BTN_LOCATION": "Umístění tlačítka Vyčistěte mé kanály",
@@ -101,7 +99,6 @@ export default {
     "levá strana",
     "pravá strana"
   ],
-  "CMF_BORDER_COLOUR": "Barva ohraničení",
   "DLG_TIPS": "Tipy",
   "DLG_TIPS_CONTENT": "Vymazáním mezipaměti prohlížeče obnovíte výchozí hodnoty nastavení.\n\nPomocí tlačítek \"Export\" a \"Import\" zálohujte a obnovte svá přizpůsobená nastavení.",
   "DLG_BUTTONS": [

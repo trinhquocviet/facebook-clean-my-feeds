@@ -82,8 +82,6 @@ export default {
     " posty ukryte",
     "7 posty ukryte ~ (tylko w Kanałach Grup)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Kolor tekstu",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Kolor tła",
   "VERBOSITY_DEBUG": "Wyróżnij „ukryte” posty",
   "CMF_CUSTOMISATIONS": "Personalizacja",
   "CMF_BTN_LOCATION": "Lokalizacja przycisku Wyczyść moje kanały",
@@ -101,7 +99,6 @@ export default {
     "lewa strona",
     "prawa strona"
   ],
-  "CMF_BORDER_COLOUR": "Kolor obramowania",
   "DLG_TIPS": "Sugestia",
   "DLG_TIPS_CONTENT": "Wyczyszczenie pamięci podręcznej przeglądarki spowoduje zresetowanie ustawień do wartości domyślnych.\n\nUżyj przycisków „Eksportuj” i „Importuj”, aby wykonać kopię zapasową i przywrócić niestandardowe ustawienia.",
   "DLG_BUTTONS": [

@@ -82,8 +82,6 @@ export default {
     " bài viết ẩn",
     "7 bài viết ẩn ~ (chỉ áp dụng cho Bảng tin Nhóm)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Màu văn bản",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Màu nền",
   "VERBOSITY_DEBUG": "Đánh dấu các bài đăng \"ẩn\"",
   "CMF_CUSTOMISATIONS": "Các tùy chỉnh",
   "CMF_BTN_LOCATION": "Vị trí của nút Làm sạch nguồn cấp dữ liệu của tôi",
@@ -101,7 +99,6 @@ export default {
     "bên trái",
     "bên phải"
   ],
-  "CMF_BORDER_COLOUR": "Màu viền",
   "DLG_TIPS": "Thủ thuật",
   "DLG_TIPS_CONTENT": "Xóa bộ nhớ cache của trình duyệt sẽ đặt lại cài đặt của bạn về các giá trị mặc định của chúng.\n\nSử dụng các nút \"Xuất\" và \"Nhập\" để sao lưu và khôi phục cài đặt tùy chỉnh của bạn.",
   "DLG_BUTTONS": [

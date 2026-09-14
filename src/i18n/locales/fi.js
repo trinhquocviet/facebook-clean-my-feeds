@@ -82,8 +82,6 @@ export default {
     " viestiä piilotettu",
     "7 viestiä piilotettu ~ (vain Ryhmien syötteessä)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Tekstin väri",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Taustaväri",
   "VERBOSITY_DEBUG": "Korosta \"piilotetut\" postaus",
   "CMF_CUSTOMISATIONS": "Räätälöinnit",
   "CMF_BTN_LOCATION": "Puhdista syötteeni -painikkeen sijainti",
@@ -101,7 +99,6 @@ export default {
     "vasen puoli",
     "oikea puoli"
   ],
-  "CMF_BORDER_COLOUR": "Reunuksen väri",
   "DLG_TIPS": "Vinkkejä",
   "DLG_TIPS_CONTENT": "Selaimen välimuistin tyhjentäminen palauttaa asetuksesi oletusarvoihinsa.\n\nKäytä \"Vie\"- ja \"Tuo\"-painikkeita varmuuskopioidaksesi ja palauttaaksesi mukautetut asetukset.",
   "DLG_BUTTONS": [

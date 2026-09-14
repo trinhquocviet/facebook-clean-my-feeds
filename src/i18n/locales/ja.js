@@ -82,8 +82,6 @@ export default {
     " 件の投稿が非表示",
     "7件の投稿が非表示 ~ (グループフィードのみ)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "テキストの色",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "背景色",
   "VERBOSITY_DEBUG": "「非表示」の投稿を強調表示する",
   "CMF_CUSTOMISATIONS": "カスタマイズ",
   "CMF_BTN_LOCATION": "「フィードをクリーンアップ」ボタンの配置",
@@ -101,7 +99,6 @@ export default {
     "左側",
     "右側"
   ],
-  "CMF_BORDER_COLOUR": "ボーダーカラー",
   "DLG_TIPS": "ヒント",
   "DLG_TIPS_CONTENT": "ブラウザのキャッシュをクリアすると、設定がデフォルト値にリセットされます。\n\n[エクスポート] および [インポート] ボタンを使用して、カスタマイズした設定をバックアップおよび復元します。",
   "DLG_BUTTONS": [

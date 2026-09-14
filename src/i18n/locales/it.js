@@ -82,8 +82,6 @@ export default {
     " post nascosti",
     "7 post nascosti ~ (solo nel Feed di Gruppi)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Colore del testo",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Colore di sfondo",
   "VERBOSITY_DEBUG": "Evidenzia i post \"nascosti\"",
   "CMF_CUSTOMISATIONS": "Personalizzazioni",
   "CMF_BTN_LOCATION": "Posizione del pulsante Pulisci i miei feed",
@@ -101,7 +99,6 @@ export default {
     "lato sinistro",
     "lato destro"
   ],
-  "CMF_BORDER_COLOUR": "Colore del bordo",
   "DLG_TIPS": "Suggerimenti",
   "DLG_TIPS_CONTENT": "La cancellazione della cache del browser ripristinerà le impostazioni ai valori predefiniti.\n\nUtilizza i pulsanti \"Esporta\" e \"Importa\" per eseguire il backup e ripristinare le impostazioni personalizzate.",
   "DLG_BUTTONS": [

@@ -82,8 +82,6 @@ export default {
     " postingan disembunyikan",
     "7 postingan disembunyikan ~ (hanya di Feed Grup)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Warna teks",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Warna latar belakang",
   "VERBOSITY_DEBUG": "Sorot postingan \"tersembunyi\"",
   "CMF_CUSTOMISATIONS": "Kustomisasi",
   "CMF_BTN_LOCATION": "Lokasi tombol Bersihkan umpan saya",
@@ -101,7 +99,6 @@ export default {
     "sisi kiri",
     "sisi kanan"
   ],
-  "CMF_BORDER_COLOUR": "Warna perbatasan",
   "DLG_TIPS": "Tips",
   "DLG_TIPS_CONTENT": "Menghapus cache browser Anda akan mengatur ulang pengaturan Anda ke nilai defaultnya.\n\nGunakan tombol \"Ekspor\" dan \"Impor\" untuk mencadangkan dan memulihkan pengaturan khusus Anda.",
   "DLG_BUTTONS": [

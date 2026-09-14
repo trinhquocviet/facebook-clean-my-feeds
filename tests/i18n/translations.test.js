@@ -154,7 +154,6 @@ describe('i18n Module & Locales', () => {
     it('should maintain defaults values', () => {
       expect(defaults.SPONSORED).toBe(true);
       expect(defaults.NF_BLOCKED_FEED).toEqual(['1', '0', '0']);
-      expect(defaults.CMF_BORDER_COLOUR).toBe('OrangeRed');
     });
 
     it('should support pathInfo both as string and with .pathMatch property', () => {

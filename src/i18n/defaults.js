@@ -51,10 +51,8 @@ export const defaults = {
   PP_BLOCKED_RE: false,
   DLG_VERBOSITY: '1',
   VERBOSITY_DEBUG: false,
-  VERBOSITY_MESSAGE_BG_COLOUR: 'var(--card-background)',
   CMF_BTN_OPTION: '0',
   CMF_DIALOG_OPTION: '0',
-  CMF_BORDER_COLOUR: 'OrangeRed',
 };
 
 export default defaults;

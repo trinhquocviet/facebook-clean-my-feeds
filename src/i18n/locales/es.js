@@ -82,8 +82,6 @@ export default {
     " publicaciones ocultas",
     "7 publicaciones ocultas ~ (solo en el Feed de Grupos)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Color del texto",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Color de fondo",
   "VERBOSITY_DEBUG": "Destacar publicaciones \"ocultas\"",
   "CMF_CUSTOMISATIONS": "Personalizaciones",
   "CMF_BTN_LOCATION": "Ubicación del botón Limpia mis feeds",
@@ -101,7 +99,6 @@ export default {
     "lado izquierdo",
     "lado derecho"
   ],
-  "CMF_BORDER_COLOUR": "Color de borde",
   "DLG_TIPS": "Consejos",
   "DLG_TIPS_CONTENT": "Limpiar la memoria caché de su navegador restablecerá la configuración a sus valores predeterminados.\n\nUtilice los botones \"Exportar\" e \"Importar\" para hacer una copia de seguridad y restaurar su configuración personalizada.",
   "DLG_BUTTONS": [

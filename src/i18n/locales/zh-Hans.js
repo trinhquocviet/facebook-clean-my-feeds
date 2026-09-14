@@ -82,8 +82,6 @@ export default {
     " 个帖子已隐藏",
     "7个帖子已隐藏 ~ (仅适用于群组动态)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "文字颜色",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "背景颜色",
   "VERBOSITY_DEBUG": "突出显示“隐藏”的帖子",
   "CMF_CUSTOMISATIONS": "定制化",
   "CMF_BTN_LOCATION": "“清理我的提要”按钮位置",
@@ -101,7 +99,6 @@ export default {
     "左边",
     "右边"
   ],
-  "CMF_BORDER_COLOUR": "边框颜色",
   "DLG_TIPS": "提示",
   "DLG_TIPS_CONTENT": "清除浏览器缓存会将您的设置重置为默认值。\n\n使用“导出”和“导入”按钮来备份和恢复您的自定义设置。",
   "DLG_BUTTONS": [

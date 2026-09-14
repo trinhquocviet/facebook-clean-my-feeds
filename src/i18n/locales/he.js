@@ -82,8 +82,6 @@ export default {
     " פוסטים מוסתרים",
     "7 פוסטים מוסתרים ~ (רק בסדר חברים)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "צבע טקסט",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "צבע הרקע",
   "VERBOSITY_DEBUG": "הדגש פוסטים \"מוסתרים\"",
   "CMF_CUSTOMISATIONS": "התאמות אישיות",
   "CMF_BTN_LOCATION": "תנקה את הזנות שלי מיקום הכפתור",
@@ -101,7 +99,6 @@ export default {
     "צד שמאל",
     "צד ימין"
   ],
-  "CMF_BORDER_COLOUR": "צבע גבול",
   "DLG_TIPS": "טיפים",
   "DLG_TIPS_CONTENT": "מחיקת ההיסטורה בדפדפן תנקה את ההגדרות ותחזיר אותם לברירת המחדל.\n\nהשתמש ב\"ייצא\" ו\"ייבא\" כדי לגבות ולהחזיר את ההגדרות שלך",
   "DLG_BUTTONS": [

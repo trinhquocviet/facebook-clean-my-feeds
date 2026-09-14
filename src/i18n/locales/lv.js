@@ -82,8 +82,6 @@ export default {
     " ziņas ir paslēptas",
     "7 ziņas paslēptas ~ (tikai Grupu plūsmē)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Teksta krāsa",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Fona krāsa",
   "VERBOSITY_DEBUG": "Izceliet \"slēptos\" rakstus",
   "CMF_CUSTOMISATIONS": "Personalizēšana",
   "CMF_BTN_LOCATION": "Pogas Tīrīt manas plūsmas atrašanās vieta",
@@ -101,7 +99,6 @@ export default {
     "kreisā puse",
     "labā puse"
   ],
-  "CMF_BORDER_COLOUR": "Apmales krāsa",
   "DLG_TIPS": "Padomi",
   "DLG_TIPS_CONTENT": "Iztīrot pārlūkprogrammas kešatmiņu, iestatījumi tiks atiestatīti uz noklusējuma vērtībām.\n\nIzmantojiet pogas \"Eksportēt\" un \"Importēt\", lai dublētu un atjaunotu pielāgotos iestatījumus.",
   "DLG_BUTTONS": [

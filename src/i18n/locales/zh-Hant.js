@@ -82,8 +82,6 @@ export default {
     " 個帖子已隱藏",
     "7個帖子已隱藏 ~ (僅適用於群組動態)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "文字顏色",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "背景顏色",
   "VERBOSITY_DEBUG": "強調顯示「隱藏」的貼文",
   "CMF_CUSTOMISATIONS": "客製化",
   "CMF_BTN_LOCATION": "「清理我的動態消息」按鈕的位置",
@@ -101,7 +99,6 @@ export default {
     "左邊",
     "右邊"
   ],
-  "CMF_BORDER_COLOUR": "邊框顏色",
   "DLG_TIPS": "提示",
   "DLG_TIPS_CONTENT": "清除瀏覽器快取會將您的設定重置為預設值。\n\n使用「匯出」和「匯入」按鈕來備份和回復您的自定義設定。",
   "DLG_BUTTONS": [

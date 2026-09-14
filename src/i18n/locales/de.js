@@ -83,8 +83,6 @@ export default {
     " Beiträge versteckt",
     "7 Beiträge versteckt ~ (nur Gruppen-Feed)"
   ],
-  "VERBOSITY_MESSAGE_COLOUR": "Textfarbe",
-  "VERBOSITY_MESSAGE_BG_COLOUR": "Hintergrundfarbe",
   "VERBOSITY_DEBUG": "Markieren Sie \"versteckte\" Beiträge",
   "CMF_CUSTOMISATIONS": "Anpassungen",
   "CMF_BTN_LOCATION": "Position der Schaltfläche \"Bereinige meine Feeds\"",
@@ -102,7 +100,6 @@ export default {
     "linke Seite",
     "rechte Seite"
   ],
-  "CMF_BORDER_COLOUR": "Farbe der Umrandung",
   "DLG_TIPS": "Tipps",
   "DLG_TIPS_CONTENT": "Wenn Sie den Cache Ihres Browsers leeren, werden Ihre Einstellungen auf die Standardwerte zurückgesetzt.\n\nVerwenden Sie die Schaltflächen \"Exportieren\" und \"Importieren\", um Ihre benutzerdefinierten Einstellungen zu sichern und wiederherzustellen.",
   "DLG_BUTTONS": [
