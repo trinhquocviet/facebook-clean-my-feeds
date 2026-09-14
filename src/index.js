@@ -1027,19 +1027,6 @@ import {
       return div;
     }
 
-    function createInput(iName, iLabel) {
-      let div = document.createElement('div');
-      let input = document.createElement('input');
-      input.type = 'text';
-      input.name = iName;
-      input.value = VARS.Options[iName];
-      let label = document.createElement('label');
-      label.appendChild(document.createTextNode(iLabel));
-      label.appendChild(document.createElement('br'));
-      label.appendChild(input);
-      div.appendChild(label);
-      return div;
-    }
     function createSelectLanguage() {
       let div = document.createElement('div');
       let select = getLanguagesComponent();
