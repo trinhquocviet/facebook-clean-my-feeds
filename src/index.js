@@ -21,6 +21,22 @@ import {
   isDarkMode,
   buildCssRule
 } from './utils/index.js';
+import {
+  postAtt,
+  postAttCPID,
+  postPropDS,
+  postAttChildFlag,
+  postAttTab,
+  postAttMPSkip,
+  rvAtt,
+  mainColumnAtt,
+  DB_CONFIG
+} from './constants/index.js';
+import {
+  createInitialState,
+  resetFeedFlags,
+  resetEchoState
+} from './state/index.js';
 
 (async function () {
 
@@ -38,120 +54,17 @@ import {
   const { get, set, del, createStore } = idbKeyval;
   // - override idb-keyval's default db and store names.
   let DBVARS = {
-    DBName: 'dbCMF',
-    DBStore: 'Mopping',
-    DBKey: 'Options',
+    DBName: DB_CONFIG.DB_NAME,
+    DBStore: DB_CONFIG.DB_STORE,
+    DBKey: DB_CONFIG.DB_KEY,
     ostore: null
   };
   // - make sure the db's store exists ...
   DBVARS.ostore = createStore(DBVARS.DBName, DBVARS.DBStore);
 
-  // - post attribute - hidden and reason
-  const postAtt = 'cmfr';
-  // - post attribute - consecutive posts id
-  const postAttCPID = 'cmfcpid';
-  // - post property - # of light dusting duties done
-  const postPropDS = 'cmfDusted';
-  // - post's child element attribute - used for queries that original don't include the parent element.
-  const postAttChildFlag = 'cmfcf';
-  // - post's toggle state bar + post tab.
-  const postAttTab = 'cmftsb';
-  // - marketplace post - indicate already scanned
-  const postAttMPSkip = 'cmfsmp';
-  // - reel video attribute
-  const rvAtt = 'cmfrv';
-  // - ...
-  const mainColumnAtt = 'cmfmc';
-
   // - Feed Details variables
   // -- nb: setFeedSettings() adjusts some of these settings.
-  const VARS = {
-    // - how many times to scan a post
-    scanCountStart: 0,
-    scanCountMaxLoop: 15, // Nov 2023; changed from 12 to 15, need to make code a tad bit more aggressive.
-
-    noChangeCounter: 0, // number of consecutive loops that reported no change in html structure.
-
-    // - langauge (default to EN)
-    language: '',
-    // - user options
-    Options: {},
-    optionsReady: false,
-    // - blocked text
-    Filters: {},
-    // - blocked text separator
-    SEP: '¦¦',
-
-    dictionarySponsored: {},
-    dictionaryReelsAndShortVideos: {},
-
-    // - Feed toggles
-    isNF: false, // news
-    isGF: false, // groups
-    isVF: false, // videos
-    isMF: false, // marketplace
-    isAF: false, // all feeds
-    isSF: false, // search feed
-    isRF: false, // reel feed
-    isPP: false, // profile page
-
-    isRF_InTimeoutMode: false, // -- processing Reel videos in timeout calls instead of mutations
-
-    // groups feed type : 'group' = single group; 'groups' = multiple groups;
-    gfType: '',
-
-    // watch/videos feed type : 'vidoes' = normal feed; 'search' = search videos;
-    vfType: '',
-
-    // marketplace feed type: 'marketplace' = default view; 'category' = category view; 'item' = viewing an item; 'search' = search results;
-    mpType: '',
-
-    // remember current URL - used for page change detection
-    prevURL: '',
-    prevPathname: '',
-
-    // element containing echo message about post(s) being hidden
-    echoEl: null,
-    echoElFirstNote: null, // for restoring "missing" echo message
-    echoElCreatedCount: 0,
-    echoELFirstPost: null,
-    // how many consecutive posts have been hidden
-    echoCount: 0,
-    // current consecutive posts id
-    echoCPID: '',
-
-    // dark-mode ..
-    isDarkMode: null,
-
-    // StyleSheet Id
-    cssID: '',
-    cssOID: '',
-
-    // Attribute names
-    hideAtt: '',
-    showAtt: '',
-
-    // special attribute
-    b1Att: '',
-    b2Att: '',
-
-    // CSS class names
-    cssHideEl: '',
-    cssEcho: '',
-    cssHideNumberOfShares: '',
-
-    // toggle dialog button (visible if is a Feed page)
-    btnToggleEl: null,
-    // - icon close / times
-    iconClose: '<svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M15.543 3.043a1 1 0 1 1 1.414 1.414L11.414 10l5.543 5.542a1 1 0 0 1-1.414 1.415L10 11.414l-5.543 5.543a1 1 0 0 1-1.414-1.415L8.586 10 3.043 4.457a1 1 0 1 1 1.414-1.414L10 8.586z"/></svg>',
-    // - script's logo
-    logoHTML: '<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32"><path fill-rule="evenodd" class="s0" d="M51 3.2c.7 1.1.7 1-1.6 9.2-1.4 5-2.1 7.4-2.3 7.6-.1.1-.3.2-.6.2-.4 0-.9-.4-.9-.7 0-.1 1-3.5 2-7.4 1.2-4 2-7.3 2-7.5 0-.4-.6-1-.9-1-.2 0-.5.2-.7.3-.3.3-.7 1.8-5.5 19.2L37.2 42l.9.5c.5.3.9.5.9.5s1.3-4.4 2.8-9.8c1.5-5.3 2.8-10 2.8-10.3.2-.5.3-.7.6-.9.3-.1.4-.1.8 0 .2.2.4.3.4.5.1.2-.4 2.2-1.5 6.1-.9 3.2-1.6 5.8-1.6 5.9 0 0 .5.1 1.3.1 1.9 0 2.7.4 3.2 1.5.3.6.3 2.7 0 3.4-.3.9-1.2 1.4-2 1.4-.3 0-.5.1-.5.1 0 .2-2.3 20.2-2.3 20.4-.2.8.7.7-14.1.7-15.3 0-14.3.1-15.3-1-.8-.8-1.1-1.5-1-2.9.2-3.6 2.7-6.7 6.3-7.8.4-.2.9-.3 1-.3.6 0 .6.1.1-4.5-.3-2.4-.5-4.4-.5-4.5-.1-.1-.3-.1-.7-.2-.6 0-1.1-.3-1.6-1-.3-.4-.3-.5-.4-1.8 0-1.7.1-2.1.6-2.7.7-.6 1-.7 2.5-.8h1.3v-2.9c0-3.1 0-3.4.6-3.6.2-.1 2.4-.1 7.1-.1 6.5.1 6.9.1 7.1.3s.2.3.2 3.3v3h.6l.6-.1 4.3-15.3c2.4-8.5 4.4-15.6 4.5-15.9.4-.6.9-1 1.5-1.3 1.2-.4 2.6.1 3.3 1.2M24.4 29.8H23c0 .1-.1 1.2-.1 2.5v2.3h1.5zm3.4 0h-.7c-.5 0-.9 0-.9.1 0 0-.1 1.1-.1 2.4v2.3h1.8v-2.4zm3.4 0h-1.6v4.8h1.6zm3.2 0h-1.3v4.8h1.3zM28 36.4c-7.9 0-9 0-9.2.2-.3.2-.3.3-.3 1.3 0 .7.1 1.1.2 1.2s2.3.1 7.3.1c6.9.1 7.2.1 7.5.3.3.3.3 1 0 1.3-.2.2-.8.2-6.3.2h-6l.1.5c0 .3.2 2.3.5 4.5l.4 4h.4c.6 0 1.5-.3 2-.7.3-.3.7-.8.9-1.3q.9-1.65 2.1-2.7c1.1-.9 2.8-1.5 4-1.5h.6l.7-1.1c.6-1 .8-1.2 1.3-1.5.4-.2.6-.2.9-.2.4.1.5.1.5-.1.1-.1.3-1.1.6-2.1.3-1.1.6-2.1.6-2.2.1-.2-.4-.2-8.8-.2m16.2 0h-1.5l-.4 1.3c-.2.8-.4 1.4-.4 1.5h2c2.3 0 2.3.1 2.3-1.4 0-.9-.1-1-.3-1.2s-.6-.2-1.7-.2m-2.8 4.7c0 .1-.2.8-.5 1.6-.2 1-.3 1.4-.2 1.5l.6.4c.4.4.4.5.5 1.2 0 .6 0 .7-.8 2-.7 1.1-.8 1.3-1.3 1.6l-.5.2v1.8c0 1.3-.1 2-.2 2.5l-.2.8s.7.1 1.5.1c1.2 0 1.6-.1 1.6-.2s.4-3.1.8-6.8c.4-3.6.7-6.7.7-6.7-.1-.2-1.9-.1-2 0m-6.3 1.8c-.2-.1-.3 0-.9 1-.2.4-.4.8-.3.8 0 .1 1.1.7 2.3 1.5 1.3.7 2.4 1.4 2.5 1.5.3.1.3.1.8-.8.3-.6.6-1 .5-1 0 0-1.1-.7-2.4-1.5s-2.4-1.4-2.5-1.5m-4.5 2.8c-1.6.5-2.7 1.5-3.5 3.1-.6 1.2-1.3 2-2.4 2.5-.9.4-.9.4-2.9.5-2.8.1-3.9.6-5.4 2.1-.8.8-1 1.1-1.4 1.9-1 2.2-.9 4 .2 4.4.7.3.8.3 1-.5.8-2.4 2.7-4.5 5.1-5.5 1.1-.4 1.6-.5 3.2-.6 2-.2 2.8-.7 3.4-2.2.3-.5.6-1.2.8-1.6.8-1.3 2.4-2.5 3.8-2.9l.8-.2q.2-.1-.3-.4c-.3-.2-.6-.4-.6-.5-.1-.3-1.1-.3-1.8-.1m3.2 2.7c-.9.2-2 .8-2.8 1.5-.7.6-.8.9-1.6 2.6-.7 1.5-2.2 2.5-3.9 2.7-3.4.4-4.3.8-5.8 2.2-.7.8-1 1.2-1.4 1.9l-.5 1 .9.1c.9 0 .9 0 1.2-.4q2.7-3.2 7.3-3.2c2.2 0 2.9-.5 3.9-2.3.3-.5.7-1.2.9-1.5 1-1.2 3-2.3 4.6-2.4l.8-.1-.1-.5c-.1-.8-.3-1.2-.9-1.4-.7-.2-1.9-.3-2.6-.2m3.6 3.9H37c-.5 0-1.6.3-2.3.7-.7.5-1.6 1.5-2.2 2.6-1.1 2.1-2.5 2.9-5.2 2.9-.6 0-1.6.1-2 .2-1 .2-2.3.8-2.9 1.3l-.4.4h4.1c4.6-.1 4.7-.1 6.5-1 .9-.5 1.3-.7 2.2-1.6 1.4-1.4 2.2-3 2.5-4.9zm4.3 4.2H38l-.5.8c-.6.9-1.5 1.9-2.4 2.6l-.6.5h3.4c2.6 0 3.4 0 3.4-.1s.1-1 .2-2z" fill="currentColor"/></svg>',
-    // - new window icon
-    iconNewWindow: '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-external-link"><title>Open post in a new window</title><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/></svg>',
-    iconNewWindowClass: 'cmf-link-new',
-    // - for reels - chromium browsers needs more space for video controls...
-    isChromium: false,
-  };
+  const VARS = createInitialState();
 
   let NF_SPONSORED_XLINK_TEXT_ID = null;
 
@@ -2059,13 +1972,7 @@ import {
       // -- search pattern: ?query= ...
       VARS.prevQuery = window.location.search;
       // - reset feeds flags
-      VARS.isNF = false;
-      VARS.isGF = false;
-      VARS.isVF = false;
-      VARS.isMF = false;
-      VARS.isSF = false;
-      VARS.isRF = false;
-      VARS.isPP = false;
+      resetFeedFlags(VARS);
       if ((VARS.prevPathname === '/') || (VARS.prevPathname === '/home.php')) {
         // -- news feed
         // -- nb: "Feeds (most recent)" combines a few feeds into one ... apply NF rules to all, except Groups.
@@ -2177,7 +2084,7 @@ import {
       }
 
       // - reset consecutive count of hidden posts
-      VARS.echoCount = 0;
+      resetEchoState(VARS);
 
       // -- reset the no-change-counter
       VARS.noChangeCounter = 0;
