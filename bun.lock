@@ -5,11 +5,11 @@
     "": {
       "name": "fb-clean-my-feeds",
       "dependencies": {
-        "idb-keyval": "~6.2.2",
+        "idb-keyval": "~6.3.0",
       },
     },
   },
   "packages": {
-    "idb-keyval": ["idb-keyval@6.2.6", "", {}, "sha512-FY64UEhw+5liMzMQ1R9Mw6AF0+wyBrg1CIA1z4CjI/EvT5ty/SvQcWZgd8s9sgaNhX10Y8UzScTh89tEAls5nA=="],
+    "idb-keyval": ["idb-keyval@6.3.0", "", {}, "sha512-um+2dgAWmYsu615EXpWVwSmapJhON0G43t3Ka/EVaohzPQXSMqKEqeDK/oIW3Ow+BXaF2PvSc+oBTFp793A5Ow=="],
   }
 }

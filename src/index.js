@@ -1,4 +1,4 @@
-import * as idbKeyval from 'idb-keyval';
+import { get, set, del, createStore } from 'idb-keyval';
 import {
   masterKeyWords,
   getTranslation,
@@ -51,7 +51,7 @@ import {
   // - idb-keyval - indexedDB wrapper
   // -- needs the "@require https://unpkg.com/idb-keyval@6.0.3/dist/umd.js" entry.
   // -- which functions do we want to use from the idb-keyval?
-  const { get, set, del, createStore } = idbKeyval;
+  // const { get, set, del, createStore } = idbKeyval;
   // - override idb-keyval's default db and store names.
   let DBVARS = {
     DBName: DB_CONFIG.DB_NAME,
