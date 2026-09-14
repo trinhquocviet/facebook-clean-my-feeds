@@ -1477,24 +1477,19 @@ import {
             text: KeyWords.DLG_BUTTONS[0],
             event: saveUserOptions,
           },
-          // {
-          //     id: 'BTNClose', // close
-          //     text: KeyWords.DLG_BUTTONS[1],
-          //     event: toggleDialog,
-          // },
           {
             id: 'BTNExport', // export
-            text: KeyWords.DLG_BUTTONS[2],
+            text: KeyWords.DLG_BUTTONS[1],
             event: exportUserOptions,
           },
           {
             id: 'BTNImport', // import
-            text: KeyWords.DLG_BUTTONS[3],
+            text: KeyWords.DLG_BUTTONS[2],
             event: importUserOptions,
           },
           {
             id: 'BTNReset', // reset
-            text: KeyWords.DLG_BUTTONS[4],
+            text: KeyWords.DLG_BUTTONS[3],
             event: resetUserOptions,
           }
         ];
@@ -1538,14 +1533,12 @@ import {
         const footer = dlg.querySelector('footer');
         let btn = footer.querySelector('#BTNSave');
         btn.textContent = KeyWords.DLG_BUTTONS[0];
-        // btn = footer.querySelector('#BTNClose');
-        // btn.textContent = KeyWords.DLG_BUTTONS[1];
         btn = footer.querySelector('#BTNExport');
-        btn.textContent = KeyWords.DLG_BUTTONS[2];
+        btn.textContent = KeyWords.DLG_BUTTONS[1];
         btn = footer.querySelector('#BTNImport');
-        btn.textContent = KeyWords.DLG_BUTTONS[3];
+        btn.textContent = KeyWords.DLG_BUTTONS[2];
         btn = footer.querySelector('#BTNReset');
-        btn.textContent = KeyWords.DLG_BUTTONS[4];
+        btn.textContent = KeyWords.DLG_BUTTONS[3];
         addLegendEvents();
       }
     }

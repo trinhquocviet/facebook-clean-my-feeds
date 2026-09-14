@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Menghapus cache browser Anda akan mengatur ulang pengaturan Anda ke nilai defaultnya.\n\nGunakan tombol \"Ekspor\" dan \"Impor\" untuk mencadangkan dan memulihkan pengaturan khusus Anda.",
   "DLG_BUTTONS": [
     "Simpan",
-    "Tutup",
     "Ekspor",
     "Impor",
     "Reset"

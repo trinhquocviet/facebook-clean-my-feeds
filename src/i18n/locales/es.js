@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Limpiar la memoria caché de su navegador restablecerá la configuración a sus valores predeterminados.\n\nUtilice los botones \"Exportar\" e \"Importar\" para hacer una copia de seguridad y restaurar su configuración personalizada.",
   "DLG_BUTTONS": [
     "Guardar",
-    "Cerrar",
     "Exportar",
     "Importar",
     "Reajustar"

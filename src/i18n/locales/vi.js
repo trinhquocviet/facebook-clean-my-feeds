@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Xóa bộ nhớ cache của trình duyệt sẽ đặt lại cài đặt của bạn về các giá trị mặc định của chúng.\n\nSử dụng các nút \"Xuất\" và \"Nhập\" để sao lưu và khôi phục cài đặt tùy chỉnh của bạn.",
   "DLG_BUTTONS": [
     "Lưu",
-    "Đóng",
     "Xuất",
     "Nhập",
     "Đặt lại"

@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "La cancellazione della cache del browser ripristinerà le impostazioni ai valori predefiniti.\n\nUtilizza i pulsanti \"Esporta\" e \"Importa\" per eseguire il backup e ripristinare le impostazioni personalizzate.",
   "DLG_BUTTONS": [
     "Salva",
-    "Chiudi",
     "Esportare",
     "Importare",
     "Ripristina"

@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Tarayıcınızın önbelleğini temizlemek, ayarlarınızı varsayılan değerlerine sıfırlayacaktır. \n\nÖzelleştirilmiş ayarlarınızı yedeklemek ve geri yüklemek için \"Dışa Aktar\" ve \"İçe Aktar\" düğmelerini kullanın.",
   "DLG_BUTTONS": [
     "Kaydetmek",
-    "Kapat",
     "İhracat",
     "İçe aktarmak",
     "Sıfırla"

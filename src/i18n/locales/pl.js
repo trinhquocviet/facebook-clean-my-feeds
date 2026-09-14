@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Wyczyszczenie pamięci podręcznej przeglądarki spowoduje zresetowanie ustawień do wartości domyślnych.\n\nUżyj przycisków „Eksportuj” i „Importuj”, aby wykonać kopię zapasową i przywrócić niestandardowe ustawienia.",
   "DLG_BUTTONS": [
     "Zapisz",
-    "Zamknij",
     "Eksport",
     "Import",
     "Przeskładać"

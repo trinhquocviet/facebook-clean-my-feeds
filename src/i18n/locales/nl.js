@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Als u de cache van uw browser wist, worden uw instellingen teruggezet naar hun standaardwaarden.\n\nGebruik de knoppen \"Exporteren\" en \"Importeren\" om een back-up te maken van uw aangepaste instellingen en deze te herstellen.",
   "DLG_BUTTONS": [
     "Opslaan",
-    "Sluiten",
     "Exporteren",
     "Importeren",
     "Reset"

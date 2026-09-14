@@ -104,7 +104,6 @@ export default {
   "DLG_TIPS_CONTENT": "Wenn Sie den Cache Ihres Browsers leeren, werden Ihre Einstellungen auf die Standardwerte zurückgesetzt.\n\nVerwenden Sie die Schaltflächen \"Exportieren\" und \"Importieren\", um Ihre benutzerdefinierten Einstellungen zu sichern und wiederherzustellen.",
   "DLG_BUTTONS": [
     "Speichern",
-    "Schließen",
     "Exportieren",
     "Importieren",
     "Zurücksetzen"

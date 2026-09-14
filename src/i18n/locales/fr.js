@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Vider le cache de votre navigateur réinitialisera vos paramètres à leurs valeurs par défaut.\n\nUtilisez les boutons \"Exporter\" et \"Importer\" pour sauvegarder et restaurer vos paramètres personnalisés.",
   "DLG_BUTTONS": [
     "Sauvegarder",
-    "Fermer",
     "Exporter",
     "Importer",
     "Réinitialiser"

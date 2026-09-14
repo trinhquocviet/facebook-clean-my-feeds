@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Iztīrot pārlūkprogrammas kešatmiņu, iestatījumi tiks atiestatīti uz noklusējuma vērtībām.\n\nIzmantojiet pogas \"Eksportēt\" un \"Importēt\", lai dublētu un atjaunotu pielāgotos iestatījumus.",
   "DLG_BUTTONS": [
     "Saglabājiet",
-    "Aizveriet",
     "Eksportēt",
     "Importēt",
     "Atiestatīt"

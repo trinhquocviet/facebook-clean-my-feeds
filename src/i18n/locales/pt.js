@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Limpar o cache do navegador redefinirá suas configurações para os valores padrão.\n\nUse os botões \"Exportar\" e \"Importar\" para fazer backup e restaurar suas configurações personalizadas.",
   "DLG_BUTTONS": [
     "Salvar",
-    "Fechar",
     "Exportar",
     "Importar",
     "Redefinir"

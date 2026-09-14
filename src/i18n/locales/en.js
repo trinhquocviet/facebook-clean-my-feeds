@@ -105,7 +105,6 @@ export default {
   "DLG_TIPS_CONTENT": "Clearing your browser's cache will reset your settings to their default values.\n\nUse the \"Export\" and \"Import\" buttons to backup and restore your customised settings.",
   "DLG_BUTTONS": [
     "Save",
-    "Close",
     "Export",
     "Import",
     "Reset"

@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Vymazáním mezipaměti prohlížeče obnovíte výchozí hodnoty nastavení.\n\nPomocí tlačítek \"Export\" a \"Import\" zálohujte a obnovte svá přizpůsobená nastavení.",
   "DLG_BUTTONS": [
     "Uložit",
-    "Zavřít",
     "Export",
     "Import",
     "Resetovat"

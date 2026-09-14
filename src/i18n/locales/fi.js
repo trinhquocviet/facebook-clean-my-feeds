@@ -103,7 +103,6 @@ export default {
   "DLG_TIPS_CONTENT": "Selaimen välimuistin tyhjentäminen palauttaa asetuksesi oletusarvoihinsa.\n\nKäytä \"Vie\"- ja \"Tuo\"-painikkeita varmuuskopioidaksesi ja palauttaaksesi mukautetut asetukset.",
   "DLG_BUTTONS": [
     "Tallentaa",
-    "Sulkea",
     "Vienti",
     "Tuonti",
     "Nollaa"
