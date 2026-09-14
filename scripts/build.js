@@ -15,7 +15,7 @@ const OUTPUT_DIR = join(projectRoot, 'dist');
 const OUTPUT_FILE = join(OUTPUT_DIR, 'fb-clean-my-feeds.user.js');
 
 if (!existsSync(SRC_FILE)) {
-  console.error(`❌ Source entrypoint not found: ${SRC_FILE}`);
+  console.error(`Source entrypoint not found: ${SRC_FILE}`);
   process.exit(1);
 }
 
@@ -37,7 +37,7 @@ try {
   });
 
   if (!result.success) {
-    console.error('❌ Build failed with errors:');
+    console.error('Build failed with errors:');
     for (const message of result.logs) {
       console.error(message);
     }
@@ -74,9 +74,9 @@ try {
   const duration = (performance.now() - startTime).toFixed(1);
   const sizeKb = (Buffer.byteLength(finalContent, 'utf-8') / 1024).toFixed(2);
 
-  console.log(`✅ Userscript built successfully in ${duration}ms: ${OUTPUT_FILE}`);
-  console.log(`📦 File size: ${sizeKb} KB`);
+  console.log(`Userscript built successfully in ${duration}ms: ${OUTPUT_FILE}`);
+  console.log(`File size: ${sizeKb} KB`);
 } catch (error) {
-  console.error('❌ Build failed with exception:', error);
+  console.error('Build failed with exception:', error);
   process.exit(1);
 }

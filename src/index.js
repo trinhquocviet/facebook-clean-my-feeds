@@ -1,4 +1,19 @@
 import * as idbKeyval from 'idb-keyval';
+import {
+  cleanText,
+  sanitizeReason,
+  generateRandomString,
+  findFirstMatch,
+  findFirstMatchRegExp,
+  getFullNumber,
+  getVideoPublisherPathFromURL,
+  climbUpTheTree,
+  countDescendants,
+  querySelectorAllNoChildren,
+  hasSizeChanged,
+  isDarkMode,
+  buildCssRule
+} from './utils/index.js';
 
 (async function () {
 
@@ -6,9 +21,6 @@ import * as idbKeyval from 'idb-keyval';
 
   // -- TM doesn't like spacesin version number, so convert to human-readable-format.
   const SCRIPT_VERSION = 'v' + GM.info.script.version.replaceAll('-', ' ');
-
-  // idb-keyval is imported as an ES module at top of file
-
 
   // *** *** Language components *** ***
   const masterKeyWords = {
@@ -2176,33 +2188,6 @@ import * as idbKeyval from 'idb-keyval';
     }
   }
 
-  function isDarkMode() {
-    // -- fb's dark-mode : off
-    if (document.documentElement.classList.contains('__fb-light-mode')) {
-      return false;
-    };
-    // -- fb's dark-mode : on
-    if (document.documentElement.classList.contains('__fb-dark-mode')) {
-      return true;
-    };
-    // -- fb's dark-mode: automatic;
-    if (document.body) {
-      // -- check the body's background colour
-      const bodyBackgroundColour = window.getComputedStyle(document.body).backgroundColor;
-      const rgb = bodyBackgroundColour.match(/\d+/g);
-      if (rgb) {
-        const red = parseInt(rgb[0], 10);
-        const green = parseInt(rgb[1], 10);
-        const blue = parseInt(rgb[2], 10);
-
-        const luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
-        return luminance < 128;
-      }
-    }
-    // -- fallback ...
-    return false;
-  }
-
   function buildDictionaries() {
     // -- Sponsored
     VARS.dictionarySponsored = Object.values(masterKeyWords.translations).map(translation => translation.SPONSORED);
@@ -2216,39 +2201,10 @@ import * as idbKeyval from 'idb-keyval';
     VARS.dictionaryReelsAndShortVideos = Object.values(masterKeyWords.translations).map(translation => translation.NF_REELS_SHORT_VIDEOS);
   }
 
-  function generateRandomString() {
-    // - generate random text (first letter must be an alphabet)
-    // -- used for css classes
-    // -- used for postAttCPID
-    // -- used for tagging items
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const strArray = [chars.charAt(Math.floor(Math.random() * 52))]; // First letter must be an alphabet
-
-    for (let i = 0; i < 12; i++) {
-      strArray.push(chars.charAt(Math.floor(Math.random() * 62)));
-    }
-
-    return strArray.join('');
-  }
-
   // -- stylesheet builder
   VARS.tempStyleSheetCode = ''; // holds the SS code while it is being built.
   function addToSS(classes, styles) {
-    // -- formats and builds the StyleSheet code
-    // -- parameters: classes (separated by comma), styles (separated by semicolon)
-    // -- array actions: .filter - remove empties, .map - trim (or pad + trim)
-    // -- function throwing a wobble? - check the properties and values pairs (one could be unmatched)
-    const listOfClasses = classes.split(',').filter(function (e) { return e.trim() }).map(e => e.trim());
-    let styleLines = styles.split(';').filter(function (e) { return e.trim() });
-    styleLines = styleLines.map(function (e) {
-      let temp = e.split(':');
-      return '    ' + temp[0].trim() + ':' + temp[1].trim();
-    });
-
-    let temp = listOfClasses.join(',\n') + ' {\n';
-    temp += styleLines.join(';\n') + ';\n';
-    temp += '}\n';
-    VARS.tempStyleSheetCode += temp;
+    VARS.tempStyleSheetCode += buildCssRule(classes, styles);
   }
 
   // -- various CSS
@@ -4255,13 +4211,6 @@ import * as idbKeyval from 'idb-keyval';
     }
   }
 
-  function climbUpTheTree(element, numberOfBranches = 1) {
-    while (element && numberOfBranches > 0) {
-      element = element.parentNode;
-      numberOfBranches--;
-    }
-    return element || null;
-  }
 
   function doLightDusting(post) {
     // - remove 'dusty' elements that interfere with querySelectorAll, nth-of-type, :not() queries.
@@ -4379,9 +4328,6 @@ import * as idbKeyval from 'idb-keyval';
     return arrayAltTextValues;
   }
 
-  function countDescendants(element) {
-    return element.querySelectorAll('div, span').length;
-  }
 
   function extractTextContent(post, selector, maxBlocks) {
     // - get the text node values of the regular feed posts
@@ -4453,10 +4399,6 @@ import * as idbKeyval from 'idb-keyval';
     post.insertBefore(elTab, post.firstElementChild);
   }
 
-  function sanitizeReason(reason) {
-    // -- setting an attribute, so remove double quotes from reason's text.
-    return reason.replaceAll('"', '');
-  }
 
   function nf_isPostAlreadyHidden(post) {
     // -- checks both directions: the candidate might now be a descendant of
@@ -4681,15 +4623,6 @@ import * as idbKeyval from 'idb-keyval';
     }
   }
 
-  function cleanText(text) {
-    // - fb is using ASCII code 160 for whitespace ...
-    // -- also "normalise" the text (i.e. convert unicode magic to normal ascii code)
-    // -- (unicode magic used to bold/italic/etc characters without html/css/style)
-    // return text.replaceAll(String.fromCharCode(160), String.fromCharCode(32)).normalize('NFKC');
-    // -- normalise(NKFC) will convert 160(00A0) to 32(0020)
-    // -- https://www.unicode.org/charts/normalization/index.html
-    return text.normalize('NFKC');
-  }
 
 
   function nf_isSponsored_ShadowRoot1(post) {
@@ -4902,34 +4835,6 @@ import * as idbKeyval from 'idb-keyval';
     return isSponsoredPost;
   }
 
-  function querySelectorAllNoChildren(container = document, queries = [], minText = 0, executeAllQueries = false) {
-    // -- if no queries are provided, return an empty array.
-    if (!queries || (Array.isArray(queries) && queries.length === 0)) {
-      return [];
-    }
-
-    // -- nb: .querySelectorAll(..) can have multiple queries and will execute them all (regardless of results)
-    if (!Array.isArray(queries)) {
-      queries = [queries];
-    }
-
-    if (executeAllQueries) {
-      return Array.from(container.querySelectorAll(queries)).filter((el) => {
-        return el.children.length === 0 && el.textContent.length >= minText;
-      });
-    }
-
-    for (const query of queries) {
-      const elements = container.querySelectorAll(query);
-      for (const element of elements) {
-        if (element.children.length === 0 && element.textContent.length >= minText) {
-          return [element];
-        }
-      }
-    }
-
-    return [];
-  }
 
   function nf_isSuggested(post) {
     // - check if any of the suggestions / recommendations type post
@@ -5154,24 +5059,6 @@ import * as idbKeyval from 'idb-keyval';
     return (elementsParticipate.length !== 1) ? '' : KeyWords.NF_PARTICIPATE;
   }
 
-  function findFirstMatch(postFullText, textValuesToFind) {
-    const foundText = textValuesToFind.find(text => postFullText.includes(text));
-    return foundText !== undefined ? foundText : '';
-  }
-
-  function findFirstMatchRegExp(postFullText, regexpTextValuesToFind) {
-    // -- using Regular Expressions
-    // -- user supplied the RE patterns
-    for (const pattern of regexpTextValuesToFind) {
-      // -- do not use 'g' - want to reset lastindex to 0 for each test.
-      // --'i' flag for case-insensitive matching;
-      const regex = new RegExp(pattern, 'i');
-      if (regex.test(postFullText)) {
-        return pattern;
-      }
-    }
-    return '';
-  }
 
   function nf_isBlockedText(post) {
     // - check for blocked text - partial text match
@@ -5326,22 +5213,6 @@ import * as idbKeyval from 'idb-keyval';
     console.info(log + 'vf_hideSponsoredBlock(); third block hidden:', thirdBlock);
   }
 
-  function getVideoPublisherPathFromURL(videoURL) {
-
-    // -- sample incoming href:  "https://www.facebook.com/watch/accesshollywood/?__cft__[0]=AZXwuwSI60vEG7hi6bj6YdygG6S8_Afw8RDQ3P-WX2316ihzte0s3aHyt_d-lNbJsqsfaayjaKMYsZNnrysjlKgUioONtwOdliRijNMzf5t81m1NRoqCkhsH2AuhRcpfi3AzBMIyMtbvnSgtU5ETIXEAT7NWllDpX-MdZN1eZElI9_yA8ebTVTyB6Ly58z5bv_E&__tn__=%3C"
-    // -- sample return href: "https://www.facebook.com/accesshollywood/"
-
-    const beginURL = videoURL.split('?')[0];
-    if (!beginURL) {
-      return '';
-    }
-    if (beginURL.indexOf('/watch/') >= 0) {
-      return beginURL.replace('/watch/', '/');
-    }
-    else {
-      return '';
-    }
-  }
 
 
   function vf_setPostLinkToOpenInNewTab(post) {
@@ -5898,45 +5769,6 @@ import * as idbKeyval from 'idb-keyval';
     return false;
   }
 
-  function getFullNumber(value) {
-    // -- convert shortened numbers into full numbers
-    // -- e.g 323 to 323; 1.2K to 1200; 1.4M to 1400000;
-    // :: returns a whole number.
-    let nvalue = 0;
-    if (value !== '') {
-      value = value.toUpperCase();
-      if (value.endsWith('K') || value.endsWith('M')) {
-        let multiplier = 1;
-        let pow_Y = 0;
-        if (value.endsWith('K')) {
-          // -- thousands
-          multiplier = 1000;
-          pow_Y = 3;
-        }
-        else if (value.endsWith('M')) {
-          // -- millions
-          multiplier = 1000000;
-          pow_Y = 6;
-        }
-
-        let bits = value.replace(/[KM]/g, '').replace(',', '.').split('.');
-
-        nvalue = parseInt(bits[0], 10) * multiplier;
-
-        if (bits.length > 1) {
-          nvalue += (parseInt(bits[1], 10) * Math.pow(10, (pow_Y - bits[1].length)));
-        }
-      }
-      else {
-        // -- less than 1000.
-        nvalue = parseInt(value, 10);
-      }
-    }
-    // console.info('results:', value, nvalue);
-    return nvalue;
-  }
-
-
   function nf_scrubTheSurvey() {
     // -- fb survey
     // -- appears on the home page ..
@@ -6102,13 +5934,6 @@ import * as idbKeyval from 'idb-keyval';
     return posts;
   }
 
-  function hasSizeChanged(oldValue, newValue) {
-    // -- any changes in the size of the html structure?
-    // -- nb: fb is constantly changing something small ... hence the tolerance
-    const tolerance = 16;
-    // console.info(log + `hasSizeChanged(${oldValue}, ${newValue}); results: ${Math.abs(parseInt(newValue, 10) - parseInt(oldValue, 10))}`);
-    return Math.abs(parseInt(newValue, 10) - parseInt(oldValue, 10)) > tolerance;
-  }
 
   function isTheHouseDirty() {
     // -- check if the main column exists and has changed ...

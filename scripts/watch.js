@@ -10,8 +10,8 @@ const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 const srcDir = join(projectRoot, 'src');
 
-console.log('🔍 Watching for changes in src/ directory...');
-console.log('📦 Automatically building userscript on file modifications...\n');
+console.log('Watching for changes in src/ directory...');
+console.log('Automatically building userscript on file modifications...\n');
 
 let isBuilding = false;
 let buildPending = false;
@@ -36,7 +36,7 @@ function runBuild() {
     if (code === 0) {
       console.log('✨ Build finished. Waiting for changes...\n');
     } else {
-      console.error(`⚠️ Build exited with code ${code}\n`);
+      console.error(`Build exited with code ${code}\n`);
     }
 
     if (buildPending) {
@@ -46,7 +46,7 @@ function runBuild() {
 
   buildProcess.on('error', (err) => {
     isBuilding = false;
-    console.error('❌ Failed to run build process:', err.message);
+    console.error('Failed to run build process:', err.message);
   });
 }
 
@@ -56,7 +56,7 @@ runBuild();
 // Watch for changes in src/
 watch(srcDir, { recursive: true }, (eventType, filename) => {
   if (filename && filename.endsWith('.js')) {
-    console.log(`🔄 [${eventType}] ${filename}`);
+    console.log(`[${eventType}] ${filename}`);
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       runBuild();
