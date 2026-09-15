@@ -35,14 +35,14 @@ describe('State Module', () => {
       const state = createInitialState();
 
       expect(state.hideAnInfoBox).toBe(false);
-      expect(state.tempStyleSheetCode).toBe('');
       expect(state.hideWithNoCaptionAtt).toBe('');
       expect(state.prevQuery).toBe('');
     });
 
-    it('should purge all 7 dead properties from state', () => {
+    it('should purge all dead properties from state', () => {
       const state = createInitialState();
 
+      expect(state.tempStyleSheetCode).toBeUndefined();
       expect(state.b1Att).toBeUndefined();
       expect(state.b2Att).toBeUndefined();
       expect(state.cssOID).toBeUndefined();

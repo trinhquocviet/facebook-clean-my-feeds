@@ -19,7 +19,7 @@ import {
   querySelectorAllNoChildren,
   hasSizeChanged,
   isDarkMode,
-  buildCssRule
+  buildStylesheet
 } from './utils/index.js';
 import {
   postAtt,
@@ -37,6 +37,11 @@ import {
   resetFeedFlags,
   resetEchoState
 } from './state/index.js';
+import {
+  getPostHideRules,
+  getDialogRules,
+  getToggleRules
+} from './styles/index.js';
 
 (async function () {
 
@@ -98,12 +103,6 @@ import {
     VARS.dictionaryReelsAndShortVideos = buildReelsDictionary();
   }
 
-  // -- stylesheet builder
-  VARS.tempStyleSheetCode = ''; // holds the SS code while it is being built.
-  function addToSS(classes, styles) {
-    VARS.tempStyleSheetCode += buildCssRule(classes, styles);
-  }
-
   // -- various CSS
   function addCSS() {
     // - CSS styles for hiding or highlighting the selected posts / element
@@ -135,317 +134,25 @@ import {
       VARS.cssHideNumberOfShares = generateRandomString(); // - hide "# shares" on posts.
       VARS.showAtt = generateRandomString(); // - for revealing hidden elements.
     }
-    VARS.tempStyleSheetCode = ''; // reset temp CSS code.
 
-    // -- override random class names - for testing purposes only.
-    // VARS.hideAtt = 'cmfr-hide';
-    // VARS.cssHideEl = 'cmfr-hide-element';
-    // VARS.cssHideNumberOfShares = 'cmfr-hide-shares';
-
-
-    // -- **** fix fb's bug in not "hiding" certain elements properly when scrolling
-    addToSS('body > div[style*="position: absolute"], ' +
-      'body > div[style*="position:absolute"]',
-      'top: -1000000px !important;'
-    );
-
-    // -- hide the post
-    // -- not using hidden post caption facility
-    addToSS(
-      `div[${VARS.hideAtt}]`,
-      'max-height: 0; overflow: hidden; margin-bottom:0 !important;'
-    );
-
-    // -- reveal the post
-    // -- first one, inside a <details> element (showAtt's attribute not required)
-    // -- second one, not inside a <details> element
-    // -- not using hidden post caption facility
-    addToSS(
-      `details[${postAtt}][open] > div, ` +
-      `details[${postAtt}][open] > span > div, ` + // -- usually aside components
-      `div[${VARS.showAtt}]:not([id="fbcmf"])`,
-      'max-height: 10000px; overflow: auto; margin-bottom:1rem !important; ' +
-      'border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; background-color: var(--card-background)'
-    );
-
-    // -- summary element - list-style removes the twistie symbol
-    // -- using the +/- symbols to open/close
-    addToSS(
-      `details[${postAtt}] > summary`,
-      'cursor: pointer; list-style: none; ' +
-      'position: relative; ' +
-      'margin: auto; padding: 0.75rem; ' +
-      'border-radius: 0.5rem; font-style: italic; ' +
-      'width: inherit; ' +
-      'color: var(--primary-text); ' +
-      `background-color: var(--card-background);`
-    );
-    addToSS(
-      `details[${postAtt}="~"] > summary`,
-      'margin: 0 1rem; '
-    );
-    addToSS(
-      `details[${postAtt}] > summary:hover`,
-      'text-decoration: underline;'
-    );
-    // -- formatting of +/-
-    addToSS(
-      `details[${postAtt}] > summary::after`,
-      'color: var(--color); ' +
-      'border-radius: 50%; font-style: normal; ' +
-      'width: 24px; height: 24px; line-height: 20px;' +
-      'font-size: 1rem; font-weight: bold; transform: translateY(-50%); text-align: center;' +
-      'position: absolute; top: 50%; right: 0.25rem;'
-    );
-    addToSS(
-      `details[${postAtt}] > summary::after`,
-      'content:"\\002B";' // "+"
-    );
-    addToSS(
-      `details[${postAtt}][open] > summary::after`,
-      'content: "\\2212";' // "-"
-    );
-    addToSS(
-      `details[${postAtt}] > summary:hover::after`,
-      'background-color: var(--hover-overlay);'
-    );
-
-    // -- reveal a hidden post
-    addToSS(
-      `details[${postAtt}]`,
-      'margin-bottom: 1rem; '
-    );
-    addToSS(
-      `details[${postAtt}][open] > summary`,
-      'border-bottom-left-radius: 0; border-bottom-right-radius: 0;'
-    );
-
-    // -- hide a component (e.g. marketplace item)
-    addToSS(
-      `div[${VARS.hideWithNoCaptionAtt}],` +
-      `span[${VARS.hideWithNoCaptionAtt}]`,
-      'display: none;'
-    );
-    // -- show a component (e.g. marketplace item)
-    addToSS(
-      `div[${VARS.hideWithNoCaptionAtt}][${VARS.showAtt}], ` +
-      `span[${VARS.hideWithNoCaptionAtt}][${VARS.showAtt}]`,
-      'display: block;'
-    );
-
-    // - mini-caption (for gf + vf consecutive mode)
-    addToSS(
-      `h6[${postAttTab}]`,
-      'border-radius: 0.55rem 0.55rem 0 0; width:75%; margin:0 auto; padding: 0.45rem 0.25rem; font-style:italic; text-align:center; font-weight:normal;' +
-      `background-color: var(--card-background); `
-    );
-
-
-    // -- # shares
-    addToSS(
-      `[${VARS.cssHideNumberOfShares}]`,
-      'display:none !important;'
-    );
-
-    // - dailog box CSS
-    // --- dialog box; position + flex
-    let bColour = 'var(--divider)';
-    let tColour = 'var(--primary-text)';
-    // - left / right done in fn addExtraCSS()
-    addToSS(
-      '.fb-cmf ',
-      'position:fixed; top:0.15rem; bottom:0.15rem; display:flex; flex-direction:column; width: 100%; max-width:30rem; padding:0 1rem; z-index:5;' +
-      'box-shadow: 0 12px 28px 0 var(--shadow-2), 0 2px 4px 0 var(--shadow-1), inset 0 0 0 1px var(--shadow-inset);' +
-      `border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour};`
-      // `border:2px solid ${bColour}; border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour};`
-    );
-    // - dialog's background color
-    // if (VARS.isDarkMode) {
-    //     addToSS('.fb-cmf', 'background-color:var(--web-wash);');
-    // }
-    // else {
-    //     addToSS('.fb-cmf', 'background-color: var(--card-background);');
-    // }
-    addToSS('.fb-cmf', 'background-color: var(--card-background);');
-
-    // addToSS('.__fb-light-mode .fb-cmf', 'background-color:#fefefa;');
-    // addToSS('.__fb-dark-mode .fb-cmf', 'background-color:var(--web-wash);');
-    // addToSS('.fb-cmf', 'background-color:floralwhite;'); // -- fall back colour.
-    // addToSS('.fb-cmf', 'background-color:var(--web-wash);'); // -- fall back colour.
-
-    addToSS(
-      '.fb-cmf header',
-      'display:flex; justify-content:space-between; direction:ltr;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-icon',
-      'flex-grow:0; align-self:auto; width:75px; text-align:left; order:1;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-icon svg',
-      'width:64px; height:64px; margin:2px 0;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-title',
-      'flex-grow:2; align-self:auto; order:2;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-title .script-version',
-      'font-size: 0.75rem; font-weight: normal;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-lang-1',
-      'padding-top:1.25rem;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-lang-2',
-      'padding-top:0.75rem;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-title > div',
-      'font-size:1.35rem; font-weight: 700; text-align:center;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-title > small',
-      'display:block; font-size:0.8rem; text-align:center;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-close',
-      'flex-grow:0; align-self:auto; width:75px; text-align:right; padding: 1.5rem 0 0 0; order:3;'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-close button',
-      'width: 2.25rem; height: 2.25rem; ' +
-      'transition-property: color, fill, stroke; transition-timing-function: var(--fds-soft); transition-duration: var(--fds-fast);' +
-      'cursor: pointer; background-color: transparent;' +
-      'border-radius: 50%; border: none;' +
-      'color: var(--secondary-icon);'
-    );
-    addToSS(
-      '.fb-cmf header .fb-cmf-close button:hover',
-      'background-color: var(--hover-overlay);'
-    );
-
-    // -- content
-    addToSS(
-      '.fb-cmf div.content',
-      `flex:1; overflow: hidden auto; border:1px solid ${bColour}; border-radius:0.5rem; color: var(--primary-text);`
-    );
-    addToSS(
-      '.fb-cmf fieldset',
-      'margin:0.5rem; padding:0.5rem; border-style: solid;'
-    );
-    addToSS(
-      '.fb-cmf fieldset *',
-      // 'font-size: calc(var(--body-font-size) * 0.9);'
-      //'font-size: var(--body-font-size);'
-      'font-size: 0.8125rem;'
-    )
-    addToSS(
-      '.fb-cmf fieldset legend',
-      'font-size: 0.95rem;' +
-      'width: 95%;  padding: 0 0.5rem 0.125rem 0.5rem;' +
-      'line-height: 2.5; ' +
-      'border-width: 2px; border-style: solid; border-radius: 0.5rem 0.5rem 0 0 ;'
-    );
-    addToSS(
-      '.fb-cmf fieldset legend:hover,' +
-      '.fb-cmf fieldset label:hover',
-      //'background-color: LightGrey; cursor: pointer;'
-      'background-color: var(--hover-overlay); cursor: pointer;'
-    );
-    addToSS(
-      '.fb-cmf fieldset.visible,' +
-      '.fb-cmf fieldset.visible legend ',
-      `border-color: ${bColour};`
-    );
-    addToSS(
-      '.fb-cmf fieldset.hidden,' +
-      '.fb-cmf fieldset.hidden legend ',
-      'border-color: LightGrey;'
-    );
-    addToSS(
-      '.fb-cmf fieldset.hidden *:not(legend) ',
-      'display: none;'
-    );
-    addToSS(
-      '.fb-cmf fieldset.visible legend::after',
-      'content: "\\2212"; float:right;' // "-"
-    )
-    addToSS(
-      '.fb-cmf fieldset.hidden legend::after',
-      'content: "\\002B"; float:right;' // "+"
-    )
-    addToSS(
-      '.fb-cmf fieldset label',
-      'display:inline-block; padding:0.125rem 0; color: var(--primary-text); font-weight: normal; width:100%;'
-    );
-    addToSS(
-      '.fb-cmf fieldset label input',
-      'margin: 0 0.5rem 0 0.5rem; vertical-align:baseline;' // left & right margins for RTL & LTR text
-    );
-    addToSS(
-      '.fb-cmf fieldset label[disabled]',
-      'color:darkgrey;'
-    );
-    addToSS(
-      '.fb-cmf fieldset textarea',
-      'width:100%; height:12rem;'
-    );
-    addToSS(
-      '.fb-cmf fieldset select',
-      'border: 2px inset lightgray;' +
-      'margin: 0 0.5rem 0 0.5rem; vertical-align:baseline;' // left & right margins for RTL & LTR text
-    )
-    addToSS(
-      '.__fb-dark-mode .fb-cmf fieldset textarea,' +
-      '.__fb-dark-mode .fb-cmf fieldset input[type="input"]' +
-      '.__fb-dark-mode .fb-cmf fieldset select',
-      'background-color:var(--comment-background); color:var(--primary-text);'
-    );
-    // -- footer - buttons + results
-    addToSS(
-      '.fb-cmf footer',
-      'display: grid; justify-content: space-evenly; padding:1rem 0.25rem; text-align:center;'
-    );
-    addToSS(
-      '.fb-cmf .buttons button',
-      // 'margin-left: 1rem; margin-right:1rem;'
-      'margin-left: 0.25rem; margin-right: 0.25rem;'
-    );
-    // -- footer - file input
-    addToSS(
-      '.fb-cmf .fileInput',
-      'display:none;'
-    );
-    // -- footer - import results
-    addToSS(
-      '.fb-cmf .fileResults',
-      'grid-column-start: 1; grid-column-end: 6; font-style:italic; margin-top: 0.5rem;'
-    );
-    // -- show dialog box (default is not to show)
-    addToSS(
-      `.fb-cmf[${VARS.showAtt}]`,
-      'opacity:1; transform:scale(1); visibility:visible;'
-    );
-    // -- new window icon
-    addToSS(
-      `.${VARS.iconNewWindowClass}`,
-      'width: 1rem; height: 1rem;'
-    );
-    // 'width: 1rem; height: 1rem; margin-left: 0.2rem; margin-right: 0.2rem;'
-    addToSS(
-      `.${VARS.iconNewWindowClass} a`,
-      'width: 1rem; position: relative; display: inline-block;'
-    );
-    addToSS(
-      `.${VARS.iconNewWindowClass} svg`,
-      'position: absolute; top: -13.5px; stroke: rgb(101, 103, 107);'
-    );
-
-    // - save & apply the CSS
-    elStylesheet.appendChild(document.createTextNode(VARS.tempStyleSheetCode));
-    VARS.tempStyleSheetCode = '';
+    // Build all CSS rules from declarative modules
+    const rules = [
+      ...getPostHideRules({
+        hideAtt: VARS.hideAtt,
+        hideWithNoCaptionAtt: VARS.hideWithNoCaptionAtt,
+        showAtt: VARS.showAtt,
+        cssHideNumberOfShares: VARS.cssHideNumberOfShares,
+      }),
+      ...getDialogRules({
+        showAtt: VARS.showAtt,
+        iconNewWindowClass: VARS.iconNewWindowClass,
+      }),
+      ...getToggleRules({
+        showAtt: VARS.showAtt,
+      }),
+    ];
+    const cssText = buildStylesheet(rules, { merge: true });
+    elStylesheet.appendChild(document.createTextNode(cssText));
   }
 
   function addExtraCSS() {
@@ -474,82 +181,28 @@ import {
 
     // Grab the existing Stylesheet and amend it
     let elStylesheet = document.getElementById(VARS.cssID);
-    let styles;
 
-    VARS.tempStyleSheetCode = ''; // reset
-    styles = '';
+    // --- Set data attributes for CSS position classes ---
+    const btnEl = document.querySelector('.fb-cmf-toggle');
+    if (btnEl) {
+      const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
+      btnEl.setAttribute('data-cmf-pos', posMap[cmfBtnLocation] || 'bottom-left');
+    }
 
-    // - button's location.
-    if (cmfBtnLocation === '1') {
-      // - top right
-      if (document.querySelector('[role="banner"]')) {
-        // - oldish FB structure has menu buttons across the top (changed for some users in Apr/May 2022)
-        addToSS(
-          'div[role="banner"] > div:last-of-type div[role="navigation"]',
-          'margin-right: 42px;'
-        );
+    const dlgEl = document.getElementById('fbcmf');
+    if (dlgEl) {
+      dlgEl.setAttribute('data-cmf-dlg', cmfDlgLocation === '1' ? 'right' : 'left');
+    }
+
+    // --- Banner navigation fallback (conditional, requires DOM check) ---
+    if (cmfBtnLocation === '1' && document.querySelector('[role="banner"]')) {
+      const bannerCSS = buildStylesheet([{
+        selector: 'div[role="banner"] > div:last-of-type div[role="navigation"]',
+        styles: 'margin-right: 42px;'
+      }]);
+      if (bannerCSS.length > 0) {
+        elStylesheet.appendChild(document.createTextNode(bannerCSS));
       }
-      styles = 'position:fixed; top:0.5rem; right:0.5rem; display:none;';
-    }
-    else if (cmfBtnLocation === '2') {
-      // - disabled, use "Settings" in the user script menu.
-      // - no css
-      styles = 'display: none !important;';
-    }
-    else {
-      // - cmfBtnLocation === "0" : bottom left
-      // - has the buttons running down the side of the page (May 2022 ->).
-      // styles = 'position:fixed; bottom:4.25rem; left:1.1rem; display:none;';
-      styles = 'position: fixed; bottom: 1rem; left: 1rem; display:none; z-index: 999;'; // position
-      styles += 'background: var(--secondary-button-background-floating); padding: 0.5rem; width: 3rem; height: 3rem; border: 0; border-radius: 1.5rem;'; // styles
-      styles += 'box-shadow: 0 2px 4px var(--shadow-1), 0 12px 28px var(--shadow-2);'; // drop shadow
-    }
-    if (styles.length > 0) {
-      addToSS(
-        '.fb-cmf-toggle',
-        styles
-      );
-      // - btn - basic styling.
-      // addToSS('.fb-cmf-toggle', 'border-radius:0.3rem;');
-      addToSS('.fb-cmf-toggle svg', 'height: 95%; aspect-ratio : 1 / 1;');
-      addToSS('.fb-cmf-toggle:hover', 'cursor:pointer;');
-      // - dialog box's display
-      addToSS(`.fb-cmf-toggle[${VARS.showAtt}]`, 'display:block;');
-    }
-    // - dialog box's left/right + animated open/close behaviour
-    if (cmfDlgLocation === '1') {
-      // - right
-      styles = 'right:0.35rem; margin-left:1rem; transform:scale(0);transform-origin:top right;';
-    }
-    else {
-      // - left (cmfDlgLocation === '0')
-      styles = 'left:4.25rem; margin-right:1rem; transform:scale(0);transform-origin:center center;';
-    }
-    addToSS(
-      '.fb-cmf',
-      styles +
-      'transition:transform .45s ease, opacity .25s ease, visibility 1s ease;'
-    );
-
-    addToSS(
-      'div#fbcmf footer > button',
-      'font-family: inherit; cursor: pointer;' +
-      'height: var(--button-height-medium); padding: 0 var(--button-padding-horizontal-medium);' +
-      'border: none; border-radius: var(--button-corner-radius);' +
-      'background-color: var(--secondary-button-background);' +
-      '-webkit-transition: background-color 0.2s linear; transition: background-color 0.2s linear;' +
-      'font-size: .9375rem; font-weight: 600;' +
-      'color: var(--secondary-button-text);'
-    );
-    addToSS(
-      '#fbcmf footer > button:hover',
-      'font-family: inherit;' +
-      'background-color: var(--primary-button-background);' +
-      'color: var(--primary-button-text);'
-    );
-    if (VARS.tempStyleSheetCode.length > 0) {
-      elStylesheet.appendChild(document.createTextNode(VARS.tempStyleSheetCode));
-      VARS.tempStyleSheetCode = '';
     }
   }
 

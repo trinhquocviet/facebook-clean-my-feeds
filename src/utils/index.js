@@ -32,5 +32,5 @@ export {
 } from './theme.js';
 
 export {
-  buildCssRule
-} from './css.js';
+  buildStylesheet
+} from './css-builder.js';

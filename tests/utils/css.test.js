@@ -1,39 +1,42 @@
 import { describe, test, expect } from 'bun:test';
-import { buildCssRule } from '../../src/utils/css.js';
+import { buildStylesheet } from '../../src/utils/css-builder.js';
 
-describe('utils/css', () => {
-  describe('buildCssRule', () => {
-    test('formats a single selector and style declaration', () => {
-      const result = buildCssRule('.hidden-post', 'display: none');
-      expect(result).toBe('.hidden-post {\n    display:none;\n}\n');
+describe('utils/css-builder', () => {
+  describe('buildStylesheet', () => {
+    test('builds stylesheet from rules array', () => {
+      const rules = [
+        { selector: '.hidden-post', styles: 'display: none;' },
+        { selector: '.visible-post', styles: 'display: block;' },
+      ];
+      const result = buildStylesheet(rules);
+      expect(result).toBe('.hidden-post { display: none; }\n.visible-post { display: block; }');
     });
 
-    test('formats multiple comma-separated selectors with indentation', () => {
-      const selectors = '.post-ad, div[data-ad], .sponsored';
-      const styles = 'display: none; visibility: hidden;';
-      const result = buildCssRule(selectors, styles);
-      expect(result).toBe(
-        '.post-ad,\n' +
-        'div[data-ad],\n' +
-        '.sponsored {\n' +
-        '    display:none;\n' +
-        '    visibility:hidden;\n' +
-        '}\n'
-      );
+    test('ignores invalid or empty entries', () => {
+      const rules = [
+        { selector: '', styles: 'display: none;' },
+        { selector: '.valid', styles: '' },
+        null,
+        { selector: '  .trimmed  ', styles: '  color: red;  ' },
+      ];
+      const result = buildStylesheet(rules);
+      expect(result).toBe('.trimmed { color: red; }');
     });
 
-    test('handles declarations with multiple colons (e.g. data URLs or CSS functions)', () => {
-      const selectors = '.icon';
-      const styles = 'background-image: url("data:image/svg+xml,..."); color: red;';
-      const result = buildCssRule(selectors, styles);
-      expect(result).toContain('background-image:url("data:image/svg+xml,...")');
-      expect(result).toContain('color:red');
+    test('returns empty string for empty array or non-array', () => {
+      expect(buildStylesheet([])).toBe('');
+      expect(buildStylesheet(null)).toBe('');
+      expect(buildStylesheet(undefined)).toBe('');
     });
 
-    test('returns empty string for invalid or empty inputs', () => {
-      expect(buildCssRule('', 'display: none')).toBe('');
-      expect(buildCssRule('.test', '')).toBe('');
-      expect(buildCssRule(null, undefined)).toBe('');
+    test('supports merge: true to combine styles for duplicate selectors', () => {
+      const rules = [
+        { selector: '.fb-cmf', styles: 'display: flex;' },
+        { selector: '.btn', styles: 'cursor: pointer;' },
+        { selector: '.fb-cmf', styles: 'background: white;' },
+      ];
+      const result = buildStylesheet(rules, { merge: true });
+      expect(result).toBe('.fb-cmf { display: flex; background: white; }\n.btn { cursor: pointer; }');
     });
   });
 });

@@ -123,8 +123,6 @@ export function createInitialState() {
     cssHideEl: '',
     /** Session-unique CSS class name for hiding share counters */
     cssHideNumberOfShares: '',
-    /** Buffer string holding generated CSS rules prior to injection */
-    tempStyleSheetCode: '',
 
     // ------------------------------------------------------------------------
     // UI Elements & Assets
