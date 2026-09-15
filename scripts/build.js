@@ -24,7 +24,7 @@ if (!existsSync(OUTPUT_DIR)) {
   mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-console.log('Building userscript with Bun (Vanilla JavaScript)...');
+console.log('Building userscript with Bun...');
 const startTime = performance.now();
 
 try {
