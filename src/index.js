@@ -1,4 +1,4 @@
-import { get, set, createStore } from 'idb-keyval';
+import { createStore } from 'idb-keyval';
 import {
   masterKeyWords,
   getTranslation,
@@ -43,6 +43,10 @@ import {
   getToggleRules
 } from './styles/index.js';
 import { buildMoppingDialog } from './modules/dialog/index.js';
+import {
+  getUserOptions as loadUserOptionsCore,
+  initLanguageAndOptions
+} from './modules/user/index.js';
 
 (async function () {
 
@@ -82,18 +86,13 @@ import { buildMoppingDialog } from './modules/dialog/index.js';
 
   // -- which language is the FB page in?
   function setLanguageAndOptions() {
-    // - run this function when HEAD is available.
-    // - also run getUserOptions().
-    if (document.head) {
-      // ...
-      let result = getUserOptions().then(() => {
-        // -- getUserOptions() will set the language.
-        return true;
-      });
-    }
-    else {
-      setTimeout(setLanguageAndOptions, 5);
-    }
+    initLanguageAndOptions({
+      VARS,
+      DBVARS,
+      masterKeyWords,
+      cloneKeywords,
+      log
+    });
   }
 
   function buildDictionaries() {
@@ -209,388 +208,13 @@ import { buildMoppingDialog } from './modules/dialog/index.js';
 
   // -- get the user's settings ...
   async function getUserOptions() {
-    // -- read in the saved data, else set defaults.
-    let changed = false;
-    // - reset Options
-    VARS.Options = new Object();
-    VARS.optionsReady = false;
-
-    // - has the user previously saved options?
-    // -- if yes, the update Options
-    let result = await get(DBVARS.DBKey, DBVARS.ostore).then((values) => {
-      if (values) {
-        // -- has data
-        VARS.Options = JSON.parse(values);
-        return 1;
-      }
-      else {
-        // -- no data (first time)
-        return 0;
-      }
-    }).catch((err) => {
-      console.info(`${log}getuserOptions() > get() - Error:`, err);
+    return loadUserOptionsCore({
+      VARS,
+      DBVARS,
+      masterKeyWords,
+      cloneKeywords,
+      log
     });
-
-    if (!VARS.Options.hasOwnProperty('CMF_DIALOG_LANGUAGE')) {
-      const lang = document.head.parentNode.lang || 'en';
-      VARS.language = masterKeyWords.translations.hasOwnProperty(lang) ? lang : 'en';
-      //console.info(log + 'getUserOptions();  .. first time .. :', lang, VARS.language);
-    }
-    else {
-      const uiLang = VARS.Options.CMF_DIALOG_LANGUAGE || 'en';
-      const lang = document.head.parentNode.lang || 'en';
-      if (masterKeyWords.translations.hasOwnProperty(uiLang)) {
-        VARS.language = uiLang;
-      }
-      else if (masterKeyWords.translations.hasOwnProperty(lang)) {
-        VARS.language = lang;
-      }
-      else {
-        VARS.language = lang;
-      }
-      //console.info(log + 'getUserOptions();  language:', uiLang, lang, VARS.language);
-      //console.info(log + 'getUserOptions(); masterKeywords.transations:', masterKeyWords.translations);
-    }
-    VARS.Options.CMF_DIALOG_LANGUAGE = VARS.language;
-
-    cloneKeywords();
-
-    // -- check that all variables exists ... if not, assign them default values..
-    // -- Sponsored (always enabled)
-    if (!VARS.Options.hasOwnProperty('NF_SPONSORED')) {
-      VARS.Options.NF_SPONSORED = masterKeyWords.defaults['SPONSORED'];
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('GF_SPONSORED')) {
-      VARS.Options.GF_SPONSORED = masterKeyWords.defaults['SPONSORED'];
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('VF_SPONSORED')) {
-      VARS.Options.VF_SPONSORED = masterKeyWords.defaults['SPONSORED'];
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('MP_SPONSORED')) {
-      VARS.Options.MP_SPONSORED = masterKeyWords.defaults['SPONSORED'];
-      changed = true;
-    }
-
-    // -- which option has been enabled / disabled?
-    VARS.hideAnInfoBox = false;
-    for (const key in KeyWords) {
-      if (key.slice(0, 3) === 'NF_' && key.slice(0, 10) !== 'NF_BLOCKED') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-      }
-      else if (key.slice(0, 3) === 'GF_' && key.slice(0, 10) !== 'GF_BLOCKED') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-      }
-      else if (key.slice(0, 3) === 'VF_' && key.slice(0, 10) !== 'VF_BLOCKED') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-      }
-      else if (key.slice(0, 3) === 'MP_' && key.slice(0, 10) !== 'MP_BLOCKED') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-      }
-      else if (key.slice(0, 3) === 'PP_' && key.slice(0, 10) !== 'PP_BLOCKED') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-      }
-      else if (key.slice(0, 10) === 'OTHER_INFO') {
-        if (!VARS.Options.hasOwnProperty(key)) {
-          VARS.Options[key] = masterKeyWords.defaults[key];
-          changed = true;
-        }
-        if (VARS.Options[key]) {
-          VARS.hideAnInfoBox = true;
-        }
-      }
-    }
-
-    // -- all other options.
-    if (!VARS.Options.hasOwnProperty('NF_BLOCKED_ENABLED')) {
-      VARS.Options.NF_BLOCKED_ENABLED = masterKeyWords.defaults.NF_BLOCKED_ENABLED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('NF_BLOCKED_FEED')) {
-      VARS.Options.NF_BLOCKED_FEED = masterKeyWords.defaults.NF_BLOCKED_FEED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('NF_BLOCKED_TEXT')) {
-      VARS.Options.NF_BLOCKED_TEXT = '';
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('GF_BLOCKED_ENABLED')) {
-      VARS.Options.GF_BLOCKED_ENABLED = masterKeyWords.defaults.GF_BLOCKED_ENABLED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('GF_BLOCKED_FEED')) {
-      VARS.Options.GF_BLOCKED_FEED = masterKeyWords.defaults.GF_BLOCKED_FEED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('GF_BLOCKED_TEXT')) {
-      VARS.Options.GF_BLOCKED_TEXT = '';
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('VF_BLOCKED_ENABLED')) {
-      VARS.Options.VF_BLOCKED_ENABLED = masterKeyWords.defaults.VF_BLOCKED_ENABLED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('VF_BLOCKED_FEED')) {
-      VARS.Options.VF_BLOCKED_FEED = masterKeyWords.defaults.VF_BLOCKED_FEED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('VF_BLOCKED_TEXT')) {
-      VARS.Options.VF_BLOCKED_TEXT = '';
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('MP_BLOCKED_ENABLED')) {
-      VARS.Options.MP_BLOCKED_ENABLED = masterKeyWords.defaults.MP_BLOCKED_ENABLED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('MP_BLOCKED_FEED')) {
-      VARS.Options.MP_BLOCKED_FEED = masterKeyWords.defaults.MP_BLOCKED_FEED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('MP_BLOCKED_TEXT')) {
-      VARS.Options.MP_BLOCKED_TEXT = '';
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('MP_BLOCKED_TEXT_DESCRIPTION')) {
-      VARS.Options.MP_BLOCKED_TEXT_DESCRIPTION = '';
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('PP_BLOCKED_ENABLED')) {
-      VARS.Options.PP_BLOCKED_ENABLED = masterKeyWords.defaults.PP_BLOCKED_ENABLED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('PP_BLOCKED_FEED')) {
-      VARS.Options.PP_BLOCKED_FEED = masterKeyWords.defaults.PP_BLOCKED_FEED;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('PP_BLOCKED_TEXT')) {
-      VARS.Options.PP_BLOCKED_TEXT = '';
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('VERBOSITY_LEVEL')) {
-      VARS.Options.VERBOSITY_LEVEL = masterKeyWords.defaults.DLG_VERBOSITY;
-      changed = true;
-    }
-    // - nb: test conditions, undefined needs to be tested before using .toString(), otherwise JS complains...
-    if (
-      (!VARS.Options.hasOwnProperty('VERBOSITY_DEBUG')) ||
-      (VARS.Options.VERBOSITY_DEBUG === undefined) ||
-      (VARS.Options.VERBOSITY_DEBUG.toString() === '')
-    ) {
-      VARS.Options.VERBOSITY_DEBUG = masterKeyWords.defaults.VERBOSITY_DEBUG;
-      changed = true;
-    }
-
-    if (!VARS.Options.hasOwnProperty('CMF_BTN_OPTION')) {
-      VARS.Options.CMF_BTN_OPTION = masterKeyWords.defaults.CMF_BTN_OPTION;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('CMF_DIALOG_OPTION')) {
-      VARS.Options.CMF_DIALOG_OPTION = masterKeyWords.defaults.CMF_DIALOG_OPTION;
-      changed = true;
-    }
-    if (!VARS.Options.hasOwnProperty('NF_LIKES_MAXIMUM_COUNT')) {
-      VARS.Options.NF_LIKES_MAXIMUM_COUNT = '';
-      changed = true;
-    }
-
-
-
-    if (changed) {
-      // - save the changes ...
-      // -- usually happen if first time setup or change in Options' variables.
-      let result = await set(DBVARS.DBKey, JSON.stringify(VARS.Options), DBVARS.ostore).then(() => {
-        return true;
-      }).catch((err) => {
-        console.info(`${log}getUserOptions() > changed > saving - failed, Error: ${err}`);
-        return false;
-      });
-      if (VARS.Options.VERBOSITY_DEBUG) {
-        if (result) {
-          console.info(`${log}Changed - success`);
-        }
-        else {
-          console.info(`${log}Changed - failed`);
-        }
-      }
-    }
-
-    // split the blocks of texts entries into arrays and translate to lowercase.
-    VARS.Filters = new Object();
-
-    // -- original list of text for each feed
-    let nfBlockedText = '';
-    let gfBlockedText = '';
-    let vfBlockedText = '';
-    let ppBlockedText = '';
-    let mpBlockedText = '';
-    let mpBlockedTextDesc = '';
-    if (VARS.Options.NF_BLOCKED_ENABLED === true) {
-      nfBlockedText = VARS.Options.NF_BLOCKED_TEXT;
-    }
-    if (VARS.Options.GF_BLOCKED_ENABLED === true) {
-      gfBlockedText = VARS.Options.GF_BLOCKED_TEXT;
-    }
-    if (VARS.Options.VF_BLOCKED_ENABLED === true) {
-      vfBlockedText = VARS.Options.VF_BLOCKED_TEXT;
-    }
-    if (VARS.Options.MP_BLOCKED_ENABLED === true) {
-      mpBlockedText = VARS.Options.MP_BLOCKED_TEXT;
-      mpBlockedTextDesc = VARS.Options.MP_BLOCKED_TEXT_DESCRIPTION;
-    }
-    if (VARS.Options.PP_BLOCKED_ENABLED === true) {
-      ppBlockedText = VARS.Options.PP_BLOCKED_TEXT;
-    }
-
-    // -- final list of text for each feed
-    let nfBlockedTextList = '';
-    let gfBlockedTextList = '';
-    let vfBlockedTextList = '';
-    let ppBlockedTextList = '';
-    let mpBlockedTextList = '';
-    let mpBlockedTextDescList = '';
-
-    // -- ##_BLOCKED_FEED[X] : 0 = NF, 1 = GF, 2 = VF.
-    // -- rule: both feeds must be enabled before appending text list from one feed to another text list
-    // -- news feed:
-    if (VARS.Options.NF_BLOCKED_ENABLED) {
-      nfBlockedTextList = nfBlockedText; // final list
-      // -- add gf to nf
-      if (VARS.Options.GF_BLOCKED_ENABLED && VARS.Options.GF_BLOCKED_FEED[0] === '1') {
-        if (gfBlockedText.length > 0) {
-          nfBlockedTextList += ((nfBlockedTextList.length > 0) ? VARS.SEP : '') + gfBlockedText;
-        }
-      }
-      // -- add vf to nf
-      if (VARS.Options.VF_BLOCKED_ENABLED && VARS.Options.VF_BLOCKED_FEED[0] === '1') {
-        if (vfBlockedText.length > 0) {
-          nfBlockedTextList += ((nfBlockedTextList.length > 0) ? VARS.SEP : '') + vfBlockedText;
-        }
-      }
-    }
-    // -- groups feed:
-    if (VARS.Options.GF_BLOCKED_ENABLED) {
-      gfBlockedTextList = gfBlockedText; // final list
-      // -- add nf to gf
-      if (VARS.Options.NF_BLOCKED_ENABLED && VARS.Options.NF_BLOCKED_FEED[1] === '1') {
-        if (nfBlockedText.length > 0) {
-          gfBlockedTextList += ((gfBlockedTextList.length > 0) ? VARS.SEP : '') + nfBlockedText;
-        }
-      }
-      // -- add vf to gf
-      if (VARS.Options.VF_BLOCKED_ENABLED && VARS.Options.VF_BLOCKED_FEED[1] === '1') {
-        if (vfBlockedText.length > 0) {
-          gfBlockedTextList += ((gfBlockedTextList.length > 0) ? VARS.SEP : '') + vfBlockedText;
-        }
-      }
-    }
-    // -- videos feed:
-    if (VARS.Options.VF_BLOCKED_ENABLED) {
-      vfBlockedTextList = vfBlockedText; // final list
-      // -- add nf to vf
-      if (VARS.Options.NF_BLOCKED_ENABLED && VARS.Options.NF_BLOCKED_FEED[2] === '1') {
-        if (nfBlockedText.length > 0) {
-          vfBlockedTextList += ((vfBlockedTextList.length > 0) ? VARS.SEP : '') + nfBlockedText;
-        }
-      }
-      // -- add gf to vf
-      if (VARS.Options.GF_BLOCKED_ENABLED && VARS.Options.GF_BLOCKED_FEED[2] === '1') {
-        if (gfBlockedText.length > 0) {
-          vfBlockedTextList += ((vfBlockedTextList.length > 0) ? VARS.SEP : '') + gfBlockedText;
-        }
-      }
-    }
-
-    // -- market place (stand-alone):
-    if (VARS.Options.MP_BLOCKED_ENABLED) {
-      mpBlockedTextList = mpBlockedText;
-      mpBlockedTextDescList = mpBlockedTextDesc;
-    }
-
-    // -- profile page (stand-alone):
-    if (VARS.Options.PP_BLOCKED_ENABLED) {
-      ppBlockedTextList = ppBlockedText;
-    }
-
-    // -- populate the VARS.Filters.###...
-    // -- news feed:
-    VARS.Filters.NF_BLOCKED_TEXT = [];
-    VARS.Filters.NF_BLOCKED_TEXT_LC = [];
-    VARS.Filters.NF_BLOCKED_ENABLED = false;
-    if (VARS.Options.NF_BLOCKED_ENABLED && nfBlockedTextList.length > 0) {
-      VARS.Filters.NF_BLOCKED_ENABLED = true;
-      VARS.Filters.NF_BLOCKED_TEXT = nfBlockedTextList.split(VARS.SEP);
-      VARS.Filters.NF_BLOCKED_TEXT_LC = VARS.Filters.NF_BLOCKED_TEXT.map(btext => btext.toLowerCase());
-    }
-    // -- groups feed:
-    VARS.Filters.GF_BLOCKED_TEXT = [];
-    VARS.Filters.GF_BLOCKED_TEXT_LC = [];
-    VARS.Filters.GF_BLOCKED_ENABLED = false;
-    if (VARS.Options.GF_BLOCKED_ENABLED && gfBlockedTextList.length > 0) {
-      VARS.Filters.GF_BLOCKED_ENABLED = true;
-      VARS.Filters.GF_BLOCKED_TEXT = gfBlockedTextList.split(VARS.SEP);
-      VARS.Filters.GF_BLOCKED_TEXT_LC = VARS.Filters.GF_BLOCKED_TEXT.map(btext => btext.toLowerCase());
-    }
-    // -- watch videos feed
-    VARS.Filters.VF_BLOCKED_TEXT = [];
-    VARS.Filters.VF_BLOCKED_TEXT_LC = [];
-    VARS.Filters.VF_BLOCKED_ENABLED = false;
-    if (VARS.Options.VF_BLOCKED_ENABLED && vfBlockedTextList.length > 0) {
-      VARS.Filters.VF_BLOCKED_ENABLED = true;
-      VARS.Filters.VF_BLOCKED_TEXT = vfBlockedTextList.split(VARS.SEP);
-      VARS.Filters.VF_BLOCKED_TEXT_LC = VARS.Filters.VF_BLOCKED_TEXT.map(btext => btext.toLowerCase());
-    }
-    // -- marketplace  feed
-    VARS.Filters.MP_BLOCKED_TEXT = [];
-    VARS.Filters.MP_BLOCKED_TEXT_LC = [];
-    VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION = [];
-    VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION_LC = [];
-    VARS.Filters.MP_BLOCKED_ENABLED = false;
-    if (VARS.Options.MP_BLOCKED_ENABLED && ((mpBlockedTextList.length > 0) || (mpBlockedTextDescList.length > 0))) {
-      VARS.Filters.MP_BLOCKED_ENABLED = true;
-      // -- prices ::
-      VARS.Filters.MP_BLOCKED_TEXT = mpBlockedTextList.split(VARS.SEP);
-      VARS.Filters.MP_BLOCKED_TEXT_LC = VARS.Filters.MP_BLOCKED_TEXT.map(btext => btext.toLowerCase());
-      // -- description ::
-      VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION = mpBlockedTextDescList.split(VARS.SEP);
-      VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION_LC = VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION.map(btext => btext.toLowerCase());
-    }
-
-    // -- profile page feed
-    VARS.Filters.PP_BLOCKED_TEXT = [];
-    VARS.Filters.PP_BLOCKED_TEXT_LC = [];
-    VARS.Filters.PP_BLOCKED_ENABLED = false;
-    if (VARS.Options.PP_BLOCKED_ENABLED && ppBlockedTextList.length > 0) {
-      VARS.Filters.PP_BLOCKED_ENABLED = true;
-      VARS.Filters.PP_BLOCKED_TEXT = ppBlockedTextList.split(VARS.SEP);
-      VARS.Filters.PP_BLOCKED_TEXT_LC = VARS.Filters.PP_BLOCKED_TEXT.map(btext => btext.toLowerCase());
-    }
-
-    // console.info(log + 'getUserOptions() - Options:', VARS.Options);
-    // console.info(log + 'getUserOptions() - Filters:', VARS.Filters);
-
-    VARS.optionsReady = true;
   }
 
   // -- run some functions now - not dependent on HEAD being available.
