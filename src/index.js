@@ -1,4 +1,4 @@
-import { get, set, del, createStore } from 'idb-keyval';
+import { get, set, createStore } from 'idb-keyval';
 import {
   masterKeyWords,
   getTranslation,
@@ -3727,8 +3727,6 @@ import { buildMoppingDialog } from './modules/dialog/index.js';
           getSupportedLanguages,
           setLanguageAndOptions,
           getUserOptions,
-          set,
-          del,
           addCSS,
           addExtraCSS,
           setFeedSettings,

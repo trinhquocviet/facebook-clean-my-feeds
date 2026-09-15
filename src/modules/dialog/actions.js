@@ -4,6 +4,7 @@
  * Part of FB - Clean My Feeds
  */
 
+import { set, del } from 'idb-keyval';
 import { createDialog } from './createDialog.js';
 import { updateDialog } from './updateDialog.js';
 
@@ -25,7 +26,6 @@ export async function saveUserOptions(event, ctx, source = 'dialog') {
     postAttChildFlag,
     mainColumnAtt,
     log,
-    set,
     getUserOptions,
     setFeedSettings,
     addCSS,
@@ -334,7 +334,7 @@ export function importUserOptions(event, ctx) {
  * @param {Object} ctx - Context object
  */
 export function resetUserOptions(ctx) {
-  const { del, DBVARS, VARS, setLanguageAndOptions, log } = ctx;
+  const { DBVARS, VARS, setLanguageAndOptions, log } = ctx;
   // -- reset the options to original state (before customisations)
   del(DBVARS.DBKey, DBVARS.ostore)
     .then(() => {

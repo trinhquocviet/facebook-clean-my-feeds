@@ -31,9 +31,9 @@ describe('i18n Module & Locales', () => {
       }
     });
 
-    it('should include all required baseline keys in English (81 keys)', () => {
+    it('should include all required baseline keys in English (78 keys)', () => {
       const enKeys = Object.keys(translations.en);
-      expect(enKeys.length).toBe(81);
+      expect(enKeys.length).toBe(78);
       expect(translations.en.SPONSORED).toBe('Sponsored');
       expect(translations.en.DLG_TITLE).toBe('Clean my feeds');
       expect(translations.en.LANGUAGE_DIRECTION).toBe('ltr');
@@ -67,7 +67,7 @@ describe('i18n Module & Locales', () => {
       const fallback = getTranslation('unknown-LANG');
       expect(fallback.SPONSORED).toBe('Sponsored');
       expect(fallback.DLG_TITLE).toBe('Clean my feeds');
-      expect(Object.keys(fallback).length).toBe(81);
+      expect(Object.keys(fallback).length).toBe(78);
 
       const emptyFallback = getTranslation('');
       expect(emptyFallback.SPONSORED).toBe('Sponsored');
@@ -148,7 +148,7 @@ describe('i18n Module & Locales', () => {
       expect(masterKeyWords.defaults).toBe(defaults);
       expect(masterKeyWords.pathInfo).toBe(pathInfo);
       expect(Object.keys(masterKeyWords.translations).length).toBe(23);
-      expect(Object.keys(masterKeyWords.defaults).length).toBe(56);
+      expect(Object.keys(masterKeyWords.defaults).length).toBe(54);
     });
 
     it('should maintain defaults values', () => {

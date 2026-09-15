@@ -1,8 +1,9 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
+import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import { checkInputNumber, getLanguagesComponent, createSingleCB, createMultipeCBs, createRB, createCheckboxAndInput } from '../../src/modules/dialog/components.js';
 import { createToggleButton, addLegendEvents } from '../../src/modules/dialog/toggle.js';
 import { updateDialog } from '../../src/modules/dialog/updateDialog.js';
 import { buildMoppingDialog } from '../../src/modules/dialog/index.js';
+import { saveUserOptions, exportUserOptions, importUserOptions, resetUserOptions } from '../../src/modules/dialog/actions.js';
 
 describe('modules/dialog/components', () => {
   describe('checkInputNumber', () => {
@@ -125,6 +126,41 @@ describe('modules/dialog/components', () => {
       expect(results[0].tagName).toBe('DIV');
       expect(results[2].tagName).toBe('BR');
     });
+  });
+});
+
+describe('modules/dialog/actions', () => {
+  test('exports action functions', () => {
+    expect(typeof saveUserOptions).toBe('function');
+    expect(typeof exportUserOptions).toBe('function');
+    expect(typeof importUserOptions).toBe('function');
+    expect(typeof resetUserOptions).toBe('function');
+  });
+
+  test('exportUserOptions creates download anchor and clicks it', () => {
+    let clicked = false;
+    let removed = false;
+    globalThis.window = {
+      URL: {
+        createObjectURL: (blob) => 'blob:mock-url'
+      }
+    };
+    globalThis.document = {
+      createElement: (tag) => ({
+        href: '',
+        download: '',
+        click: () => { clicked = true; },
+        remove: () => { removed = true; }
+      }),
+      querySelector: () => ({ textContent: '' })
+    };
+
+    const mockCtx = {
+      VARS: { Options: { NF_SPONSORED: true } }
+    };
+    exportUserOptions(mockCtx);
+    expect(clicked).toBe(true);
+    expect(removed).toBe(true);
   });
 });
 
