@@ -195,7 +195,7 @@ export function createCheckboxAndInput(cbName, iName, ctx) {
   // -- wrap checkbox and input inside a label
   let label = document.createElement('label');
   label.appendChild(cb);
-  label.appendChild(document.createTextNode(KeyWords[cbName] + ': '));
+  label.appendChild(document.createTextNode(`${KeyWords[cbName]}: `));
   label.appendChild(input);
 
   // -- wrap inside a div container ..

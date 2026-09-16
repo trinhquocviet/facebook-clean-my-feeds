@@ -52,7 +52,7 @@ export async function saveUserOptions(event, ctx, source = 'dialog') {
     if (elLikesMaximum && elLikesMaximum.checked) {
       const elLikesMaximumCount = md.querySelector('input[name="NF_LIKES_MAXIMUM_COUNT"]');
       if (elLikesMaximumCount && elLikesMaximumCount.value.length === 0) {
-        alert(KeyWords.NF_LIKES_MAXIMUM + '?');
+        alert(`${KeyWords.NF_LIKES_MAXIMUM}?`);
         elLikesMaximumCount.focus();
         return;
       }
@@ -138,7 +138,7 @@ export async function saveUserOptions(event, ctx, source = 'dialog') {
   for (let key in VARS.Options) {
     if (!validNames.includes(key)) {
       if (VARS.Options.VERBOSITY_DEBUG) {
-        console.info(log + 'saveUserOptions(); Deleting key:', key);
+        console.info(`${log}saveUserOptions(); Deleting key:`, key);
       }
       delete VARS.Options[key];
     }
@@ -347,6 +347,6 @@ export function resetUserOptions(ctx) {
       });
     })
     .catch((error) => {
-      console.info(log + 'resetUserOptions(); Error - unable to delete Data.', error);
+      console.info(`${log}resetUserOptions(); Error - unable to delete Data.`, error);
     });
 }

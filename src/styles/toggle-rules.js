@@ -28,17 +28,17 @@ export function getToggleRules(vars) {
     // --- Toggle button: position variant "0" = bottom-left (DEFAULT) ---
     {
       selector: '.fb-cmf-toggle, .fb-cmf-toggle[data-cmf-pos="bottom-left"]',
-      styles: 'position: fixed; bottom: 1rem; left: 1rem; z-index: 999; ' +
-              'background: var(--secondary-button-background-floating); ' +
-              'padding: 0.5rem; width: 3rem; height: 3rem; border: 0; border-radius: 1.5rem; ' +
-              'box-shadow: 0 2px 4px var(--shadow-1), 0 12px 28px var(--shadow-2);',
+      styles: `position: fixed; bottom: 1rem; left: 1rem; z-index: 999;
+        background: var(--secondary-button-background-floating);
+        padding: 0.5rem; width: 3rem; height: 3rem; border: 0; border-radius: 1.5rem;
+        box-shadow: 0 2px 4px var(--shadow-1), 0 12px 28px var(--shadow-2);`,
     },
 
     // --- Toggle button: position variant "1" = top-right ---
     {
       selector: '.fb-cmf-toggle[data-cmf-pos="top-right"]',
-      styles: 'position: fixed; top: 0.5rem; right: 0.5rem; bottom: auto; left: auto; ' +
-              'background: transparent; padding: 0; width: auto; height: auto; border: 0; border-radius: 0; box-shadow: none;',
+      styles: `position: fixed; top: 0.5rem; right: 0.5rem; bottom: auto; left: auto;
+        background: transparent; padding: 0; width: auto; height: auto; border: 0; border-radius: 0; box-shadow: none;`,
     },
 
     // --- Toggle button: position variant "2" = disabled ---
@@ -68,12 +68,12 @@ export function getToggleRules(vars) {
     // --- Footer buttons ---
     {
       selector: 'div#fbcmf footer > button',
-      styles: 'font-family: inherit; cursor: pointer; ' +
-              'height: var(--button-height-medium); padding: 0 var(--button-padding-horizontal-medium); ' +
-              'border: none; border-radius: var(--button-corner-radius); ' +
-              'background-color: var(--secondary-button-background); ' +
-              '-webkit-transition: background-color 0.2s linear; transition: background-color 0.2s linear; ' +
-              'font-size: .9375rem; font-weight: 600; color: var(--secondary-button-text);',
+      styles: `font-family: inherit; cursor: pointer;
+        height: var(--button-height-medium); padding: 0 var(--button-padding-horizontal-medium);
+        border: none; border-radius: var(--button-corner-radius);
+        background-color: var(--secondary-button-background);
+        -webkit-transition: background-color 0.2s linear; transition: background-color 0.2s linear;
+        font-size: .9375rem; font-weight: 600; color: var(--secondary-button-text);`,
     },
     {
       selector: '#fbcmf footer > button:hover',

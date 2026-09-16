@@ -11,9 +11,9 @@ export function getDialogRules(vars) {
     // 1. Dialog container layout, appearance & background
     {
       selector: '.fb-cmf',
-      styles: 'position:fixed; top:0.15rem; bottom:0.15rem; display:flex; flex-direction:column; width: 100%; max-width:30rem; padding:0 1rem; z-index:5; ' +
-              'box-shadow: 0 12px 28px 0 var(--shadow-2), 0 2px 4px 0 var(--shadow-1), inset 0 0 0 1px var(--shadow-inset); ' +
-              `border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour}; background-color: var(--card-background);`,
+      styles: `position:fixed; top:0.15rem; bottom:0.15rem; display:flex; flex-direction:column; width: 100%; max-width:30rem; padding:0 1rem; z-index:5;
+        box-shadow: 0 12px 28px 0 var(--shadow-2), 0 2px 4px 0 var(--shadow-1), inset 0 0 0 1px var(--shadow-inset);
+        border-radius: 0.5rem; opacity:0; visibility:hidden; color:${tColour}; background-color: var(--card-background);`,
     },
     // 3. Header container
     {

@@ -141,7 +141,7 @@ export function createDialog(languageChanged = false, ctx) {
   // -- Keywords to block - News Feed
   fs.appendChild(document.createElement('br'));
   l = document.createElement('strong');
-  l.textContent = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE + ":";
+  l.textContent = `${KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE}:`;
   fs.appendChild(l);
 
   createMultipeCBs('NF_BLOCKED_FEED', ctx, 0).forEach(el => {
@@ -174,7 +174,7 @@ export function createDialog(languageChanged = false, ctx) {
   // -- Keywords to block - Groups Feed
   fs.appendChild(document.createElement('br'));
   l = document.createElement('strong');
-  l.textContent = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE + ':';
+  l.textContent = `${KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE}:`;
   fs.appendChild(l);
 
   createMultipeCBs('GF_BLOCKED_FEED', ctx, 1).forEach(el => {
@@ -202,7 +202,7 @@ export function createDialog(languageChanged = false, ctx) {
   // -- Keywords to block - Marketplace Feed
   fs.appendChild(document.createElement('br'));
   l = document.createElement('strong');
-  l.textContent = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE + ':';
+  l.textContent = `${KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE}:`;
   fs.appendChild(l);
 
   createMultipeCBs('MP_BLOCKED_FEED', ctx, 0).forEach(el => {
@@ -255,7 +255,7 @@ export function createDialog(languageChanged = false, ctx) {
   // -- Keywords to block - Watch Videos Feed
   fs.appendChild(document.createElement('br'));
   l = document.createElement('strong');
-  l.textContent = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE + ':';
+  l.textContent = `${KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE}:`;
   fs.appendChild(l);
 
   createMultipeCBs('VF_BLOCKED_FEED', ctx, 2).forEach(el => {
@@ -289,7 +289,7 @@ export function createDialog(languageChanged = false, ctx) {
   // -- Keywords to block - Profile page
   fs.appendChild(document.createElement('br'));
   l = document.createElement('strong');
-  l.textContent = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE + ':';
+  l.textContent = `${KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE}:`;
   fs.appendChild(l);
 
   createMultipeCBs('PP_BLOCKED_FEED', ctx, 0).forEach(el => {

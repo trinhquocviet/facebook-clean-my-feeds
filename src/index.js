@@ -54,7 +54,7 @@ import {
   'use strict';
 
   // -- TM doesn't like spacesin version number, so convert to human-readable-format.
-  const SCRIPT_VERSION = 'v' + GM.info.script.version.replaceAll('-', ' ');
+  const SCRIPT_VERSION = `v${GM.info.script.version.replaceAll('-', ' ')}`;
 
   // - console log "label" - used for filtering console logs.
   const log = '-- fbcmf :: ';
@@ -584,9 +584,9 @@ import {
   }
 
   function toggleHiddenElements() {
-    const containers = Array.from(document.querySelectorAll('[' + VARS.hideAtt + ']'));
-    const blocks = Array.from(document.querySelectorAll('[' + VARS.cssHideEl + ']'));
-    const shares = Array.from(document.querySelectorAll('[' + VARS.cssHideNumberOfShares + ']'));
+    const containers = Array.from(document.querySelectorAll(`[${VARS.hideAtt}]`));
+    const blocks = Array.from(document.querySelectorAll(`[${VARS.cssHideEl}]`));
+    const shares = Array.from(document.querySelectorAll(`[${VARS.cssHideNumberOfShares}]`));
 
     const elements = [...containers, ...blocks, ...shares];
 
@@ -1311,7 +1311,7 @@ import {
       const videoPost = watchVideos[i].closest(postQuery);
       // console.info(log + 'findDuplicateVideos(); found duplicate?', videoPost);
       if (videoPost) {
-        console.info(log + 'findDuplicateVideos(); duplicate: ', urlQuery, postQuery, patternUsed, videoPost);
+        console.info(`${log}findDuplicateVideos(); duplicate: `, urlQuery, postQuery, patternUsed, videoPost);
         vf_hidePost(videoPost, KeyWords.VF_DUPLICATE_VIDEOS, '');
       }
     }
@@ -1360,7 +1360,7 @@ import {
       return;
     }
     thirdBlock.setAttribute(VARS.hideAtt, 'Sponsored Content');
-    console.info(log + 'vf_hideSponsoredBlock(); third block hidden:', thirdBlock);
+    console.info(`${log}vf_hideSponsoredBlock(); third block hidden:`, thirdBlock);
   }
 
 
@@ -1401,7 +1401,7 @@ import {
             if (publisherLink === '') {
               return;
             }
-            newLink = publisherLink + 'videos/' + videoId + '/';
+            newLink = `${publisherLink}videos/${videoId}/`;
           }
           else {
             return;
@@ -1813,7 +1813,7 @@ import {
             // -- sample link: https://www.facebook.com/groups/424532172574012/?hoisted_section_header_type=recently_seen&multi_permalinks=720886619605231&__cft__[0]=AZV1vpwA0h21cVRZoS_GM3Q7H_Ul77iObEbYu2EA4oL7XyM-C78sQp5KIEpPooBCQZ2dmAMTvpCi1qYt5VxSTiCQCBkTmv8_Ra77OyacW2l685TVbttwb4qwKUm6AVr0zIapBxKODmLHgnNcYaSkXeCEOMEMdxQajQX8NTcniWYUA7OuVNY5C4F-ETSuab37Azw&__tn__=%3C%3C%2CP-R
             // -- .. converted to: https://www.facebook.com/groups/424532172574012/posts/720886619605231/
             // -- post link structure: https://www.facebook.com/groups/<group id>/posts/<post id>/
-            newLink = postLink.href.split('?')[0] + 'posts/' + postId + '/';
+            newLink = `${postLink.href.split('?')[0]}posts/${postId}/`;
           }
           else {
             return;
@@ -1843,7 +1843,7 @@ import {
       }
     }
     catch (error) {
-      console.error(log + 'gf_setPostLinkToOpenInNewTab(); Error:', post, error);
+      console.error(`${log}gf_setPostLinkToOpenInNewTab(); Error:`, post, error);
     }
   }
 
