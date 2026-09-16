@@ -19,7 +19,8 @@ import {
   querySelectorAllNoChildren,
   hasSizeChanged,
   isDarkMode,
-  buildStylesheet
+  buildStylesheet,
+  removeDustyElements
 } from './utils/index.js';
 import {
   postAtt,
@@ -373,23 +374,12 @@ import {
 
 
   function doLightDusting(post) {
-    // - remove 'dusty' elements that interfere with querySelectorAll, nth-of-type, :not() queries.
-    // -- needs to run a few times to be effective.
-    let scanCount = VARS.scanCountStart;
-    if (post[postPropDS] !== undefined) {
-      scanCount = parseInt(post[postPropDS]);
-      scanCount = (scanCount < VARS.scanCountStart) ? VARS.scanCountStart : scanCount;
-    }
-    if (scanCount < VARS.scanCountMaxLoop) {
-      const dustySpots = post.querySelectorAll('[data-0="0"]');
-      if (dustySpots) {
-        dustySpots.forEach((element) => {
-          element.remove();
-        });
-      }
-      scanCount++;
-      post[postPropDS] = scanCount;
-    }
+    // - remove 'dusty' decoy elements that interfere with querySelectorAll, nth-of-type, :not() queries
+    return removeDustyElements(post, {
+      propDS: postPropDS,
+      scanCountStart: VARS.scanCountStart,
+      scanCountMaxLoop: VARS.scanCountMaxLoop
+    });
   }
 
   function scanTreeForText(theNode) {

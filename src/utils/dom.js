@@ -113,3 +113,55 @@ export function hasSizeChanged(oldValue, newValue, tolerance = 16) {
 
   return Math.abs(newNum - oldNum) > tolerance;
 }
+
+/**
+ * Removes decoy/obfuscation elements (e.g. [data-0="0"]) from a post DOM element.
+ * Tracks loop scan count directly on the element using an expando property to prevent
+ * redundant DOM queries once the maximum scan threshold has been reached.
+ *
+ * @param {Element|null} post - The post container DOM element.
+ * @param {Object} [options={}] - Configuration options.
+ * @param {string} [options.propDS='cmf_dusted'] - Expando property key for tracking scans.
+ * @param {number} [options.scanCountStart=0] - Initial scan count value.
+ * @param {number} [options.scanCountMaxLoop=15] - Maximum scan loops before skipping.
+ * @param {string} [options.selector='[data-0="0"]'] - CSS selector for decoy elements.
+ * @returns {number} Number of elements removed, or 0 if skipped or invalid.
+ *
+ * @example
+ * removeDustyElements(postElement, { propDS: 'cmf_dusted', scanCountMaxLoop: 15 });
+ */
+export function removeDustyElements(post, options = {}) {
+  if (!post || typeof post.querySelectorAll !== 'function') {
+    return 0;
+  }
+
+  const propDS = options.propDS || 'cmf_dusted';
+  const scanCountStart = options.scanCountStart ?? 0;
+  const scanCountMaxLoop = options.scanCountMaxLoop ?? 15;
+  const selector = options.selector || '[data-0="0"]';
+
+  const currentProp = post[propDS];
+  let scanCount = scanCountStart;
+
+  if (currentProp !== undefined) {
+    const parsed = typeof currentProp === 'number' ? currentProp : parseInt(currentProp, 10);
+    scanCount = Number.isNaN(parsed) || parsed < scanCountStart ? scanCountStart : parsed;
+  }
+
+  if (scanCount >= scanCountMaxLoop) {
+    return 0;
+  }
+
+  const dustySpots = post.querySelectorAll(selector);
+  const count = dustySpots.length;
+
+  if (count > 0) {
+    for (let i = 0; i < count; i++) {
+      dustySpots[i].remove();
+    }
+  }
+
+  post[propDS] = scanCount + 1;
+  return count;
+}
+

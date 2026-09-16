@@ -23,7 +23,8 @@ export {
   climbUpTheTree,
   countDescendants,
   querySelectorAllNoChildren,
-  hasSizeChanged
+  hasSizeChanged,
+  removeDustyElements
 } from './dom.js';
 
 export {

@@ -3,7 +3,8 @@ import {
   climbUpTheTree,
   countDescendants,
   querySelectorAllNoChildren,
-  hasSizeChanged
+  hasSizeChanged,
+  removeDustyElements
 } from '../../src/utils/dom.js';
 
 describe('utils/dom', () => {
@@ -107,4 +108,91 @@ describe('utils/dom', () => {
       expect(hasSizeChanged(null, 100)).toBe(false);
     });
   });
+
+  describe('removeDustyElements', () => {
+    test('returns 0 for null or invalid element', () => {
+      expect(removeDustyElements(null)).toBe(0);
+      expect(removeDustyElements(undefined)).toBe(0);
+      expect(removeDustyElements({})).toBe(0);
+    });
+
+    test('removes matching elements and updates scan count on element', () => {
+      let removed1 = false;
+      let removed2 = false;
+      const el1 = { remove: () => { removed1 = true; } };
+      const el2 = { remove: () => { removed2 = true; } };
+
+      const mockPost = {
+        querySelectorAll: (selector) => {
+          if (selector === '[data-0="0"]') {
+            return [el1, el2];
+          }
+          return [];
+        }
+      };
+
+      const count = removeDustyElements(mockPost, {
+        propDS: 'test_dusted',
+        scanCountStart: 0,
+        scanCountMaxLoop: 15
+      });
+
+      expect(count).toBe(2);
+      expect(removed1).toBe(true);
+      expect(removed2).toBe(true);
+      expect(mockPost.test_dusted).toBe(1);
+    });
+
+    test('stops scanning and returns 0 when scanCount reaches scanCountMaxLoop', () => {
+      let queryCalled = false;
+      const mockPost = {
+        test_dusted: 15,
+        querySelectorAll: () => {
+          queryCalled = true;
+          return [];
+        }
+      };
+
+      const count = removeDustyElements(mockPost, {
+        propDS: 'test_dusted',
+        scanCountStart: 0,
+        scanCountMaxLoop: 15
+      });
+
+      expect(count).toBe(0);
+      expect(queryCalled).toBe(false);
+    });
+
+    test('handles string numeric values in propDS', () => {
+      const mockPost = {
+        test_dusted: '2',
+        querySelectorAll: () => []
+      };
+
+      const count = removeDustyElements(mockPost, {
+        propDS: 'test_dusted',
+        scanCountStart: 0,
+        scanCountMaxLoop: 5
+      });
+
+      expect(count).toBe(0);
+      expect(mockPost.test_dusted).toBe(3);
+    });
+
+    test('resets invalid or negative scan count to scanCountStart', () => {
+      const mockPost = {
+        test_dusted: -5,
+        querySelectorAll: () => []
+      };
+
+      removeDustyElements(mockPost, {
+        propDS: 'test_dusted',
+        scanCountStart: 0,
+        scanCountMaxLoop: 5
+      });
+
+      expect(mockPost.test_dusted).toBe(1);
+    });
+  });
 });
+
