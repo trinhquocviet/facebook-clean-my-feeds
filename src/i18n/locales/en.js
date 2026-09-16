@@ -57,7 +57,7 @@ export default {
   "REELS_TITLE": "Reels",
   "REELS_CONTROLS": "Show video controls",
   "REELS_DISABLE_LOOPING": "Disable looping",
-  "DLG_TITLE": "Clean my feeds",
+  "DLG_TITLE": "Clean my feeds - simplified UI",
   "DLG_NF": "News Feed",
   "DLG_GF": "Groups Feed",
   "DLG_VF": "Videos Feed",
