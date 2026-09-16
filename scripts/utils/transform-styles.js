@@ -1,4 +1,4 @@
-import { objectToCss } from '../../src/utils/css-builder.js';
+import { objectToCss } from '@/utils/css-builder.js';
 
 /**
  * Transforms JavaScript source code by finding `styles: { ... }` object literals

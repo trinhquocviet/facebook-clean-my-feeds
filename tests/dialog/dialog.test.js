@@ -289,7 +289,7 @@ describe('modules/dialog/index', () => {
 
 describe('modules/dialog/createDialog schema', () => {
   test('includes GLOBAL section in SECTIONS', async () => {
-    const { SECTIONS } = await import('../../src/modules/dialog/createDialog.js');
+    const { SECTIONS } = await import('@/modules/dialog/createDialog.js');
     const globalSection = SECTIONS.find((s) => s.key === 'GLOBAL');
     expect(globalSection).toBeDefined();
     expect(globalSection.titleKey).toBe('DLG_GLOBAL');
