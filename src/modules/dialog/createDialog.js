@@ -104,6 +104,7 @@ function renderVerbosity(rows, ctx) {
   rows.appendChild(createRB('VERBOSITY_LEVEL', '0', `${KeyWords.VERBOSITY_MESSAGE[0]}`, ctx));
   rows.appendChild(createRB('VERBOSITY_LEVEL', '1', `${KeyWords.VERBOSITY_MESSAGE[1]}`, ctx));
   rows.appendChild(createRB('VERBOSITY_LEVEL', '2', `${KeyWords.VERBOSITY_MESSAGE[3]}`, ctx));
+  rows.appendChild(document.createElement('br'));
   rows.appendChild(createSingleCB('VERBOSITY_DEBUG', ctx));
 }
 
@@ -114,9 +115,11 @@ function renderCustomisations(rows, ctx) {
   for (let i = 0; i < len; i++) {
     rows.appendChild(createRB('CMF_BTN_OPTION', i.toString(), KeyWords.CMF_BTN_OPTION[i], ctx));
   }
+  rows.appendChild(document.createElement('br'));
   rows.appendChild(createNote(`${KeyWords.CMF_DIALOG_LOCATION}:`, 'cmf-field__label'));
   rows.appendChild(createRB('CMF_DIALOG_OPTION', '0', KeyWords.CMF_DIALOG_OPTION[0], ctx));
   rows.appendChild(createRB('CMF_DIALOG_OPTION', '1', KeyWords.CMF_DIALOG_OPTION[1], ctx));
+  rows.appendChild(document.createElement('br'));
   rows.appendChild(createSelectLanguage(ctx));
 }
 
