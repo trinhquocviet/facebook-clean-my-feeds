@@ -1,4 +1,4 @@
-import { postAtt, postAttTab } from '../constants/index.js';
+import { postAtt, postAttTab } from '@/constants/index.js';
 
 /**
  * Returns CSS rules for post hide/reveal, summary toggle, mini-caption, and share count.

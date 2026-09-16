@@ -4,7 +4,10 @@
  * @module styles/dialog-rules
  */
 
-export function getDialogRules(vars) {
+import { ICON_NEW_WINDOW_CLASS } from '@/constants/index.js';
+
+export function getDialogRules(vars = {}) {
+  const iconNewWindowClass = vars?.iconNewWindowClass || ICON_NEW_WINDOW_CLASS;
   return [
     // ---------------------------------------------------------------- tokens & shell
     {
@@ -238,9 +241,9 @@ border-top: 1px solid var(--cmf-border); background-color: var(--cmf-bg); text-a
     },
 
     // ------------------------------------------- external-link icon (unchanged)
-    { selector: `.${vars.iconNewWindowClass}`, styles: 'width: 1rem; height: 1rem;' },
-    { selector: `.${vars.iconNewWindowClass} a`, styles: 'width: 1rem; position: relative; display: inline-block;' },
-    { selector: `.${vars.iconNewWindowClass} svg`, styles: 'position: absolute; top: -13.5px; stroke: rgb(101,103,107);' },
+    { selector: `.${iconNewWindowClass}`, styles: 'width: 1rem; height: 1rem;' },
+    { selector: `.${iconNewWindowClass} a`, styles: 'width: 1rem; position: relative; display: inline-block;' },
+    { selector: `.${iconNewWindowClass} svg`, styles: 'position: absolute; top: -13.5px; stroke: rgb(101,103,107);' },
 
     // ------------------------------------------- legacy fieldset fallback (for P1)
     { selector: '.fb-cmf fieldset', styles: 'margin:0.5rem; padding:0.5rem; border-style: solid; border-color: var(--cmf-border-soft);' },

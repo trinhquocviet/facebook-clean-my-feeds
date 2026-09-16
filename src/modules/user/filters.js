@@ -6,7 +6,7 @@
  * Part of FB - Clean My Feeds
  */
 
-import { FILTER_SEPARATOR } from '../../constants/index.js';
+import { FILTER_SEPARATOR } from '@/constants/index.js';
 
 /**
  * Compiles feed keyword filter rules from user options.

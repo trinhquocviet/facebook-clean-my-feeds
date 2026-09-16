@@ -24,7 +24,7 @@ import {
   ICON_CLOSE,
   LOGO_HTML,
   ICON_NEW_WINDOW,
-} from '../../src/constants/index.js';
+} from '@/constants/index.js';
 
 describe('Constants Module', () => {
   describe('DOM Attribute Constants', () => {

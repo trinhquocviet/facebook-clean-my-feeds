@@ -31,7 +31,9 @@ import {
   postAttMPSkip,
   rvAtt,
   mainColumnAtt,
-  DB_CONFIG
+  DB_CONFIG,
+  ICON_NEW_WINDOW,
+  ICON_NEW_WINDOW_CLASS
 } from './constants/index.js';
 import {
   createInitialState,
@@ -146,7 +148,7 @@ import {
       }),
       ...getDialogRules({
         showAtt: VARS.showAtt,
-        iconNewWindowClass: VARS.iconNewWindowClass,
+        iconNewWindowClass: ICON_NEW_WINDOW_CLASS,
       }),
       ...getToggleRules({
         showAtt: VARS.showAtt,
@@ -1393,7 +1395,7 @@ import {
     // :: return <nothing>
 
     try {
-      if (post.querySelector(`.${VARS.iconNewWindowClass}`)) {
+      if (post.querySelector(`.${ICON_NEW_WINDOW_CLASS}`)) {
         // -- already has the open in new window component
         return;
       }
@@ -1439,11 +1441,11 @@ import {
         blockOfIcons.appendChild(spanSpacer);
 
         const container = document.createElement('span');
-        container.className = VARS.iconNewWindowClass;
+        container.className = ICON_NEW_WINDOW_CLASS;
         const span2 = document.createElement('span');
         const linkNew = document.createElement('a');
         linkNew.setAttribute('href', newLink);
-        linkNew.innerHTML = VARS.iconNewWindow;
+        linkNew.innerHTML = ICON_NEW_WINDOW;
         linkNew.setAttribute('target', '_blank');
         span2.appendChild(linkNew);
         container.appendChild(span2);
@@ -1824,7 +1826,7 @@ import {
         // -- not a group post.
         return;
       }
-      if (post.querySelector(`.${VARS.iconNewWindowClass}`)) {
+      if (post.querySelector(`.${ICON_NEW_WINDOW_CLASS}`)) {
         // -- already has the open in new window component
         return;
       }
@@ -1864,11 +1866,11 @@ import {
         blockOfIcons.appendChild(spanSpacer);
 
         const container = document.createElement('span');
-        container.className = VARS.iconNewWindowClass;
+        container.className = ICON_NEW_WINDOW_CLASS;
         const span2 = document.createElement('span');
         const linkNew = document.createElement('a');
         linkNew.setAttribute('href', newLink);
-        linkNew.innerHTML = VARS.iconNewWindow;
+        linkNew.innerHTML = ICON_NEW_WINDOW;
         linkNew.setAttribute('target', '_blank');
         span2.appendChild(linkNew);
         container.appendChild(span2);

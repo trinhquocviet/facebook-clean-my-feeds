@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { compileFilterRules } from '../../src/modules/user/filters.js';
+import { compileFilterRules } from '@/modules/user/filters.js';
 
 describe('modules/user/filters', () => {
   describe('compileFilterRules', () => {

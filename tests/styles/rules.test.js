@@ -3,7 +3,7 @@ import {
   getPostHideRules,
   getDialogRules,
   getToggleRules
-} from '../../src/styles/index.js';
+} from '@/styles/index.js';
 
 describe('styles/index', () => {
   const dummyVars = {

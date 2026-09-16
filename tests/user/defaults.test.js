@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { resolveLanguage, applyDefaultOptions } from '../../src/modules/user/defaults.js';
-import { masterKeyWords } from '../../src/i18n/index.js';
+import { resolveLanguage, applyDefaultOptions } from '@/modules/user/defaults.js';
+import { masterKeyWords } from '@/i18n/index.js';
 
 describe('modules/user/defaults', () => {
   describe('resolveLanguage', () => {

@@ -5,7 +5,7 @@ import {
   generateRandomString,
   findFirstMatch,
   findFirstMatchRegExp
-} from '../../src/utils/text.js';
+} from '@/utils/text.js';
 
 describe('utils/text', () => {
   describe('cleanText', () => {

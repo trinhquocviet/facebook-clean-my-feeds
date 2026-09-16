@@ -20,6 +20,10 @@ import {
   importUserOptions,
   resetUserOptions,
 } from './actions.js';
+import {
+  ICON_CLOSE,
+  LOGO_HTML,
+} from '@/constants/index.js';
 
 /**
  * Declarative section configuration schema:
@@ -202,7 +206,7 @@ export function createDialog(languageChanged = false, ctx) {
     hdr = document.createElement('header');
     hdr1 = document.createElement('div');
     hdr1.className = 'fb-cmf-icon';
-    hdr1.innerHTML = VARS.logoHTML;
+    hdr1.innerHTML = VARS?.logoHTML || LOGO_HTML;
     hdr1.setAttribute('aria-hidden', 'true');
 
     hdr2 = document.createElement('div');
@@ -215,7 +219,7 @@ export function createDialog(languageChanged = false, ctx) {
     btn.type = 'button';
     btn.className = 'cmf-iconbtn';
     btn.setAttribute('aria-label', 'Close');
-    btn.innerHTML = VARS.iconClose;
+    btn.innerHTML = VARS?.iconClose || ICON_CLOSE;
     btn.addEventListener('click', toggleDialog, false);
     hdr3.appendChild(btn);
 

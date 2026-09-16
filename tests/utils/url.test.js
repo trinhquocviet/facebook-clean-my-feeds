@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { getVideoPublisherPathFromURL } from '../../src/utils/url.js';
+import { getVideoPublisherPathFromURL } from '@/utils/url.js';
 
 describe('utils/url', () => {
   describe('getVideoPublisherPathFromURL', () => {

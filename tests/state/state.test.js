@@ -3,7 +3,7 @@ import {
   createInitialState,
   resetFeedFlags,
   resetEchoState,
-} from '../../src/state/index.js';
+} from '@/state/index.js';
 
 describe('State Module', () => {
   describe('createInitialState', () => {
@@ -53,14 +53,14 @@ describe('State Module', () => {
       expect(state.echoElFirst).toBeUndefined();
     });
 
-    it('should include SVG assets and link class', () => {
+    it('should not store static SVG assets and link class on runtime state', () => {
       const state = createInitialState();
 
-      expect(state.iconClose).toBeDefined();
-      expect(state.logoHTML).toBeDefined();
-      expect(state.iconNewWindow).toBeDefined();
-      expect(state.iconNewWindowClass).toBe('cmf-link-new');
-      expect(state.iconChevron).toBeDefined();
+      expect(state.iconClose).toBeUndefined();
+      expect(state.logoHTML).toBeUndefined();
+      expect(state.iconNewWindow).toBeUndefined();
+      expect(state.iconNewWindowClass).toBeUndefined();
+      expect(state.iconChevron).toBeUndefined();
     });
   });
 

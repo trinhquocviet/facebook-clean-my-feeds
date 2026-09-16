@@ -7,12 +7,7 @@
 import {
   SCAN_CONFIG,
   FILTER_SEPARATOR,
-  ICON_CLOSE,
-  LOGO_HTML,
-  ICON_NEW_WINDOW,
-  ICON_NEW_WINDOW_CLASS,
-  ICON_CHEVRON,
-} from '../constants/index.js';
+} from '@/constants/index.js';
 
 /**
  * Creates a fresh, fully initialized application state container.
@@ -126,20 +121,10 @@ export function createInitialState() {
     cssHideNumberOfShares: '',
 
     // ------------------------------------------------------------------------
-    // UI Elements & Assets
+    // UI Elements
     // ------------------------------------------------------------------------
     /** Floating settings toggle button DOM element */
     btnToggleEl: null,
-    /** Modal close icon SVG markup */
-    iconClose: ICON_CLOSE,
-    /** Script logo SVG markup */
-    logoHTML: LOGO_HTML,
-    /** External link icon SVG markup */
-    iconNewWindow: ICON_NEW_WINDOW,
-    /** CSS class for external link icons */
-    iconNewWindowClass: ICON_NEW_WINDOW_CLASS,
-    /** Chevron icon SVG markup */
-    iconChevron: ICON_CHEVRON,
   };
 }
 

@@ -8,10 +8,10 @@ import {
   getSupportedLanguages,
   buildSponsoredDictionary,
   buildReelsDictionary,
-} from '../../src/i18n/index.js';
+} from '@/i18n/index.js';
 import {
   getTranslation as getTranslationHelper,
-} from '../../src/i18n/helpers.js';
+} from '@/i18n/helpers.js';
 
 describe('i18n Module & Locales', () => {
   describe('Registry Integrity & Locale Completeness', () => {

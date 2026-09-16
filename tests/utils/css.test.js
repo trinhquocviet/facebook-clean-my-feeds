@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { buildStylesheet } from '../../src/utils/css-builder.js';
+import { buildStylesheet } from '@/utils/css-builder.js';
 
 describe('utils/css-builder', () => {
   describe('buildStylesheet', () => {

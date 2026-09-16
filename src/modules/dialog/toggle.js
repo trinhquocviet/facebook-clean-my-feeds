@@ -3,6 +3,8 @@
  * Part of FB - Clean My Feeds
  */
 
+import { LOGO_HTML } from '@/constants/index.js';
+
 const SURFACE_MAP = [
   [/^\/marketplace/, 'MP'],
   [/^\/(watch|videos|reel)/, 'VF'],
@@ -135,7 +137,7 @@ export const addLegendEvents = bindSectionEvents;
 export function createToggleButton(ctx) {
   const { VARS, KeyWords, toggleDialog } = ctx;
   let btn = document.createElement('button');
-  btn.innerHTML = VARS.logoHTML;
+  btn.innerHTML = VARS?.logoHTML || LOGO_HTML;
   btn.id = 'fbcmfToggle';
   btn.title = KeyWords.DLG_TITLE;
   btn.className = 'fb-cmf-toggle fb-cmf-icon';

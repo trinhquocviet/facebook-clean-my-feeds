@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { isDarkMode, calculateLuminance } from '../../src/utils/theme.js';
+import { isDarkMode, calculateLuminance } from '@/utils/theme.js';
 
 describe('utils/theme', () => {
   describe('calculateLuminance', () => {

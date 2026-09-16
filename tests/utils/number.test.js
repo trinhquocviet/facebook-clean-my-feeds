@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { getFullNumber } from '../../src/utils/number.js';
+import { getFullNumber } from '@/utils/number.js';
 
 describe('utils/number', () => {
   describe('getFullNumber', () => {

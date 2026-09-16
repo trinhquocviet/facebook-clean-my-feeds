@@ -5,6 +5,8 @@
  * Part of FB - Clean My Feeds
  */
 
+import { ICON_CHEVRON } from '@/constants/index.js';
+
 /**
  * Validates text inputs to accept digits only
  * @param {Event} event - Input event
@@ -210,7 +212,7 @@ export function createSection(key, title, ctx) {
   const chevron = document.createElement('span');
   chevron.className = 'cmf-section__chevron';
   chevron.setAttribute('aria-hidden', 'true');
-  chevron.innerHTML = ctx?.VARS?.iconChevron || '';
+  chevron.innerHTML = ctx?.VARS?.iconChevron || ICON_CHEVRON;
 
   summary.appendChild(titleEl);
   summary.appendChild(chevron);

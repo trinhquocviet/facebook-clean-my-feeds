@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { loadOptionsFromStorage, saveOptionsToStorage } from '../../src/modules/user/storage.js';
+import { loadOptionsFromStorage, saveOptionsToStorage } from '@/modules/user/storage.js';
 
 describe('modules/user/storage', () => {
   const validDbVars = {

@@ -5,7 +5,7 @@ import {
   querySelectorAllNoChildren,
   hasSizeChanged,
   removeDustyElements
-} from '../../src/utils/dom.js';
+} from '@/utils/dom.js';
 
 describe('utils/dom', () => {
   describe('climbUpTheTree', () => {

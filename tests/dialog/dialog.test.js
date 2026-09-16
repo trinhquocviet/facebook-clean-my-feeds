@@ -8,11 +8,11 @@ import {
   createSection,
   createFilterPanel,
   createNote,
-} from '../../src/modules/dialog/components.js';
-import { createToggleButton, addLegendEvents } from '../../src/modules/dialog/toggle.js';
-import { updateDialog } from '../../src/modules/dialog/updateDialog.js';
-import { buildMoppingDialog, bindDialogKeys } from '../../src/modules/dialog/index.js';
-import { saveUserOptions, exportUserOptions, importUserOptions, resetUserOptions } from '../../src/modules/dialog/actions.js';
+} from '@/modules/dialog/components.js';
+import { createToggleButton, addLegendEvents } from '@/modules/dialog/toggle.js';
+import { updateDialog } from '@/modules/dialog/updateDialog.js';
+import { buildMoppingDialog, bindDialogKeys } from '@/modules/dialog/index.js';
+import { saveUserOptions, exportUserOptions, importUserOptions, resetUserOptions } from '@/modules/dialog/actions.js';
 
 describe('modules/dialog/components', () => {
   describe('checkInputNumber', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, mock } from 'bun:test';
-import { getUserOptions, initLanguageAndOptions } from '../../src/modules/user/user-options.js';
-import { createInitialState } from '../../src/state/index.js';
-import { masterKeyWords } from '../../src/i18n/index.js';
+import { getUserOptions, initLanguageAndOptions } from '@/modules/user/user-options.js';
+import { createInitialState } from '@/state/index.js';
+import { masterKeyWords } from '@/i18n/index.js';
 
 describe('modules/user/user-options', () => {
   describe('getUserOptions', () => {
