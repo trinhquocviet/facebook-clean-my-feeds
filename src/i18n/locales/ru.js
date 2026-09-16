@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Ищет совпадения текста во всех лентах. Работает, даже если фильтры для отдельных лент выключены.",
   "GLOBAL_BLOCKED_ENABLED": "Включено",
   "GLOBAL_BLOCKED_RE": "Регулярные выражения (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Поиск настроек...",
   "DLG_MP_PRICES": "Цены",
   "DLG_MP_DESCRIPTION": "Описание"
 };

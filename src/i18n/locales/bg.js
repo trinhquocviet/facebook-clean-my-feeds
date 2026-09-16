@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Търси съвпадения на текст във всички потоци. Работи дори когато индивидуалните филтри са изключени.",
   "GLOBAL_BLOCKED_ENABLED": "Активирано",
   "GLOBAL_BLOCKED_RE": "Регулярни изрази (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Търсене на опции...",
   "DLG_MP_PRICES": "Цени",
   "DLG_MP_DESCRIPTION": "Описание"
 };

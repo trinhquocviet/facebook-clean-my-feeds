@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Αντιστοιχίζει κείμενο σε όλες τις ροές. Λειτουργεί ακόμα και αν τα μεμονωμένα φίλτρα ροών είναι απενεργοποιημένα.",
   "GLOBAL_BLOCKED_ENABLED": "Ενεργοποιημένο",
   "GLOBAL_BLOCKED_RE": "Κανονικές Εκφράσεις (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Αναζήτηση επιλογών...",
   "DLG_MP_PRICES": "Τιμές",
   "DLG_MP_DESCRIPTION": "Περιγραφή"
 };

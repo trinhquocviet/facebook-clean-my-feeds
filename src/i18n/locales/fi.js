@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Vastaa tekstiä kaikissa syötteissä. Toimii vaikka syötekohtaiset suodattimet olisivat pois käytöstä.",
   "GLOBAL_BLOCKED_ENABLED": "Käytössä",
   "GLOBAL_BLOCKED_RE": "Säännölliset lausekkeet (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Hae asetuksia...",
   "DLG_MP_PRICES": "Hinnat",
   "DLG_MP_DESCRIPTION": "Kuvaus"
 };

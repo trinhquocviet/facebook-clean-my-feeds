@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Komt overeen met tekst in alle feeds. Werkt ook als afzonderlijke feedfilters zijn uitgeschakeld.",
   "GLOBAL_BLOCKED_ENABLED": "Ingeschakeld",
   "GLOBAL_BLOCKED_RE": "Reguliere expressies (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Opties zoeken...",
   "DLG_MP_PRICES": "Prijzen",
   "DLG_MP_DESCRIPTION": "Beschrijving"
 };

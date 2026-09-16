@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Dopasowuje tekst we wszystkich kanałach. Działa nawet wtedy, gdy filtry poszczególnych kanałów są wyłączone.",
   "GLOBAL_BLOCKED_ENABLED": "Włączone",
   "GLOBAL_BLOCKED_RE": "Wyrażenia regularne (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Szukaj opcji...",
   "DLG_MP_PRICES": "Ceny",
   "DLG_MP_DESCRIPTION": "Opis"
 };

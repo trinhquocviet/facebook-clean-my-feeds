@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Corrisponde al testo in tutti i feed. Si applica anche se i filtri per feed sono disattivati.",
   "GLOBAL_BLOCKED_ENABLED": "Abilitato",
   "GLOBAL_BLOCKED_RE": "Espressioni regolari (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Cerca opzioni...",
   "DLG_MP_PRICES": "Prezzi",
   "DLG_MP_DESCRIPTION": "Descrizione"
 };

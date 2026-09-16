@@ -71,52 +71,6 @@ export function bindSectionEvents(ctx) {
     }, false);
   }
 
-  const searchInput = root.querySelector('.cmf-search');
-  if (searchInput && (!searchInput.dataset || !searchInput.dataset.cmfBound)) {
-    if (searchInput.dataset) searchInput.dataset.cmfBound = '1';
-    searchInput.addEventListener('input', (e) => {
-      const query = (e.target.value || '').trim().toLowerCase();
-      const sections = root.querySelectorAll('.cmf-section');
-
-      if (!query) {
-        sections.forEach((sec) => {
-          sec.style.display = '';
-          sec.querySelectorAll('.cmf-row, .cmf-filter, .cmf-field').forEach((el) => {
-            el.style.display = '';
-          });
-        });
-        const activeKey = defaultOpenKey();
-        sections.forEach((sec) => {
-          sec.open = (sec.dataset && sec.dataset.cmfSection === activeKey);
-        });
-        return;
-      }
-
-      sections.forEach((sec) => {
-        const titleEl = sec.querySelector('.cmf-section__title');
-        const titleText = (titleEl ? titleEl.textContent : '').toLowerCase();
-        let sectionMatches = titleText.includes(query);
-
-        const items = sec.querySelectorAll('.cmf-row, .cmf-field, .cmf-filter');
-        items.forEach((item) => {
-          const itemText = item.textContent.toLowerCase();
-          const matches = itemText.includes(query);
-          item.style.display = matches ? '' : 'none';
-          if (matches) {
-            sectionMatches = true;
-          }
-        });
-
-        if (sectionMatches) {
-          sec.style.display = '';
-          sec.open = true;
-        } else {
-          sec.style.display = 'none';
-        }
-      });
-    }, false);
-  }
-
   refreshFilterGates(root);
 }
 

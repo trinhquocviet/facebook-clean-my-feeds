@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Khớp văn bản trên tất cả các bảng tin. Hoạt động ngay cả khi bộ lọc theo từng bảng tin bị tắt.",
   "GLOBAL_BLOCKED_ENABLED": "Bật",
   "GLOBAL_BLOCKED_RE": "Biểu thức chính quy (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Tìm kiếm tùy chọn...",
   "DLG_MP_PRICES": "Giá cả",
   "DLG_MP_DESCRIPTION": "Mô tả"
 };

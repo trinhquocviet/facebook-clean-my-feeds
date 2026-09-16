@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Meklē teksta sakritības visās plūsmās. Darbojas pat tad, ja atsevišķu plūsmu filtri ir atspējoti.",
   "GLOBAL_BLOCKED_ENABLED": "Iespējots",
   "GLOBAL_BLOCKED_RE": "Regulārās izteiksmes (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Meklēt opcijas...",
   "DLG_MP_PRICES": "Cenas",
   "DLG_MP_DESCRIPTION": "Apraksts"
 };

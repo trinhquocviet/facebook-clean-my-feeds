@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Mencocokkan teks di semua feed. Berjalan bahkan jika filter per-feed dinonaktifkan.",
   "GLOBAL_BLOCKED_ENABLED": "Diaktifkan",
   "GLOBAL_BLOCKED_RE": "Ekspresi Reguler (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Cari opsi...",
   "DLG_MP_PRICES": "Harga",
   "DLG_MP_DESCRIPTION": "Deskripsi"
 };

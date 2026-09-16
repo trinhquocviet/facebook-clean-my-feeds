@@ -262,17 +262,6 @@ export function createDialog(languageChanged = false, ctx) {
     hdr2.appendChild(stxt);
   }
 
-  // Search filter input (INVARIANT §2.3: type="search" and NO name attribute)
-  const searchWrap = document.createElement('div');
-  searchWrap.className = 'cmf-search-wrapper';
-  const searchInput = document.createElement('input');
-  searchInput.type = 'search';
-  searchInput.className = 'cmf-search';
-  searchInput.placeholder = KeyWords.DLG_SEARCH_PLACEHOLDER || 'Search options...';
-  searchInput.setAttribute('aria-label', KeyWords.DLG_SEARCH_PLACEHOLDER || 'Search options...');
-  searchWrap.appendChild(searchInput);
-  cnt.appendChild(searchWrap);
-
   // DocumentFragment optimization: batch sections off-DOM
   const frag = document.createDocumentFragment();
   SECTIONS.forEach((cfg) => renderSection(cfg, ctx, frag));

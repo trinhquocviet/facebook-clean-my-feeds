@@ -28,9 +28,9 @@ describe('i18n Module & Locales', () => {
       }
     });
 
-    it('should include all required baseline keys in English (87 keys)', () => {
+    it('should include all required baseline keys in English (86 keys)', () => {
       const enKeys = Object.keys(translations.en);
-      expect(enKeys.length).toBe(87);
+      expect(enKeys.length).toBe(86);
       expect(translations.en.SPONSORED).toBe('Sponsored');
       expect(translations.en.DLG_TITLE).toBe('Clean my feeds');
       expect(translations.en.LANGUAGE_DIRECTION).toBe('ltr');
@@ -38,7 +38,6 @@ describe('i18n Module & Locales', () => {
       expect(translations.en.DLG_FILTER_ENABLED).toBe('Enabled');
       expect(translations.en.DLG_FILTER_REGEX).toBe('RegEx');
       expect(translations.en.DLG_GLOBAL).toBe('Global text filter');
-      expect(translations.en.DLG_SEARCH_PLACEHOLDER).toBe('Search options...');
       expect(translations.en.DLG_MP_PRICES).toBe('Prices');
       expect(translations.en.DLG_MP_DESCRIPTION).toBe('Description');
     });
@@ -52,7 +51,6 @@ describe('i18n Module & Locales', () => {
         'DLG_GLOBAL_HINT',
         'GLOBAL_BLOCKED_ENABLED',
         'GLOBAL_BLOCKED_RE',
-        'DLG_SEARCH_PLACEHOLDER',
         'DLG_MP_PRICES',
         'DLG_MP_DESCRIPTION',
       ];
@@ -62,6 +60,7 @@ describe('i18n Module & Locales', () => {
           expect(typeof loc[k]).toBe('string');
         }
         expect(loc.DLG_FB_COLOUR_HINT).toBeUndefined();
+        expect(loc.DLG_SEARCH_PLACEHOLDER).toBeUndefined();
       }
     });
 
@@ -97,7 +96,7 @@ describe('i18n Module & Locales', () => {
       const fallback = getTranslation('unknown-LANG');
       expect(fallback.SPONSORED).toBe('Sponsored');
       expect(fallback.DLG_TITLE).toBe('Clean my feeds');
-      expect(Object.keys(fallback).length).toBe(87);
+      expect(Object.keys(fallback).length).toBe(86);
 
       const emptyFallback = getTranslation('');
       expect(emptyFallback.SPONSORED).toBe('Sponsored');

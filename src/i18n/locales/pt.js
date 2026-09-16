@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Compara texto em todos os feeds. Funciona mesmo se os filtros por feed estiverem desativados.",
   "GLOBAL_BLOCKED_ENABLED": "Ativado",
   "GLOBAL_BLOCKED_RE": "Expressões regulares (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Pesquisar opções...",
   "DLG_MP_PRICES": "Preços",
   "DLG_MP_DESCRIPTION": "Descrição"
 };

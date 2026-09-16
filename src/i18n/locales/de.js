@@ -115,7 +115,6 @@ export default {
   "DLG_GLOBAL_HINT": "Sucht Text in allen Feeds. Funktioniert auch dann, wenn einzelne Feed-Filter deaktiviert sind.",
   "GLOBAL_BLOCKED_ENABLED": "Aktiviert",
   "GLOBAL_BLOCKED_RE": "Reguläre Ausdrücke (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Optionen suchen...",
   "DLG_MP_PRICES": "Preise",
   "DLG_MP_DESCRIPTION": "Beschreibung"
 };

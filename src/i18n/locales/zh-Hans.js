@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "匹配所有动态中的文本。即使单个动态过滤器已禁用也会生效。",
   "GLOBAL_BLOCKED_ENABLED": "已启用",
   "GLOBAL_BLOCKED_RE": "正则表达式 (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "搜索选项...",
   "DLG_MP_PRICES": "价格",
   "DLG_MP_DESCRIPTION": "描述"
 };

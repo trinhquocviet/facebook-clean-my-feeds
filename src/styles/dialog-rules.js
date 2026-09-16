@@ -91,23 +91,6 @@ scrollbar-width: thin; scrollbar-color: var(--cmf-border) transparent;`,
       styles: 'background-color: var(--cmf-border); border-radius: 4px;',
     },
 
-    // --------------------------------------------------------------- search
-    {
-      selector: '.fb-cmf .cmf-search-wrapper',
-      styles: `position: sticky; top: 0; z-index: 10; padding: var(--cmf-s-2) var(--cmf-s-4);
-background-color: var(--cmf-bg); border-bottom: 1px solid var(--cmf-border-soft);`,
-    },
-    {
-      selector: '.fb-cmf .cmf-search',
-      styles: `width: 100%; height: 32px; padding: 0 var(--cmf-s-3); border: 1px solid var(--cmf-border);
-border-radius: var(--cmf-r-md); background-color: var(--cmf-surface); color: var(--cmf-text);
-font-family: inherit; font-size: 13px; outline: none; transition: border-color .1s, background-color .1s;`,
-    },
-    {
-      selector: '.fb-cmf .cmf-search:focus',
-      styles: 'border-color: var(--cmf-accent); background-color: var(--cmf-bg);',
-    },
-
     // --------------------------------------------------------------- section
     { selector: '.fb-cmf .cmf-section + .cmf-section', styles: 'border-top: 1px solid var(--cmf-border-soft);' },
     {

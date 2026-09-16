@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Шукає збіги тексту в усіх стрічках. Працює, навіть якщо окремі фільтри стрічок вимкнено.",
   "GLOBAL_BLOCKED_ENABLED": "Увімкнено",
   "GLOBAL_BLOCKED_RE": "Регулярні вирази (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Пошук параметрів...",
   "DLG_MP_PRICES": "Ціни",
   "DLG_MP_DESCRIPTION": "Опис"
 };

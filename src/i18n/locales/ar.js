@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "يطابق النص عبر جميع الخلاصات. يعمل حتى لو كانت مرشحات الخلاصات الفردية معطلة.",
   "GLOBAL_BLOCKED_ENABLED": "مفعل",
   "GLOBAL_BLOCKED_RE": "التعبيرات العادية (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "البحث في الخيارات...",
   "DLG_MP_PRICES": "الأسعار",
   "DLG_MP_DESCRIPTION": "الوصف"
 };

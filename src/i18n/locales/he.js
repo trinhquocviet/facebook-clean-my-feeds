@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "מתאים טקסט בכל הפידים. פועל גם אם מסננים לפיד ספציפי מושבתים.",
   "GLOBAL_BLOCKED_ENABLED": "מופעל",
   "GLOBAL_BLOCKED_RE": "ביטויים רגולריים (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "חיפוש אפשרויות...",
   "DLG_MP_PRICES": "מחירים",
   "DLG_MP_DESCRIPTION": "תיאור"
 };

@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Coincide con texto en todas las secciones. Funciona incluso si los filtros individuales están deshabilitados.",
   "GLOBAL_BLOCKED_ENABLED": "Habilitado",
   "GLOBAL_BLOCKED_RE": "Expresiones regulares (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Buscar opciones...",
   "DLG_MP_PRICES": "Precios",
   "DLG_MP_DESCRIPTION": "Descripción"
 };

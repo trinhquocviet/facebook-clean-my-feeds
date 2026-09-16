@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "すべてのフィードでテキストを一致させます。フィードごとのフィルターが無効でも動作します。",
   "GLOBAL_BLOCKED_ENABLED": "有効",
   "GLOBAL_BLOCKED_RE": "正規表現 (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "設定を検索...",
   "DLG_MP_PRICES": "価格",
   "DLG_MP_DESCRIPTION": "説明"
 };

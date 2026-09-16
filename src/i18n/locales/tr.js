@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "Tüm akışlardaki metinlerle eşleşir. Akışa özel filtreler devre dışı olsa bile çalışır.",
   "GLOBAL_BLOCKED_ENABLED": "Etkin",
   "GLOBAL_BLOCKED_RE": "Düzenli İfadeler (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "Seçenekleri ara...",
   "DLG_MP_PRICES": "Fiyatlar",
   "DLG_MP_DESCRIPTION": "Açıklama"
 };

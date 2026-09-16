@@ -114,7 +114,6 @@ export default {
   "DLG_GLOBAL_HINT": "比對所有動態消息中的文字。即使個別動態篩選器已停用也會執行。",
   "GLOBAL_BLOCKED_ENABLED": "已啟用",
   "GLOBAL_BLOCKED_RE": "正則表達式 (RegExp)",
-  "DLG_SEARCH_PLACEHOLDER": "搜尋選項...",
   "DLG_MP_PRICES": "價格",
   "DLG_MP_DESCRIPTION": "描述"
 };
