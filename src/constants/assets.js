@@ -28,3 +28,12 @@ export const ICON_NEW_WINDOW = `<svg width="16" height="16" viewBox="0 0 24 24" 
   <title>Open post in a new window</title>
   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/>
 </svg>`;
+
+/**
+ * Chevron icon SVG for collapsible sections.
+ * @type {string}
+ */
+export const ICON_CHEVRON = `<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true">
+  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+</svg>`;
+
