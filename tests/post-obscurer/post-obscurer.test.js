@@ -1,5 +1,11 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
-import { createPostObscurer } from '@/modules/post-obscurer/index.js';
+import {
+  createPostObscurer,
+  buildDetailsCaption,
+  buildMiniCaption,
+  isPostAlreadyObscured,
+  toggleHiddenElements,
+} from '@/modules/post-obscurer/index.js';
 import { postAtt, postAttCPID, postAttTab } from '@/constants/index.js';
 import { createInitialState } from '@/state/index.js';
 
@@ -107,6 +113,14 @@ describe('modules/post-obscurer', () => {
     if (selector.startsWith(`[${postAtt}]`)) {
       return el.hasAttribute(postAtt);
     }
+    if (selector.includes(',')) {
+      const parts = selector.split(',').map(s => s.trim());
+      return parts.some(p => matches(el, p));
+    }
+    if (selector.startsWith('[') && selector.endsWith(']')) {
+      const attrName = selector.slice(1, -1);
+      return el.hasAttribute(attrName);
+    }
     return false;
   }
 
@@ -154,14 +168,15 @@ describe('modules/post-obscurer', () => {
     postObscurer = createPostObscurer(VARS, () => KeyWords);
   });
 
-  describe('addCaptionForHiddenPost', () => {
-    test('creates details/summary element, moves post inside, and attaches reason', () => {
+  describe('caption-builder submodule', () => {
+    test('buildDetailsCaption creates details/summary element, moves post inside, and attaches reason', () => {
       const parent = mockDoc.createElement('div');
       const post = mockDoc.createElement('div');
       post.classList.add('user-post-class');
       parent.appendChild(post);
 
-      postObscurer.addCaptionForHiddenPost(post, 'SPONSORED', 'marker-test');
+      const ctx = { VARS, getKeyWords: () => KeyWords };
+      buildDetailsCaption(post, 'SPONSORED', 'marker-test', ctx);
 
       const details = parent.children.find(c => c.tagName === 'DETAILS');
       expect(details).toBeDefined();
@@ -174,54 +189,69 @@ describe('modules/post-obscurer', () => {
       expect(details.children.includes(post)).toBe(true);
     });
 
-    test('sets open attribute and showAtt when VERBOSITY_DEBUG is enabled', () => {
+    test('buildDetailsCaption handles debug mode', () => {
       VARS.Options.VERBOSITY_DEBUG = true;
       const parent = mockDoc.createElement('div');
       const post = mockDoc.createElement('div');
       parent.appendChild(post);
 
-      postObscurer.addCaptionForHiddenPost(post, 'DEBUG_REASON');
+      const ctx = { VARS, getKeyWords: () => KeyWords };
+      buildDetailsCaption(post, 'DEBUG_REASON', '', ctx);
 
       const details = parent.children.find(c => c.tagName === 'DETAILS');
       expect(details.getAttribute('open')).toBe('');
       expect(post.getAttribute(VARS.showAtt)).toBe('');
     });
-  });
 
-  describe('addMiniCaption', () => {
-    test('inserts h6 element with reason and postAttTab', () => {
+    test('buildMiniCaption inserts h6 element with reason and postAttTab', () => {
       const post = mockDoc.createElement('div');
       const inner = mockDoc.createElement('span');
       post.appendChild(inner);
 
-      postObscurer.addMiniCaption(post, 'Suggested');
+      buildMiniCaption(post, 'Suggested', { VARS });
 
       expect(post.getAttribute(VARS.hideAtt)).toBe('');
       expect(post.firstElementChild.tagName).toBe('H6');
       expect(post.firstElementChild.getAttribute(postAttTab)).toBe('0');
       expect(post.firstElementChild.textContent).toBe('Suggested');
     });
-  });
 
-  describe('nf_isPostAlreadyHidden', () => {
-    test('returns true if post has postAtt', () => {
-      const post = mockDoc.createElement('div');
-      post.setAttribute(postAtt, '1');
-      expect(postObscurer.nf_isPostAlreadyHidden(post)).toBe(true);
-    });
+    test('isPostAlreadyObscured detects direct attribute, parent details, and child details', () => {
+      const post1 = mockDoc.createElement('div');
+      post1.setAttribute(postAtt, '1');
+      expect(isPostAlreadyObscured(post1)).toBe(true);
 
-    test('returns true if closest ancestor is details[postAtt]', () => {
       const details = mockDoc.createElement('details');
       details.setAttribute(postAtt, 'marker');
-      const post = mockDoc.createElement('div');
-      details.appendChild(post);
+      const post2 = mockDoc.createElement('div');
+      details.appendChild(post2);
+      expect(isPostAlreadyObscured(post2)).toBe(true);
 
-      expect(postObscurer.nf_isPostAlreadyHidden(post)).toBe(true);
+      const post3 = mockDoc.createElement('div');
+      expect(isPostAlreadyObscured(post3)).toBe(false);
+      expect(isPostAlreadyObscured(null)).toBe(false);
     });
+  });
 
-    test('returns false if post is not hidden', () => {
-      const post = mockDoc.createElement('div');
-      expect(postObscurer.nf_isPostAlreadyHidden(post)).toBe(false);
+  describe('visibility-toggle submodule', () => {
+    test('toggleHiddenElements performs single-pass batch show/hide', () => {
+      const el1 = mockDoc.createElement('div');
+      el1.setAttribute(VARS.hideAtt, '');
+      mockDoc.body.appendChild(el1);
+
+      const el2 = mockDoc.createElement('div');
+      el2.setAttribute(VARS.cssHideEl, '');
+      mockDoc.body.appendChild(el2);
+
+      // In normal mode: removes showAtt
+      toggleHiddenElements({ VARS });
+      expect(el1.getAttribute(VARS.showAtt)).toBe(null);
+
+      // In debug mode: sets showAtt
+      VARS.Options.VERBOSITY_DEBUG = true;
+      toggleHiddenElements({ VARS });
+      expect(el1.getAttribute(VARS.showAtt)).toBe('');
+      expect(el2.getAttribute(VARS.showAtt)).toBe('');
     });
   });
 
