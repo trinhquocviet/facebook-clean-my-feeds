@@ -18,7 +18,6 @@ import {
   countDescendants,
   querySelectorAllNoChildren,
   hasSizeChanged,
-  isDarkMode,
   buildStylesheet,
   removeDustyElements
 } from './utils/index.js';
@@ -3432,41 +3431,6 @@ import {
       setTimeout(startUp, 10);
     }
   }
-
-  function handleClassListChange() {
-    let modeHasChanged = false;
-    let modeNow = isDarkMode();
-    if (VARS.isDarkMode === null) {
-      modeHasChanged = true;
-    }
-    else if (VARS.isDarkMode !== modeNow) {
-      modeHasChanged = true;
-    }
-
-    if (modeHasChanged) {
-      // -- update CSS
-
-      VARS.isDarkMode = modeNow;
-    }
-  }
-
-  // Initial check
-  handleClassListChange();
-
-  // -- Create an observer instance
-  const observer = new MutationObserver((mutationsList) => {
-    for (let mutation of mutationsList) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        handleClassListChange();
-      }
-    }
-  });
-
-  // -- Start observing the target node for configured mutations
-  observer.observe(document.documentElement, {
-    attributes: true, // Observe changes to attributes
-    attributeFilter: ['class'] // Only observe changes to the 'class' attribute
-  });
 
   // setTimeout(startUp, 50);
   startUp();

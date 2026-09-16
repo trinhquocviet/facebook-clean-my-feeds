@@ -26,7 +26,6 @@ describe('State Module', () => {
       expect(state1.echoEl).toBeNull();
       expect(state1.echoCount).toBe(0);
       expect(state1.echoCPID).toBe('');
-      expect(state1.isDarkMode).toBeNull();
       expect(state1.isChromium).toBe(false);
       expect(state1.btnToggleEl).toBeNull();
     });
@@ -42,6 +41,7 @@ describe('State Module', () => {
     it('should purge all dead properties from state', () => {
       const state = createInitialState();
 
+      expect(state.isDarkMode).toBeUndefined();
       expect(state.tempStyleSheetCode).toBeUndefined();
       expect(state.b1Att).toBeUndefined();
       expect(state.b2Att).toBeUndefined();

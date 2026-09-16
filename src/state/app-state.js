@@ -97,10 +97,8 @@ export function createInitialState() {
     echoCPID: '',
 
     // ------------------------------------------------------------------------
-    // Environment & Theme
+    // Environment & Platform
     // ------------------------------------------------------------------------
-    /** Dark mode state: true | false | null (unresolved) */
-    isDarkMode: null,
     /** Browser detection flag for Chromium video controls accommodation */
     isChromium: false,
 

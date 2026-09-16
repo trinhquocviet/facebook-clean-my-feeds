@@ -475,13 +475,20 @@ export function getDialogRules(vars = {}) {
     { selector: '.fb-cmf .fileInput', styles: { display: 'none' } },
 
     // -------------------------------------------------------------- dark mode
-    { selector: '.__fb-dark-mode .fb-cmf', styles: { colorScheme: 'dark' } },
     {
-      selector: '.__fb-dark-mode .fb-cmf .cmf-textarea, .__fb-dark-mode .fb-cmf .cmf-num, .__fb-dark-mode .fb-cmf select',
+      selector: '.__fb-dark-mode .fb-cmf, [data-theme="dark"] .fb-cmf',
+      styles: { colorScheme: 'dark' },
+    },
+    {
+      selector: '.__fb-dark-mode .fb-cmf .cmf-textarea, .__fb-dark-mode .fb-cmf .cmf-num, .__fb-dark-mode .fb-cmf select, [data-theme="dark"] .fb-cmf .cmf-textarea, [data-theme="dark"] .fb-cmf .cmf-num, [data-theme="dark"] .fb-cmf select',
       styles: {
         backgroundColor: 'var(--card-background, #242526)',
         color: 'var(--primary-text, #e4e6eb)',
       },
+    },
+    {
+      selector: '@media (prefers-color-scheme: dark)',
+      styles: '.fb-cmf { color-scheme: dark; }',
     },
 
     // --------------------------------------------------------- reduced motion

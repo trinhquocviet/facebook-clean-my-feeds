@@ -72,6 +72,22 @@ describe('styles/index', () => {
       expect(showRule).toBeDefined();
       expect(showRule.styles).toContain('opacity: 1');
     });
+
+    test('contains pure CSS dark mode rules supporting Facebook classes and media queries', () => {
+      const rules = getDialogRules(dummyVars);
+      const darkSchemeRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf') && r.selector.includes('[data-theme="dark"] .fb-cmf'));
+      expect(darkSchemeRule).toBeDefined();
+      expect(darkSchemeRule.styles).toContain('color-scheme: dark');
+
+      const darkInputsRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf .cmf-textarea') && r.selector.includes('[data-theme="dark"] .fb-cmf .cmf-textarea'));
+      expect(darkInputsRule).toBeDefined();
+      expect(darkInputsRule.styles).toContain('background-color: var(--card-background, #242526)');
+      expect(darkInputsRule.styles).toContain('color: var(--primary-text, #e4e6eb)');
+
+      const mediaDarkRule = rules.find(r => r.selector.includes('@media (prefers-color-scheme: dark)'));
+      expect(mediaDarkRule).toBeDefined();
+      expect(mediaDarkRule.styles).toContain('color-scheme: dark');
+    });
   });
 
   describe('getToggleRules', () => {
