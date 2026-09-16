@@ -1,4 +1,4 @@
-import { describe, it, expect, mock } from 'bun:test';
+import { describe, it, expect } from 'bun:test';
 import { loadOptionsFromStorage, saveOptionsToStorage } from '../../src/modules/user/storage.js';
 
 describe('modules/user/storage', () => {

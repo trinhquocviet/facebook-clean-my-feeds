@@ -107,5 +107,14 @@ export default {
     "Імпорт",
     "Скинути"
   ],
-  "DLG_FB_COLOUR_HINT": "Залиште порожнім, щоб використовувати колірну схему FB"
+  "DLG_RESET_ALL": "Скинути все",
+  "DLG_FILTER_ENABLED": "Увімкнено",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Глобальний текстовий фільтр",
+  "DLG_GLOBAL_HINT": "Шукає збіги тексту в усіх стрічках. Працює, навіть якщо окремі фільтри стрічок вимкнено.",
+  "GLOBAL_BLOCKED_ENABLED": "Увімкнено",
+  "GLOBAL_BLOCKED_RE": "Регулярні вирази (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Пошук параметрів...",
+  "DLG_MP_PRICES": "Ціни",
+  "DLG_MP_DESCRIPTION": "Опис"
 };

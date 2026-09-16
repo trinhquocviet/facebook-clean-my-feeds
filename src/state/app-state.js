@@ -11,6 +11,7 @@ import {
   LOGO_HTML,
   ICON_NEW_WINDOW,
   ICON_NEW_WINDOW_CLASS,
+  ICON_CHEVRON,
 } from '../constants/index.js';
 
 /**
@@ -137,6 +138,8 @@ export function createInitialState() {
     iconNewWindow: ICON_NEW_WINDOW,
     /** CSS class for external link icons */
     iconNewWindowClass: ICON_NEW_WINDOW_CLASS,
+    /** Chevron icon SVG markup */
+    iconChevron: ICON_CHEVRON,
   };
 }
 

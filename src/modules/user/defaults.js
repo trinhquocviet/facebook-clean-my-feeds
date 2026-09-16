@@ -64,6 +64,7 @@ export function applyDefaultOptions(rawOptions = {}, defaults = {}) {
 
   // 3. String text fields that default to empty string
   const stringDefaults = [
+    'GLOBAL_BLOCKED_TEXT',
     'NF_BLOCKED_TEXT',
     'GF_BLOCKED_TEXT',
     'VF_BLOCKED_TEXT',

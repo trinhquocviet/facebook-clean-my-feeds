@@ -107,5 +107,14 @@ export default {
     "Importer",
     "Réinitialiser"
   ],
-  "DLG_FB_COLOUR_HINT": "Laissez vide pour utiliser le jeu de couleurs de FB"
+  "DLG_RESET_ALL": "Tout réinitialiser",
+  "DLG_FILTER_ENABLED": "Activé",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Filtre de texte global",
+  "DLG_GLOBAL_HINT": "Recherche le texte dans tous les fils. Fonctionne même si les filtres par fil sont désactivés.",
+  "GLOBAL_BLOCKED_ENABLED": "Activé",
+  "GLOBAL_BLOCKED_RE": "Expressions régulières (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Rechercher des options...",
+  "DLG_MP_PRICES": "Prix",
+  "DLG_MP_DESCRIPTION": "Description"
 };

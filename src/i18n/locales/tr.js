@@ -107,5 +107,14 @@ export default {
     "İçe aktarmak",
     "Sıfırla"
   ],
-  "DLG_FB_COLOUR_HINT": "FB'un renk düzenini kullanmak için boş bırakın"
+  "DLG_RESET_ALL": "Tümünü sıfırla",
+  "DLG_FILTER_ENABLED": "Etkin",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Genel metin filtresi",
+  "DLG_GLOBAL_HINT": "Tüm akışlardaki metinlerle eşleşir. Akışa özel filtreler devre dışı olsa bile çalışır.",
+  "GLOBAL_BLOCKED_ENABLED": "Etkin",
+  "GLOBAL_BLOCKED_RE": "Düzenli İfadeler (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Seçenekleri ara...",
+  "DLG_MP_PRICES": "Fiyatlar",
+  "DLG_MP_DESCRIPTION": "Açıklama"
 };

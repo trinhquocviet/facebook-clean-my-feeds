@@ -60,6 +60,7 @@ describe('State Module', () => {
       expect(state.logoHTML).toBeDefined();
       expect(state.iconNewWindow).toBeDefined();
       expect(state.iconNewWindowClass).toBe('cmf-link-new');
+      expect(state.iconChevron).toBeDefined();
     });
   });
 

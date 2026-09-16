@@ -107,5 +107,14 @@ export default {
     "Importare",
     "Ripristina"
   ],
-  "DLG_FB_COLOUR_HINT": "Lascia vuoto per usare la combinazione di colori di FB"
+  "DLG_RESET_ALL": "Ripristina tutto",
+  "DLG_FILTER_ENABLED": "Abilitato",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Filtro di testo globale",
+  "DLG_GLOBAL_HINT": "Corrisponde al testo in tutti i feed. Si applica anche se i filtri per feed sono disattivati.",
+  "GLOBAL_BLOCKED_ENABLED": "Abilitato",
+  "GLOBAL_BLOCKED_RE": "Espressioni regolari (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Cerca opzioni...",
+  "DLG_MP_PRICES": "Prezzi",
+  "DLG_MP_DESCRIPTION": "Descrizione"
 };

@@ -108,5 +108,14 @@ export default {
     "Importieren",
     "Zurücksetzen"
   ],
-  "DLG_FB_COLOUR_HINT": "Leer lassen, um das Farbschema von FB zu verwenden"
+  "DLG_RESET_ALL": "Alles zurücksetzen",
+  "DLG_FILTER_ENABLED": "Aktiviert",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Globaler Textfilter",
+  "DLG_GLOBAL_HINT": "Sucht Text in allen Feeds. Funktioniert auch dann, wenn einzelne Feed-Filter deaktiviert sind.",
+  "GLOBAL_BLOCKED_ENABLED": "Aktiviert",
+  "GLOBAL_BLOCKED_RE": "Reguläre Ausdrücke (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Optionen suchen...",
+  "DLG_MP_PRICES": "Preise",
+  "DLG_MP_DESCRIPTION": "Beschreibung"
 };

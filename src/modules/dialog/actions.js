@@ -63,32 +63,6 @@ export async function saveUserOptions(event, ctx, source = 'dialog') {
     cbs.forEach(cb => {
       VARS.Options[cb.name] = cb.checked;
     });
-    // -- checkboxes (multipe values variations)
-    let cbName = 'NF_BLOCKED_FEED';
-    cbs = Array.from(md.querySelectorAll(`input[type="checkbox"][name="${cbName}"]`));
-    cbs.forEach(cb => {
-      VARS.Options[cbName][parseInt(cb.value)] = (cb.checked) ? '1' : '0';
-    });
-    cbName = 'GF_BLOCKED_FEED';
-    cbs = Array.from(md.querySelectorAll(`input[type="checkbox"][name="${cbName}"]`));
-    cbs.forEach(cb => {
-      VARS.Options[cbName][parseInt(cb.value)] = (cb.checked) ? '1' : '0';
-    });
-    cbName = 'VF_BLOCKED_FEED';
-    cbs = Array.from(md.querySelectorAll(`input[type="checkbox"][name="${cbName}"]`));
-    cbs.forEach(cb => {
-      VARS.Options[cbName][parseInt(cb.value)] = (cb.checked) ? '1' : '0';
-    });
-    cbName = 'MP_BLOCKED_FEED';
-    cbs = Array.from(md.querySelectorAll(`input[type="checkbox"][name="${cbName}"]`));
-    cbs.forEach(cb => {
-      VARS.Options[cbName][parseInt(cb.value)] = (cb.checked) ? '1' : '0';
-    });
-    cbName = 'PP_BLOCKED_FEED';
-    cbs = Array.from(md.querySelectorAll(`input[type="checkbox"][name="${cbName}"]`));
-    cbs.forEach(cb => {
-      VARS.Options[cbName][parseInt(cb.value)] = (cb.checked) ? '1' : '0';
-    });
 
     // -- radios
     rbs = md.querySelectorAll('input[type="radio"]:checked');
@@ -128,19 +102,21 @@ export async function saveUserOptions(event, ctx, source = 'dialog') {
 
   // -- clear out items that are not valid.
   let md = document.getElementById('fbcmf');
-  let inputs = Array.from(md.querySelectorAll('input:not([type="file"]), textarea, select'));
-  let validNames = [];
-  inputs.forEach(inp => {
-    if (!validNames.includes(inp.name)) {
-      validNames.push(inp.name);
-    }
-  });
-  for (let key in VARS.Options) {
-    if (!validNames.includes(key)) {
-      if (VARS.Options.VERBOSITY_DEBUG) {
-        console.info(`${log}saveUserOptions(); Deleting key:`, key);
+  if (md) {
+    let inputs = Array.from(md.querySelectorAll('input:not([type="file"]), textarea, select'));
+    let validNames = [];
+    inputs.forEach(inp => {
+      if (inp.name && !validNames.includes(inp.name)) {
+        validNames.push(inp.name);
       }
-      delete VARS.Options[key];
+    });
+    for (let key in VARS.Options) {
+      if (!validNames.includes(key)) {
+        if (VARS.Options.VERBOSITY_DEBUG) {
+          console.info(`${log}saveUserOptions(); Deleting key:`, key);
+        }
+        delete VARS.Options[key];
+      }
     }
   }
 

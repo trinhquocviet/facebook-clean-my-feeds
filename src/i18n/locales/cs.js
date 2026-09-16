@@ -107,5 +107,14 @@ export default {
     "Import",
     "Resetovat"
   ],
-  "DLG_FB_COLOUR_HINT": "Chcete-li použít barevné schéma FB, nechte prázdné"
+  "DLG_RESET_ALL": "Resetovat vše",
+  "DLG_FILTER_ENABLED": "Povoleno",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Globální textový filtr",
+  "DLG_GLOBAL_HINT": "Hledá shodu textu ve všech kanálech. Funguje i v případě, že jsou jednotlivé filtry kanálů vypnuté.",
+  "GLOBAL_BLOCKED_ENABLED": "Povoleno",
+  "GLOBAL_BLOCKED_RE": "Regulární výrazy (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Hledat možnosti...",
+  "DLG_MP_PRICES": "Ceny",
+  "DLG_MP_DESCRIPTION": "Popis"
 };

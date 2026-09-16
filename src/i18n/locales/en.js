@@ -109,5 +109,14 @@ export default {
     "Import",
     "Reset"
   ],
-  "DLG_FB_COLOUR_HINT": "Leave blank to use FB's colour scheme"
+  "DLG_RESET_ALL": "Reset all",
+  "DLG_FILTER_ENABLED": "Enabled",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Global text filter",
+  "DLG_GLOBAL_HINT": "Matches text across all feeds. Runs even if per-feed filters are disabled.",
+  "GLOBAL_BLOCKED_ENABLED": "Enabled",
+  "GLOBAL_BLOCKED_RE": "Regular Expressions (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Search options...",
+  "DLG_MP_PRICES": "Prices",
+  "DLG_MP_DESCRIPTION": "Description"
 };

@@ -50,7 +50,11 @@ export function getToggleRules(vars) {
     // --- Dialog: common transition + closed state (lower specificity wins when shown) ---
     {
       selector: '.fb-cmf',
-      styles: 'transform: scale(0); transition: transform .45s ease, opacity .25s ease, visibility 1s ease;',
+      styles: 'transform: translateY(6px) scale(.98); transition: transform .16s cubic-bezier(.2,0,.2,1), opacity .16s linear, visibility .16s linear;',
+    },
+    {
+      selector: `.fb-cmf[${vars.showAtt}]`,
+      styles: 'transform: none;',
     },
 
     // --- Dialog: position variant "left" (DEFAULT) — positioning only, no transform ---
@@ -67,17 +71,18 @@ export function getToggleRules(vars) {
 
     // --- Footer buttons ---
     {
-      selector: 'div#fbcmf footer > button',
-      styles: `font-family: inherit; cursor: pointer;
-        height: var(--button-height-medium); padding: 0 var(--button-padding-horizontal-medium);
-        border: none; border-radius: var(--button-corner-radius);
-        background-color: var(--secondary-button-background);
-        -webkit-transition: background-color 0.2s linear; transition: background-color 0.2s linear;
-        font-size: .9375rem; font-weight: 600; color: var(--secondary-button-text);`,
+      selector: '#fbcmf .cmf-btn, div#fbcmf footer > button',
+      styles: `display: inline-flex; align-items: center; justify-content: center;
+        padding: 6px var(--cmf-s-3, 12px); border: none; border-radius: var(--cmf-r-md, 6px);
+        font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+        transition: background-color .1s linear, color .1s linear, filter .1s linear;
+        background-color: var(--cmf-btn-2-bg, var(--secondary-button-background)); color: var(--cmf-btn-2-tx, var(--secondary-button-text));`,
     },
-    {
-      selector: '#fbcmf footer > button:hover',
-      styles: 'font-family: inherit; background-color: var(--primary-button-background); color: var(--primary-button-text);',
-    },
+    { selector: '#fbcmf .cmf-btn--primary', styles: 'padding-inline: var(--cmf-s-4, 16px); background-color: var(--cmf-accent, #0866ff); color: var(--cmf-on-accent, #ffffff);' },
+    { selector: '#fbcmf .cmf-btn--primary:hover', styles: 'filter: brightness(.92);' },
+    { selector: '#fbcmf .cmf-btn--secondary', styles: 'background-color: var(--cmf-btn-2-bg, var(--secondary-button-background)); color: var(--cmf-btn-2-tx, var(--secondary-button-text));' },
+    { selector: '#fbcmf .cmf-btn--secondary:hover', styles: 'filter: brightness(.94);' },
+    { selector: '#fbcmf .cmf-btn--ghost', styles: 'padding-inline: 0; background-color: transparent; color: var(--cmf-text-2, var(--secondary-text)); font-weight: 500;' },
+    { selector: '#fbcmf .cmf-btn--ghost:hover', styles: 'color: var(--cmf-danger, #e41e3f); background-color: transparent;' },
   ];
 }

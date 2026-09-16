@@ -107,5 +107,14 @@ export default {
     "Importar",
     "Reajustar"
   ],
-  "DLG_FB_COLOUR_HINT": "Dejar en blanco para usar el esquema de color de FB"
+  "DLG_RESET_ALL": "Restablecer todo",
+  "DLG_FILTER_ENABLED": "Habilitado",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Filtro de texto global",
+  "DLG_GLOBAL_HINT": "Coincide con texto en todas las secciones. Funciona incluso si los filtros individuales están deshabilitados.",
+  "GLOBAL_BLOCKED_ENABLED": "Habilitado",
+  "GLOBAL_BLOCKED_RE": "Expresiones regulares (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Buscar opciones...",
+  "DLG_MP_PRICES": "Precios",
+  "DLG_MP_DESCRIPTION": "Descripción"
 };

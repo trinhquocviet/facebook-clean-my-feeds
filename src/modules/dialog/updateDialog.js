@@ -4,26 +4,22 @@
  * Part of FB - Clean My Feeds
  */
 
+import { refreshFilterGates } from './toggle.js';
+
 /**
  * Updates all dialog input elements to match VARS.Options values
  * @param {Object} ctx - Context object
  */
 export function updateDialog(ctx) {
   const { VARS } = ctx;
-  let content = document.getElementById('fbcmf')?.querySelector('.content');
+  const root = document.getElementById('fbcmf');
+  let content = root?.querySelector('.content');
   if (content) {
     // -- toggle checkboxes
     let cbs = Array.from(content.querySelectorAll('input[type="checkbox"][cbtype="T"]'));
     cbs.forEach(cb => {
       if (VARS.Options.hasOwnProperty(cb.name)) {
         cb.checked = VARS.Options[cb.name];
-      }
-    });
-    // -- multiple values checkboxes
-    cbs = Array.from(content.querySelectorAll('input[type="checkbox"][cbtype="M"]'));
-    cbs.forEach(cb => {
-      if (VARS.Options.hasOwnProperty(cb.name)) {
-        cb.checked = VARS.Options[cb.name][parseInt(cb.value)] === '1';
       }
     });
     // -- radios
@@ -61,5 +57,6 @@ export function updateDialog(ctx) {
         }
       }
     });
+    refreshFilterGates(root);
   }
 }

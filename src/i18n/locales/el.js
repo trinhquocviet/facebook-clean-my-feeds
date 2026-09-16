@@ -107,5 +107,14 @@ export default {
     "Εισαγωγή",
     "Επαναφορά"
   ],
-  "DLG_FB_COLOUR_HINT": "Αφήστε κενό για να χρησιμοποιήσετε το χρωματικό σχήμα του FB"
+  "DLG_RESET_ALL": "Επαναφορά όλων",
+  "DLG_FILTER_ENABLED": "Ενεργοποιημένο",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Γενικό φίλτρο κειμένου",
+  "DLG_GLOBAL_HINT": "Αντιστοιχίζει κείμενο σε όλες τις ροές. Λειτουργεί ακόμα και αν τα μεμονωμένα φίλτρα ροών είναι απενεργοποιημένα.",
+  "GLOBAL_BLOCKED_ENABLED": "Ενεργοποιημένο",
+  "GLOBAL_BLOCKED_RE": "Κανονικές Εκφράσεις (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Αναζήτηση επιλογών...",
+  "DLG_MP_PRICES": "Τιμές",
+  "DLG_MP_DESCRIPTION": "Περιγραφή"
 };

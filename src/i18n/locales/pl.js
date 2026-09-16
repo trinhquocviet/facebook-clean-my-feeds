@@ -107,5 +107,14 @@ export default {
     "Import",
     "Przeskładać"
   ],
-  "DLG_FB_COLOUR_HINT": "Pozostaw puste, aby użyć schematu kolorów FB"
+  "DLG_RESET_ALL": "Zresetuj wszystko",
+  "DLG_FILTER_ENABLED": "Włączone",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Globalny filtr tekstu",
+  "DLG_GLOBAL_HINT": "Dopasowuje tekst we wszystkich kanałach. Działa nawet wtedy, gdy filtry poszczególnych kanałów są wyłączone.",
+  "GLOBAL_BLOCKED_ENABLED": "Włączone",
+  "GLOBAL_BLOCKED_RE": "Wyrażenia regularne (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Szukaj opcji...",
+  "DLG_MP_PRICES": "Ceny",
+  "DLG_MP_DESCRIPTION": "Opis"
 };

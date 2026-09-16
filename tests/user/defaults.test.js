@@ -41,6 +41,7 @@ describe('modules/user/defaults', () => {
       expect(options.MP_SPONSORED).toBe(true);
 
       // Text fields
+      expect(options.GLOBAL_BLOCKED_TEXT).toBe('');
       expect(options.NF_BLOCKED_TEXT).toBe('');
       expect(options.GF_BLOCKED_TEXT).toBe('');
       expect(options.VF_BLOCKED_TEXT).toBe('');
@@ -63,6 +64,7 @@ describe('modules/user/defaults', () => {
         MP_SPONSORED: false,
         VERBOSITY_LEVEL: '2',
         VERBOSITY_DEBUG: true,
+        GLOBAL_BLOCKED_TEXT: '',
         NF_BLOCKED_TEXT: 'spam',
         GF_BLOCKED_TEXT: 'ads',
         VF_BLOCKED_TEXT: '',

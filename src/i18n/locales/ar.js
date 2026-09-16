@@ -107,5 +107,14 @@ export default {
     "يستورد",
     "إعادة تعيين"
   ],
-  "DLG_FB_COLOUR_HINT": "اتركه فارغًا لاستخدام نظام ألوان FB"
+  "DLG_RESET_ALL": "إعادة تعيين الكل",
+  "DLG_FILTER_ENABLED": "مفعل",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "مرشح النص العام",
+  "DLG_GLOBAL_HINT": "يطابق النص عبر جميع الخلاصات. يعمل حتى لو كانت مرشحات الخلاصات الفردية معطلة.",
+  "GLOBAL_BLOCKED_ENABLED": "مفعل",
+  "GLOBAL_BLOCKED_RE": "التعبيرات العادية (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "البحث في الخيارات...",
+  "DLG_MP_PRICES": "الأسعار",
+  "DLG_MP_DESCRIPTION": "الوصف"
 };

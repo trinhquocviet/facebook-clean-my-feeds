@@ -1210,20 +1210,33 @@ import {
   }
 
 
+  function isGloballyBlockedText(postTexts) {
+    if (!VARS.Options.GLOBAL_BLOCKED_ENABLED) {
+      return '';
+    }
+    if (VARS.Options.GLOBAL_BLOCKED_RE) {
+      return findFirstMatchRegExp(postTexts, VARS.Filters.GLOBAL_BLOCKED_TEXT_LC);
+    }
+    return findFirstMatch(postTexts, VARS.Filters.GLOBAL_BLOCKED_TEXT_LC);
+  }
+
   function nf_isBlockedText(post) {
     // - check for blocked text - partial text match
     // -- news feed post's blocks (have 1-4 blocks)
     // -- scan 1st & 3rd blocks
     // -- used by the fn extractTextContent() and fn doMoppingInfoBox()
     const postTexts = (extractTextContent(post, nf_getBlocksQuery(post), 3)).join(' ').toLowerCase();
-    if (VARS.Options.NF_BLOCKED_RE) {
-      const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.NF_BLOCKED_TEXT_LC);
-      return blockedText;
+    if (VARS.Options.NF_BLOCKED_ENABLED) {
+      if (VARS.Options.NF_BLOCKED_RE) {
+        const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.NF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
+      else {
+        const blockedText = findFirstMatch(postTexts, VARS.Filters.NF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
     }
-    else {
-      const blockedText = findFirstMatch(postTexts, VARS.Filters.NF_BLOCKED_TEXT_LC);
-      return blockedText;
-    }
+    return isGloballyBlockedText(postTexts);
   }
 
   function gf_isBlockedText(post) {
@@ -1233,15 +1246,17 @@ import {
     // -- some users don't have [aria-posinset], hence [aria-describedby]
 
     const postTexts = (extractTextContent(post, gf_getBlocksQuery(post), 3)).join(' ').toLowerCase();
-    if (VARS.Options.GF_BLOCKED_RE) {
-      const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.GF_BLOCKED_TEXT_LC);
-      return blockedText;
+    if (VARS.Options.GF_BLOCKED_ENABLED) {
+      if (VARS.Options.GF_BLOCKED_RE) {
+        const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.GF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
+      else {
+        const blockedText = findFirstMatch(postTexts, VARS.Filters.GF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
     }
-    else {
-      const blockedText = findFirstMatch(postTexts, VARS.Filters.GF_BLOCKED_TEXT_LC);
-      return blockedText;
-    }
-
+    return isGloballyBlockedText(postTexts);
   }
 
   function vf_isBlockedText(post, queryBlocks) {
@@ -1249,14 +1264,17 @@ import {
     // -- regular videos feed post's blocks (have 1-3 blocks)
     // -- scan 1st block only
     const postTexts = (extractTextContent(post, queryBlocks, 1)).join(' ').toLowerCase();
-    if (VARS.Options.vF_BLOCKED_RE) {
-      const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.VF_BLOCKED_TEXT_LC);
-      return blockedText;
+    if (VARS.Options.VF_BLOCKED_ENABLED) {
+      if (VARS.Options.VF_BLOCKED_RE) {
+        const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.VF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
+      else {
+        const blockedText = findFirstMatch(postTexts, VARS.Filters.VF_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
     }
-    else {
-      const blockedText = findFirstMatch(postTexts, VARS.Filters.VF_BLOCKED_TEXT_LC);
-      return blockedText;
-    }
+    return isGloballyBlockedText(postTexts);
   }
 
   function pp_isBlockedText(post) {
@@ -1265,14 +1283,17 @@ import {
     // -- scan 1st & 3rd blocks
     // -- used by the fn extractTextContent() and fn doMoppingInfoBox()
     const postTexts = (extractTextContent(post, nf_getBlocksQuery(post), 3)).join(' ').toLowerCase();
-    if (VARS.Options.PP_BLOCKED_RE) {
-      const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.PP_BLOCKED_TEXT_LC);
-      return blockedText;
+    if (VARS.Options.PP_BLOCKED_ENABLED) {
+      if (VARS.Options.PP_BLOCKED_RE) {
+        const blockedText = findFirstMatchRegExp(postTexts, VARS.Filters.PP_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
+      else {
+        const blockedText = findFirstMatch(postTexts, VARS.Filters.PP_BLOCKED_TEXT_LC);
+        if (blockedText.length > 0) return blockedText;
+      }
     }
-    else {
-      const blockedText = findFirstMatch(postTexts, VARS.Filters.PP_BLOCKED_TEXT_LC);
-      return blockedText;
-    }
+    return isGloballyBlockedText(postTexts);
   }
 
   function vf_isVideoLive(post) {
@@ -1457,7 +1478,9 @@ import {
       for (let i = startIndex; i < collectionBlocksOfText.length; i++) {
         const descriptionTextList = mp_scanTreeForText(collectionBlocksOfText[i]);
         const descriptionText = descriptionTextList.join(' ').toLowerCase();
-        const blockedText = findFirstMatch(descriptionText, VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION_LC);
+        const blockedText = VARS.Options.MP_BLOCKED_RE
+          ? findFirstMatchRegExp(descriptionText, VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION_LC)
+          : findFirstMatch(descriptionText, VARS.Filters.MP_BLOCKED_TEXT_DESCRIPTION_LC);
         if (blockedText.length > 0) {
           return blockedText;
         }
@@ -1510,9 +1533,20 @@ import {
       const blocksOfText = item.querySelectorAll(queryTextBlock);
       if (blocksOfText.length > 0) {
         // -- price(s) is in first block
-        const blockedTextPrices = mp_getBlockedPrices(blocksOfText[0]);
+        let blockedTextPrices = mp_getBlockedPrices(blocksOfText[0]);
         // -- description is in other blocks
-        const blockedTextDescription = mp_getBlockedTextDescription(blocksOfText, true);
+        let blockedTextDescription = mp_getBlockedTextDescription(blocksOfText, true);
+
+        if (!blockedTextPrices && !blockedTextDescription && VARS.Options.GLOBAL_BLOCKED_ENABLED) {
+          for (let i = 0; i < blocksOfText.length; i++) {
+            const desc = mp_scanTreeForText(blocksOfText[i]).join(' ').toLowerCase();
+            const match = isGloballyBlockedText(desc);
+            if (match.length > 0) {
+              blockedTextDescription = match;
+              break;
+            }
+          }
+        }
 
         if (blockedTextPrices.length > 0) {
           // -- hide the item
@@ -2442,7 +2476,7 @@ import {
               hideReason = KeyWords.SPONSORED;
             }
             // -- sponsored + blocked text sometimes overlap. sponsored takes priority.
-            if (hideReason === '' && VARS.Options.NF_BLOCKED_ENABLED) {
+            if (hideReason === '' && (VARS.Options.NF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
               hideReason = nf_isBlockedText(post);
             }
             if (hideReason === '' && VARS.Options.NF_LIKES_MAXIMUM && VARS.Options.NF_LIKES_MAXIMUM !== '') {
@@ -2559,7 +2593,7 @@ import {
               if (hideReason === '' && VARS.Options.GF_SHORT_REEL_VIDEO) {
                 hideReason = gf_isShortReelVideo(post);
               }
-              if (hideReason === '' && VARS.Options.GF_BLOCKED_ENABLED) {
+              if (hideReason === '' && (VARS.Options.GF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
                 hideReason = gf_isBlockedText(post);
               }
               if (hideReason === '' && VARS.Options.GF_ANIMATED_GIFS_POSTS) {
@@ -2626,7 +2660,7 @@ import {
               if (hideReason === '' && VARS.Options.GF_SHORT_REEL_VIDEO) {
                 hideReason = gf_isShortReelVideo(post);
               }
-              if (hideReason === '' && VARS.Options.GF_BLOCKED_ENABLED) {
+              if (hideReason === '' && (VARS.Options.GF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
                 hideReason = gf_isBlockedText(post);
               }
               if (hideReason === '' && VARS.Options.GF_ANIMATED_GIFS_POSTS) {
@@ -2768,7 +2802,7 @@ import {
                 hideReason === 'hidden';
               }
             }
-            if (hideReason === '' && VARS.Options.VF_BLOCKED_ENABLED) {
+            if (hideReason === '' && (VARS.Options.VF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
               hideReason = vf_isBlockedText(post, queryBlocks);
             }
             // console.info(log + 'mopUpTheWatchVideosFeed(); ::: hideReason:', hideReason, post, queryBlocks);
@@ -2815,7 +2849,7 @@ import {
             hideReason = 'hidden';
           }
           else {
-            if (VARS.Options.VF_BLOCKED_ENABLED) {
+            if (VARS.Options.VF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED) {
               hideReason = vf_isBlockedText(post, queryBlocks);
             }
           }
@@ -2935,7 +2969,7 @@ import {
         }
       }
 
-      if (VARS.Options.MP_BLOCKED_ENABLED) {
+      if (VARS.Options.MP_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED) {
         mp_doBlockingByBlockedText();
       }
     }
@@ -2980,7 +3014,7 @@ import {
         //     mp_hideBox(itemBox, KeyWords.SPONSORED);
         // }
       }
-      if (VARS.Options.MP_BLOCKED_ENABLED) {
+      if (VARS.Options.MP_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED) {
         mp_doBlockingByBlockedText();
       }
     }
@@ -3022,7 +3056,7 @@ import {
             hideReason = KeyWords.SPONSORED;
             isSponsoredPost = true;
           }
-          if (hideReason === '' && VARS.Options.NF_BLOCKED_ENABLED) {
+          if (hideReason === '' && (VARS.Options.NF_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
             hideReason = nf_isBlockedText(post);
           }
         }
@@ -3133,7 +3167,7 @@ import {
   function mopUpTheProfilePage() {
     // -- profile pages
 
-    const proceed = VARS.Options.PP_BLOCKED_ENABLED || VARS.Options.PP_ANIMATED_GIFS_POSTS || VARS.Options.PP_ANIMATED_GIFS_PAUSE;
+    const proceed = VARS.Options.PP_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED || VARS.Options.PP_ANIMATED_GIFS_POSTS || VARS.Options.PP_ANIMATED_GIFS_PAUSE;
     // console.info(log + "mopUpTheProfilePage(); proceed:", proceed, "PP_BLOCKED_ENABLED:", VARS.Options.PP_BLOCKED_ENABLED, "PP_ANIMATED_GIFS_POSTS:", VARS.Options.PP_ANIMATED_GIFS_POSTS, "PP_ANIMATED_GIFS_PAUSE:", VARS.Options.PP_ANIMATED_GIFS_PAUSE);
     if (!proceed) {
       return;
@@ -3171,7 +3205,7 @@ import {
           if (hideReason === '' && VARS.Options.PP_ANIMATED_GIFS_POSTS) {
             hideReason = nf_hasAnimatedGifContent(post);
           }
-          if (hideReason === '' && VARS.Options.PP_BLOCKED_ENABLED) {
+          if (hideReason === '' && (VARS.Options.PP_BLOCKED_ENABLED || VARS.Options.GLOBAL_BLOCKED_ENABLED)) {
             hideReason = pp_isBlockedText(post);
           }
         }

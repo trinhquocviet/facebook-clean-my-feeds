@@ -107,5 +107,14 @@ export default {
     "Импорт",
     "Нулиране"
   ],
-  "DLG_FB_COLOUR_HINT": "Оставете празно, за да използвате цветовата схема на FB"
+  "DLG_RESET_ALL": "Нулиране на всички",
+  "DLG_FILTER_ENABLED": "Активирано",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Глобален текстов филтър",
+  "DLG_GLOBAL_HINT": "Търси съвпадения на текст във всички потоци. Работи дори когато индивидуалните филтри са изключени.",
+  "GLOBAL_BLOCKED_ENABLED": "Активирано",
+  "GLOBAL_BLOCKED_RE": "Регулярни изрази (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Търсене на опции...",
+  "DLG_MP_PRICES": "Цени",
+  "DLG_MP_DESCRIPTION": "Описание"
 };

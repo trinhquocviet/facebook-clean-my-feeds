@@ -37,47 +37,39 @@ describe('modules/user/filters', () => {
       expect(filters.NF_BLOCKED_TEXT_LC).toEqual(['crypto', 'nft', 'bitcoin']);
     });
 
-    it('implements cross-feed blocked text sharing matrix correctly', () => {
+    it('enforces per-section isolation so feeds do not leak terms to each other', () => {
       const options = {
         NF_BLOCKED_ENABLED: true,
         NF_BLOCKED_TEXT: 'nf_word',
-        NF_BLOCKED_FEED: ['1', '1', '1'], // Share NF with GF (index 1) and VF (index 2)
 
         GF_BLOCKED_ENABLED: true,
         GF_BLOCKED_TEXT: 'gf_word',
-        GF_BLOCKED_FEED: ['1', '1', '0'], // Share GF with NF (index 0)
 
         VF_BLOCKED_ENABLED: true,
         VF_BLOCKED_TEXT: 'vf_word',
-        VF_BLOCKED_FEED: ['1', '0', '1'], // Share VF with NF (index 0)
       };
 
       const filters = compileFilterRules(options, '\n');
 
-      // NF receives its own + GF (since GF_BLOCKED_FEED[0] === '1') + VF (since VF_BLOCKED_FEED[0] === '1')
-      expect(filters.NF_BLOCKED_TEXT).toEqual(['nf_word', 'gf_word', 'vf_word']);
-
-      // GF receives its own + NF (since NF_BLOCKED_FEED[1] === '1')
-      expect(filters.GF_BLOCKED_TEXT).toEqual(['gf_word', 'nf_word']);
-
-      // VF receives its own + NF (since NF_BLOCKED_FEED[2] === '1')
-      expect(filters.VF_BLOCKED_TEXT).toEqual(['vf_word', 'nf_word']);
+      expect(filters.NF_BLOCKED_TEXT).toEqual(['nf_word']);
+      expect(filters.GF_BLOCKED_TEXT).toEqual(['gf_word']);
+      expect(filters.VF_BLOCKED_TEXT).toEqual(['vf_word']);
     });
 
-    it('does not append shared text if source feed is disabled', () => {
+    it('does not populate filter text if feed is disabled', () => {
       const options = {
         NF_BLOCKED_ENABLED: true,
         NF_BLOCKED_TEXT: 'nf_word',
 
-        GF_BLOCKED_ENABLED: false, // Disabled!
+        GF_BLOCKED_ENABLED: false, // Disabled
         GF_BLOCKED_TEXT: 'gf_word',
-        GF_BLOCKED_FEED: ['1', '1', '0'],
       };
 
       const filters = compileFilterRules(options, '\n');
 
       expect(filters.NF_BLOCKED_TEXT).toEqual(['nf_word']);
       expect(filters.GF_BLOCKED_ENABLED).toBe(false);
+      expect(filters.GF_BLOCKED_TEXT).toEqual([]);
     });
 
     it('populates Marketplace and Profile page filters independently', () => {
@@ -101,6 +93,22 @@ describe('modules/user/filters', () => {
       expect(filters.PP_BLOCKED_ENABLED).toBe(true);
       expect(filters.PP_BLOCKED_TEXT).toEqual(['ProfileSpam']);
       expect(filters.PP_BLOCKED_TEXT_LC).toEqual(['profilespam']);
+    });
+
+    it('populates Global text filter independently and computes lowercase tokens', () => {
+      const options = {
+        GLOBAL_BLOCKED_ENABLED: true,
+        GLOBAL_BLOCKED_TEXT: 'Scam¦¦Promotion¦¦SponsorMe',
+        NF_BLOCKED_ENABLED: false,
+      };
+
+      const filters = compileFilterRules(options, '¦¦');
+
+      expect(filters.GLOBAL_BLOCKED_ENABLED).toBe(true);
+      expect(filters.GLOBAL_BLOCKED_TEXT).toEqual(['Scam', 'Promotion', 'SponsorMe']);
+      expect(filters.GLOBAL_BLOCKED_TEXT_LC).toEqual(['scam', 'promotion', 'sponsorme']);
+      expect(filters.NF_BLOCKED_ENABLED).toBe(false);
+      expect(filters.NF_BLOCKED_TEXT).toEqual([]);
     });
   });
 });

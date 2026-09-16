@@ -1,8 +1,17 @@
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
-import { checkInputNumber, getLanguagesComponent, createSingleCB, createMultipeCBs, createRB, createCheckboxAndInput } from '../../src/modules/dialog/components.js';
+import { describe, test, expect, beforeEach } from 'bun:test';
+import {
+  checkInputNumber,
+  getLanguagesComponent,
+  createSingleCB,
+  createRB,
+  createCheckboxAndInput,
+  createSection,
+  createFilterPanel,
+  createNote,
+} from '../../src/modules/dialog/components.js';
 import { createToggleButton, addLegendEvents } from '../../src/modules/dialog/toggle.js';
 import { updateDialog } from '../../src/modules/dialog/updateDialog.js';
-import { buildMoppingDialog } from '../../src/modules/dialog/index.js';
+import { buildMoppingDialog, bindDialogKeys } from '../../src/modules/dialog/index.js';
 import { saveUserOptions, exportUserOptions, importUserOptions, resetUserOptions } from '../../src/modules/dialog/actions.js';
 
 describe('modules/dialog/components', () => {
@@ -31,6 +40,13 @@ describe('modules/dialog/components', () => {
     beforeEach(() => {
       mockElements = [];
       globalThis.document = {
+        body: {
+          children: [],
+          appendChild(child) {
+            this.children.push(child);
+            return child;
+          }
+        },
         createElement: (tag) => {
           const el = {
             tagName: tag.toUpperCase(),
@@ -75,19 +91,21 @@ describe('modules/dialog/components', () => {
       };
     });
 
-    test('createSingleCB builds div containing label and checkbox', () => {
+    test('createSingleCB builds label containing text span and checkbox', () => {
       const mockCtx = {
         VARS: { Options: { NF_SPONSORED: true } },
         KeyWords: { SPONSORED: 'Sponsored', NF_SPONSORED: 'Sponsored' }
       };
       const result = createSingleCB('NF_SPONSORED', mockCtx);
-      expect(result.tagName).toBe('DIV');
-      expect(result.children.length).toBe(1); // label
-      const label = result.children[0];
-      expect(label.children.length).toBe(2); // checkbox + text node
-      expect(label.children[0].type).toBe('checkbox');
-      expect(label.children[0].name).toBe('NF_SPONSORED');
-      expect(label.children[0].checked).toBe(true);
+      expect(result.tagName).toBe('LABEL');
+      expect(result.className).toContain('cmf-row');
+      expect(result.children.length).toBe(2); // span + checkbox
+      const span = result.children[0];
+      const cb = result.children[1];
+      expect(span.textContent).toBe('Sponsored');
+      expect(cb.type).toBe('checkbox');
+      expect(cb.name).toBe('NF_SPONSORED');
+      expect(cb.checked).toBe(true);
     });
 
     test('createSingleCB supports readOnly mode', () => {
@@ -96,35 +114,130 @@ describe('modules/dialog/components', () => {
         KeyWords: { SPONSORED: 'Sponsored' }
       };
       const result = createSingleCB('NF_SPONSORED', mockCtx, true);
-      const label = result.children[0];
-      const cb = label.children[0];
+      expect(result.tagName).toBe('LABEL');
+      expect(result.className).toContain('cmf-row--locked');
+      const cb = result.children[1];
       expect(cb.checked).toBe(true);
       expect(cb.disabled).toBe(true);
-      expect(label.getAttribute('disabled')).toBe('disabled');
     });
 
-    test('createRB builds div with radio button', () => {
+    test('createRB builds label with radio button', () => {
       const mockCtx = {
         VARS: { Options: { VERBOSITY_LEVEL: '1' } }
       };
       const result = createRB('VERBOSITY_LEVEL', '1', 'Detailed', mockCtx);
-      expect(result.tagName).toBe('DIV');
-      const label = result.children[0];
-      const rb = label.children[0];
+      expect(result.tagName).toBe('LABEL');
+      expect(result.className).toContain('cmf-row');
+      const span = result.children[0];
+      const rb = result.children[1];
+      expect(span.textContent).toBe('Detailed');
       expect(rb.type).toBe('radio');
       expect(rb.value).toBe('1');
       expect(rb.checked).toBe(true);
     });
 
-    test('createMultipeCBs returns array of div elements and trailing br', () => {
+    test('createCheckboxAndInput builds split row with checkbox and number text input', () => {
       const mockCtx = {
-        VARS: { Options: { NF_BLOCKED_FEED: ['1', '0'] } },
-        KeyWords: { NF_BLOCKED_FEED: ['Option A', 'Option B'] }
+        VARS: { Options: { NF_LIKES_MAXIMUM: true, NF_LIKES_MAXIMUM_COUNT: '500' } },
+        KeyWords: { NF_LIKES_MAXIMUM: 'Max likes' }
       };
-      const results = createMultipeCBs('NF_BLOCKED_FEED', mockCtx);
-      expect(results.length).toBe(3); // 2 divs + 1 br
-      expect(results[0].tagName).toBe('DIV');
-      expect(results[2].tagName).toBe('BR');
+      const result = createCheckboxAndInput('NF_LIKES_MAXIMUM', 'NF_LIKES_MAXIMUM_COUNT', mockCtx);
+      expect(result.tagName).toBe('DIV');
+      expect(result.className).toContain('cmf-row--split');
+      expect(result.children.length).toBe(2);
+      const lead = result.children[0];
+      const input = result.children[1];
+      expect(lead.tagName).toBe('LABEL');
+      expect(input.tagName).toBe('INPUT');
+      expect(input.type).toBe('text'); // INVARIANT §2.2
+      expect(input.value).toBe('500');
+    });
+
+    test('createSection builds details element with summary and rows container', () => {
+      const mockCtx = { VARS: { iconChevron: '<svg></svg>' } };
+      const { section, rows } = createSection('NF', 'News Feed', mockCtx);
+      expect(section.tagName).toBe('DETAILS');
+      expect(section.className).toBe('cmf-section');
+      expect(section.children[0].tagName).toBe('SUMMARY');
+      expect(rows.className).toBe('cmf-section__rows');
+    });
+
+    test('createFilterPanel builds filter panel with toggle and regex flags', () => {
+      const mockCtx = {
+        VARS: { Options: { NF_BLOCKED_ENABLED: true, NF_BLOCKED_RE: false, NF_BLOCKED_TEXT: 'cat¦¦dog' }, SEP: '¦¦' },
+        KeyWords: { DLG_BLOCK_TEXT_FILTER_TITLE: 'Keywords', DLG_FILTER_ENABLED: 'Enabled', DLG_FILTER_REGEX: 'RegEx' }
+      };
+      const panel = createFilterPanel('NF', [{ name: 'NF_BLOCKED_TEXT' }], mockCtx);
+      expect(panel.tagName).toBe('DIV');
+      expect(panel.className).toBe('cmf-filter');
+      expect(panel.children.length).toBe(2); // head + textarea
+    });
+
+    test('createFilterPanel builds labeled textareas with titles for Marketplace dual fields', () => {
+      const mockCtx = {
+        VARS: {
+          Options: {
+            MP_BLOCKED_TEXT: '100\n200',
+            MP_BLOCKED_TEXT_DESCRIPTION: 'scam',
+          },
+          SEP: '\n',
+        },
+        KeyWords: {
+          DLG_BLOCK_TEXT_FILTER_TITLE: 'Text filter',
+          DLG_FILTER_ENABLED: 'Enabled',
+          DLG_FILTER_REGEX: 'RegEx',
+          DLG_MP_PRICES: 'Prices',
+          DLG_MP_DESCRIPTION: 'Description',
+        },
+      };
+      const fields = [
+        { name: 'MP_BLOCKED_TEXT', labelKey: 'DLG_MP_PRICES', rows: 2 },
+        { name: 'MP_BLOCKED_TEXT_DESCRIPTION', labelKey: 'DLG_MP_DESCRIPTION', rows: 2 },
+      ];
+      const panel = createFilterPanel('MP', fields, mockCtx);
+      expect(panel.children.length).toBe(3); // head + field1 + field2
+
+      const priceField = panel.children[1];
+      expect(priceField.className).toBe('cmf-field');
+      const priceLabel = priceField.children[0];
+      const priceTextarea = priceField.children[1];
+      expect(priceLabel.textContent).toBe('Prices');
+      expect(priceTextarea.title).toBe('Prices');
+      expect(priceTextarea.getAttribute('aria-label')).toBe('Prices');
+      expect(priceTextarea.name).toBe('MP_BLOCKED_TEXT');
+
+      const descField = panel.children[2];
+      expect(descField.className).toBe('cmf-field');
+      const descLabel = descField.children[0];
+      const descTextarea = descField.children[1];
+      expect(descLabel.textContent).toBe('Description');
+      expect(descTextarea.title).toBe('Description');
+      expect(descTextarea.getAttribute('aria-label')).toBe('Description');
+      expect(descTextarea.name).toBe('MP_BLOCKED_TEXT_DESCRIPTION');
+    });
+
+    test('createNote builds static note div', () => {
+      const note = createNote('Test note', 'cmf-tips');
+      expect(note.tagName).toBe('DIV');
+      expect(note.className).toBe('cmf-tips');
+      expect(note.textContent).toBe('Test note');
+    });
+
+    test('getLanguagesComponent creates select element with supported languages', () => {
+      const mockCtx = {
+        VARS: { language: 'en' },
+        getSupportedLanguages: () => [
+          { code: 'en', name: 'English', direction: 'ltr' },
+          { code: 'vi', name: 'Tiếng Việt', direction: 'ltr' },
+        ],
+      };
+      const select = getLanguagesComponent(mockCtx);
+      expect(select.tagName).toBe('SELECT');
+      expect(select.name).toBe('CMF_DIALOG_LANGUAGE');
+      expect(select.children.length).toBe(2);
+      expect(select.children[0].value).toBe('en');
+      expect(select.children[0].textContent).toBe('English');
+      expect(select.children[0].attributes.selected).toBeDefined();
     });
   });
 });
@@ -167,5 +280,111 @@ describe('modules/dialog/actions', () => {
 describe('modules/dialog/index', () => {
   test('exports buildMoppingDialog function', () => {
     expect(typeof buildMoppingDialog).toBe('function');
+  });
+
+  test('exports bindDialogKeys function', () => {
+    expect(typeof bindDialogKeys).toBe('function');
+  });
+});
+
+describe('modules/dialog/createDialog schema', () => {
+  test('includes GLOBAL section in SECTIONS', async () => {
+    const { SECTIONS } = await import('../../src/modules/dialog/createDialog.js');
+    const globalSection = SECTIONS.find((s) => s.key === 'GLOBAL');
+    expect(globalSection).toBeDefined();
+    expect(globalSection.titleKey).toBe('DLG_GLOBAL');
+    expect(globalSection.filter).toEqual([{ name: 'GLOBAL_BLOCKED_TEXT' }]);
+  });
+});
+
+describe('modules/dialog/toggle', () => {
+  test('createToggleButton creates and appends toggle button to document.body', () => {
+    let clicked = false;
+    const bodyChildren = [];
+    globalThis.document = {
+      createElement: (tag) => ({
+        tagName: tag.toUpperCase(),
+        innerHTML: '',
+        id: '',
+        title: '',
+        className: '',
+        addEventListener: () => {},
+      }),
+      body: {
+        appendChild: (el) => bodyChildren.push(el),
+      },
+    };
+    const mockCtx = {
+      VARS: { logoHTML: '<svg id="logo"></svg>' },
+      KeyWords: { DLG_TITLE: 'Clean my feeds' },
+      toggleDialog: () => {
+        clicked = true;
+      },
+    };
+    createToggleButton(mockCtx);
+    expect(mockCtx.VARS.btnToggleEl).toBeDefined();
+    expect(mockCtx.VARS.btnToggleEl.id).toBe('fbcmfToggle');
+    expect(mockCtx.VARS.btnToggleEl.className).toBe('fb-cmf-toggle fb-cmf-icon');
+    expect(mockCtx.VARS.btnToggleEl.title).toBe('Clean my feeds');
+    expect(bodyChildren).toContain(mockCtx.VARS.btnToggleEl);
+  });
+
+  test('addLegendEvents wires section open states based on defaultOpenKey', () => {
+    const mockSection = {
+      tagName: 'DETAILS',
+      dataset: { cmfSection: 'NF' },
+      open: false,
+      querySelectorAll: () => [],
+    };
+    const mockRoot = {
+      querySelectorAll: (sel) => (sel.includes('.cmf-section') ? [mockSection] : []),
+      querySelector: () => null,
+    };
+    globalThis.document.getElementById = (id) => (id === 'fbcmf' ? mockRoot : null);
+    addLegendEvents({});
+    expect(mockSection.open).toBe(true);
+  });
+});
+
+describe('modules/dialog/updateDialog', () => {
+  test('updateDialog synchronizes inputs with VARS.Options', () => {
+    const cb = {
+      tagName: 'INPUT',
+      type: 'checkbox',
+      name: 'NF_SPONSORED',
+      checked: false,
+      attributes: { cbtype: 'T' },
+    };
+    const ta = {
+      tagName: 'TEXTAREA',
+      name: 'NF_BLOCKED_TEXT',
+      value: '',
+    };
+    const content = {
+      querySelectorAll: (sel) => {
+        if (sel.includes('input[type="checkbox"]')) return [cb];
+        if (sel.includes('textarea')) return [ta];
+        return [];
+      },
+    };
+    const root = {
+      querySelector: (sel) => (sel === '.content' ? content : null),
+      querySelectorAll: () => [],
+    };
+    globalThis.document.getElementById = (id) => (id === 'fbcmf' ? root : null);
+
+    const mockCtx = {
+      VARS: {
+        Options: {
+          NF_SPONSORED: true,
+          NF_BLOCKED_TEXT: 'bad¦¦ugly',
+        },
+        SEP: '¦¦',
+      },
+    };
+
+    updateDialog(mockCtx);
+    expect(cb.checked).toBe(true);
+    expect(ta.value).toBe('bad\nugly');
   });
 });

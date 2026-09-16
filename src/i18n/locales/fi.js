@@ -107,5 +107,14 @@ export default {
     "Tuonti",
     "Nollaa"
   ],
-  "DLG_FB_COLOUR_HINT": "Jätä tyhjäksi käyttääksesi FB:n värimaailmaa"
+  "DLG_RESET_ALL": "Nollaa kaikki",
+  "DLG_FILTER_ENABLED": "Käytössä",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Yleinen tekstisuodatin",
+  "DLG_GLOBAL_HINT": "Vastaa tekstiä kaikissa syötteissä. Toimii vaikka syötekohtaiset suodattimet olisivat pois käytöstä.",
+  "GLOBAL_BLOCKED_ENABLED": "Käytössä",
+  "GLOBAL_BLOCKED_RE": "Säännölliset lausekkeet (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Hae asetuksia...",
+  "DLG_MP_PRICES": "Hinnat",
+  "DLG_MP_DESCRIPTION": "Kuvaus"
 };

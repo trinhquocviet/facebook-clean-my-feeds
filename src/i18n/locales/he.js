@@ -107,5 +107,14 @@ export default {
     "ייבא",
     "איפוס"
   ],
-  "DLG_FB_COLOUR_HINT": "השאר ריק כדי להשתמש בערכת הצבעים של FB"
+  "DLG_RESET_ALL": "אפס הכל",
+  "DLG_FILTER_ENABLED": "מופעל",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "מסנן טקסט גלובלי",
+  "DLG_GLOBAL_HINT": "מתאים טקסט בכל הפידים. פועל גם אם מסננים לפיד ספציפי מושבתים.",
+  "GLOBAL_BLOCKED_ENABLED": "מופעל",
+  "GLOBAL_BLOCKED_RE": "ביטויים רגולריים (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "חיפוש אפשרויות...",
+  "DLG_MP_PRICES": "מחירים",
+  "DLG_MP_DESCRIPTION": "תיאור"
 };

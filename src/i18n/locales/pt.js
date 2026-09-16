@@ -107,5 +107,14 @@ export default {
     "Importar",
     "Redefinir"
   ],
-  "DLG_FB_COLOUR_HINT": "Deixe em branco para usar o esquema de cores do FB"
+  "DLG_RESET_ALL": "Redefinir tudo",
+  "DLG_FILTER_ENABLED": "Ativado",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Filtro de texto global",
+  "DLG_GLOBAL_HINT": "Compara texto em todos os feeds. Funciona mesmo se os filtros por feed estiverem desativados.",
+  "GLOBAL_BLOCKED_ENABLED": "Ativado",
+  "GLOBAL_BLOCKED_RE": "Expressões regulares (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Pesquisar opções...",
+  "DLG_MP_PRICES": "Preços",
+  "DLG_MP_DESCRIPTION": "Descrição"
 };

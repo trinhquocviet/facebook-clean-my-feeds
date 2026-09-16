@@ -107,5 +107,14 @@ export default {
     "匯入",
     "重設"
   ],
-  "DLG_FB_COLOUR_HINT": "留空以使用 FB 的配色方案"
+  "DLG_RESET_ALL": "重設全部",
+  "DLG_FILTER_ENABLED": "已啟用",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "全域文字過濾器",
+  "DLG_GLOBAL_HINT": "比對所有動態消息中的文字。即使個別動態篩選器已停用也會執行。",
+  "GLOBAL_BLOCKED_ENABLED": "已啟用",
+  "GLOBAL_BLOCKED_RE": "正則表達式 (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "搜尋選項...",
+  "DLG_MP_PRICES": "價格",
+  "DLG_MP_DESCRIPTION": "描述"
 };

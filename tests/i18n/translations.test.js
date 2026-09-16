@@ -11,9 +11,6 @@ import {
 } from '../../src/i18n/index.js';
 import {
   getTranslation as getTranslationHelper,
-  getSupportedLanguages as getSupportedLanguagesHelper,
-  buildSponsoredDictionary as buildSponsoredDictionaryHelper,
-  buildReelsDictionary as buildReelsDictionaryHelper,
 } from '../../src/i18n/helpers.js';
 
 describe('i18n Module & Locales', () => {
@@ -31,12 +28,41 @@ describe('i18n Module & Locales', () => {
       }
     });
 
-    it('should include all required baseline keys in English (78 keys)', () => {
+    it('should include all required baseline keys in English (87 keys)', () => {
       const enKeys = Object.keys(translations.en);
-      expect(enKeys.length).toBe(78);
+      expect(enKeys.length).toBe(87);
       expect(translations.en.SPONSORED).toBe('Sponsored');
       expect(translations.en.DLG_TITLE).toBe('Clean my feeds');
       expect(translations.en.LANGUAGE_DIRECTION).toBe('ltr');
+      expect(translations.en.DLG_RESET_ALL).toBe('Reset all');
+      expect(translations.en.DLG_FILTER_ENABLED).toBe('Enabled');
+      expect(translations.en.DLG_FILTER_REGEX).toBe('RegEx');
+      expect(translations.en.DLG_GLOBAL).toBe('Global text filter');
+      expect(translations.en.DLG_SEARCH_PLACEHOLDER).toBe('Search options...');
+      expect(translations.en.DLG_MP_PRICES).toBe('Prices');
+      expect(translations.en.DLG_MP_DESCRIPTION).toBe('Description');
+    });
+
+    it('should have new revamp keys and no obsolete DLG_FB_COLOUR_HINT across all 23 locales', () => {
+      const requiredNewKeys = [
+        'DLG_RESET_ALL',
+        'DLG_FILTER_ENABLED',
+        'DLG_FILTER_REGEX',
+        'DLG_GLOBAL',
+        'DLG_GLOBAL_HINT',
+        'GLOBAL_BLOCKED_ENABLED',
+        'GLOBAL_BLOCKED_RE',
+        'DLG_SEARCH_PLACEHOLDER',
+        'DLG_MP_PRICES',
+        'DLG_MP_DESCRIPTION',
+      ];
+      for (const [code, loc] of Object.entries(translations)) {
+        for (const k of requiredNewKeys) {
+          expect(loc[k]).toBeDefined();
+          expect(typeof loc[k]).toBe('string');
+        }
+        expect(loc.DLG_FB_COLOUR_HINT).toBeUndefined();
+      }
     });
 
     it('should have correct RTL directions for Arabic and Hebrew', () => {
@@ -61,13 +87,17 @@ describe('i18n Module & Locales', () => {
       expect(vi.SPONSORED).toBe('Được tài trợ');
       expect(vi.LANGUAGE_DIRECTION).toBe('ltr');
       expect(vi.DLG_TITLE).toBe('Làm sạch nguồn cấp dữ liệu của tôi');
+      expect(vi.DLG_RESET_ALL).toBe('Đặt lại tất cả');
+      expect(vi.DLG_GLOBAL).toBe('Bộ lọc văn bản chung');
+      expect(vi.DLG_MP_PRICES).toBe('Giá cả');
+      expect(vi.DLG_MP_DESCRIPTION).toBe('Mô tả');
     });
 
     it('should fall back to English if language code is not found or empty', () => {
       const fallback = getTranslation('unknown-LANG');
       expect(fallback.SPONSORED).toBe('Sponsored');
       expect(fallback.DLG_TITLE).toBe('Clean my feeds');
-      expect(Object.keys(fallback).length).toBe(78);
+      expect(Object.keys(fallback).length).toBe(87);
 
       const emptyFallback = getTranslation('');
       expect(emptyFallback.SPONSORED).toBe('Sponsored');
@@ -148,12 +178,13 @@ describe('i18n Module & Locales', () => {
       expect(masterKeyWords.defaults).toBe(defaults);
       expect(masterKeyWords.pathInfo).toBe(pathInfo);
       expect(Object.keys(masterKeyWords.translations).length).toBe(23);
-      expect(Object.keys(masterKeyWords.defaults).length).toBe(54);
+      expect(Object.keys(masterKeyWords.defaults).length).toBe(51);
     });
 
     it('should maintain defaults values', () => {
       expect(defaults.SPONSORED).toBe(true);
-      expect(defaults.NF_BLOCKED_FEED).toEqual(['1', '0', '0']);
+      expect(defaults.GLOBAL_BLOCKED_ENABLED).toBe(false);
+      expect(defaults.GLOBAL_BLOCKED_RE).toBe(false);
     });
 
     it('should support pathInfo both as string and with .pathMatch property', () => {

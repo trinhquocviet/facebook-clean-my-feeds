@@ -107,5 +107,14 @@ export default {
     "Impor",
     "Reset"
   ],
-  "DLG_FB_COLOUR_HINT": "Biarkan kosong untuk menggunakan skema warna FB"
+  "DLG_RESET_ALL": "Reset semua",
+  "DLG_FILTER_ENABLED": "Diaktifkan",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Filter teks global",
+  "DLG_GLOBAL_HINT": "Mencocokkan teks di semua feed. Berjalan bahkan jika filter per-feed dinonaktifkan.",
+  "GLOBAL_BLOCKED_ENABLED": "Diaktifkan",
+  "GLOBAL_BLOCKED_RE": "Ekspresi Reguler (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Cari opsi...",
+  "DLG_MP_PRICES": "Harga",
+  "DLG_MP_DESCRIPTION": "Deskripsi"
 };

@@ -107,5 +107,14 @@ export default {
     "Importeren",
     "Reset"
   ],
-  "DLG_FB_COLOUR_HINT": "Laat leeg om het kleurenschema van FB te gebruiken"
+  "DLG_RESET_ALL": "Alles resetten",
+  "DLG_FILTER_ENABLED": "Ingeschakeld",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "Globaal tekstfilter",
+  "DLG_GLOBAL_HINT": "Komt overeen met tekst in alle feeds. Werkt ook als afzonderlijke feedfilters zijn uitgeschakeld.",
+  "GLOBAL_BLOCKED_ENABLED": "Ingeschakeld",
+  "GLOBAL_BLOCKED_RE": "Reguliere expressies (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "Opties zoeken...",
+  "DLG_MP_PRICES": "Prijzen",
+  "DLG_MP_DESCRIPTION": "Beschrijving"
 };

@@ -107,5 +107,14 @@ export default {
     "进口",
     "重置"
   ],
-  "DLG_FB_COLOUR_HINT": "留空以使用 FB 的配色方案"
+  "DLG_RESET_ALL": "重置全部",
+  "DLG_FILTER_ENABLED": "已启用",
+  "DLG_FILTER_REGEX": "RegEx",
+  "DLG_GLOBAL": "全局文本过滤器",
+  "DLG_GLOBAL_HINT": "匹配所有动态中的文本。即使单个动态过滤器已禁用也会生效。",
+  "GLOBAL_BLOCKED_ENABLED": "已启用",
+  "GLOBAL_BLOCKED_RE": "正则表达式 (RegExp)",
+  "DLG_SEARCH_PLACEHOLDER": "搜索选项...",
+  "DLG_MP_PRICES": "价格",
+  "DLG_MP_DESCRIPTION": "描述"
 };
