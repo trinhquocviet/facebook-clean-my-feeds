@@ -25,6 +25,8 @@ describe('styles/index', () => {
         expect(typeof rule.styles).toBe('string');
         expect(rule.selector.length).toBeGreaterThan(0);
         expect(rule.styles.length).toBeGreaterThan(0);
+        // Ensure no literal newlines in styles
+        expect(rule.styles).not.toContain('\n');
       }
     });
 
@@ -43,22 +45,45 @@ describe('styles/index', () => {
   });
 
   describe('getDialogRules', () => {
-    test('returns array of dialog CSS rules', () => {
+    test('returns array of dialog CSS rules without newlines', () => {
       const rules = getDialogRules(dummyVars);
       expect(Array.isArray(rules)).toBe(true);
       expect(rules.length).toBeGreaterThan(20);
 
+      for (const rule of rules) {
+        expect(typeof rule.selector).toBe('string');
+        expect(typeof rule.styles).toBe('string');
+        expect(rule.styles).not.toContain('\n');
+      }
+
       const dialogMain = rules.find(r => r.selector === '.fb-cmf');
       expect(dialogMain).toBeDefined();
-      expect(dialogMain.styles).toContain('position:fixed');
+      expect(dialogMain.styles).toMatch(/position:\s*fixed/);
       expect(dialogMain.styles).toContain('background-color: var(--card-background)');
+    });
+
+    test('interpolates iconNewWindowClass and showAtt variables in selectors', () => {
+      const rules = getDialogRules(dummyVars);
+      const iconRule = rules.find(r => r.selector === `.${dummyVars.iconNewWindowClass}`);
+      expect(iconRule).toBeDefined();
+      expect(iconRule.styles).toContain('width: 1rem');
+
+      const showRule = rules.find(r => r.selector === `.fb-cmf[${dummyVars.showAtt}]`);
+      expect(showRule).toBeDefined();
+      expect(showRule.styles).toContain('opacity: 1');
     });
   });
 
   describe('getToggleRules', () => {
-    test('returns array of toggle and position rules', () => {
+    test('returns array of toggle and position rules without newlines', () => {
       const rules = getToggleRules(dummyVars);
       expect(Array.isArray(rules)).toBe(true);
+
+      for (const rule of rules) {
+        expect(typeof rule.selector).toBe('string');
+        expect(typeof rule.styles).toBe('string');
+        expect(rule.styles).not.toContain('\n');
+      }
 
       const posBottomLeft = rules.find(r => r.selector.includes('bottom-left'));
       expect(posBottomLeft).toBeDefined();
@@ -71,3 +96,4 @@ describe('styles/index', () => {
     });
   });
 });
+

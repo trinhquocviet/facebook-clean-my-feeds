@@ -5,6 +5,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { minify } from 'terser';
 import { generateUserscriptHeader } from './utils/userscript.js';
+import { transformStyleObjects } from './utils/transform-styles.js';
 import packageJson from '../package.json';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,20 @@ if (!existsSync(OUTPUT_DIR)) {
 console.log('Building userscript with Bun...');
 const startTime = performance.now();
 
+const styleTransformerPlugin = {
+  name: 'style-object-to-css',
+  setup(build) {
+    build.onLoad({ filter: /src\/styles\/.*\.js$/ }, async (args) => {
+      const source = readFileSync(args.path, 'utf-8');
+      const transformed = transformStyleObjects(source);
+      return {
+        contents: transformed,
+        loader: 'js',
+      };
+    });
+  },
+};
+
 try {
   const result = await Bun.build({
     entrypoints: [SRC_FILE],
@@ -35,6 +50,7 @@ try {
     target: 'browser',
     format: 'iife',
     minify: false,
+    plugins: [styleTransformerPlugin],
   });
 
   if (!result.success) {

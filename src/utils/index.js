@@ -33,5 +33,7 @@ export {
 } from './theme.js';
 
 export {
-  buildStylesheet
+  buildStylesheet,
+  objectToCss,
+  compileRules
 } from './css-builder.js';
