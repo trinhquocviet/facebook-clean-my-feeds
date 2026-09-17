@@ -60,6 +60,8 @@ describe('styles/index', () => {
       expect(dialogMain).toBeDefined();
       expect(dialogMain.styles).toMatch(/position:\s*fixed/);
       expect(dialogMain.styles).toContain('background-color: var(--card-background)');
+      expect(dialogMain.styles).toContain('transform: translateY(6px) scale(.98)');
+      expect(dialogMain.styles).toContain('transition: transform .16s cubic-bezier(.2,0,.2,1)');
     });
 
     test('interpolates iconNewWindowClass and showAtt variables in selectors', () => {
@@ -71,6 +73,30 @@ describe('styles/index', () => {
       const showRule = rules.find(r => r.selector === `.fb-cmf[${dummyVars.showAtt}]`);
       expect(showRule).toBeDefined();
       expect(showRule.styles).toContain('opacity: 1');
+      expect(showRule.styles).toContain('transform: none');
+    });
+
+    test('includes footer button styles in dialog rules', () => {
+      const rules = getDialogRules(dummyVars);
+      const btnBase = rules.find(r => r.selector.includes('.cmf-btn'));
+      expect(btnBase).toBeDefined();
+      expect(btnBase.styles).toContain('cursor: pointer');
+
+      const btnPrimary = rules.find(r => r.selector.includes('.cmf-btn--primary'));
+      expect(btnPrimary).toBeDefined();
+      expect(btnPrimary.styles).toContain('var(--cmf-accent');
+
+      const btnSecondary = rules.find(r => r.selector.includes('.cmf-btn--secondary'));
+      expect(btnSecondary).toBeDefined();
+
+      const btnGhost = rules.find(r => r.selector.includes('.cmf-btn--ghost'));
+      expect(btnGhost).toBeDefined();
+    });
+
+    test('does not contain obsolete legacy fieldset fallback rules', () => {
+      const rules = getDialogRules(dummyVars);
+      const fieldsetRule = rules.find(r => r.selector.includes('.fb-cmf fieldset'));
+      expect(fieldsetRule).toBeUndefined();
     });
 
     test('contains pure CSS dark mode rules supporting Facebook classes and media queries', () => {
@@ -109,6 +135,15 @@ describe('styles/index', () => {
 
       const dlgRight = rules.find(r => r.selector.includes('data-cmf-dlg="right"'));
       expect(dlgRight).toBeDefined();
+    });
+
+    test('does not contain dialog transitions or footer button rules', () => {
+      const rules = getToggleRules(dummyVars);
+      const dialogTransition = rules.find(r => r.selector === '.fb-cmf');
+      expect(dialogTransition).toBeUndefined();
+
+      const footerBtn = rules.find(r => r.selector.includes('.cmf-btn'));
+      expect(footerBtn).toBeUndefined();
     });
   });
 });

@@ -54,9 +54,11 @@ export function getDialogRules(vars = {}) {
         boxShadow: '0 12px 28px 0 var(--shadow-2, rgba(0,0,0,.2)), 0 2px 4px 0 var(--shadow-1, rgba(0,0,0,.1))',
         opacity: 0,
         visibility: 'hidden',
+        transform: 'translateY(6px) scale(.98)',
+        transition: 'transform .16s cubic-bezier(.2,0,.2,1), opacity .16s linear, visibility .16s linear',
       },
     },
-    { selector: `.fb-cmf[${vars.showAtt}]`, styles: { opacity: 1, visibility: 'visible' } },
+    { selector: `.fb-cmf[${vars.showAtt}]`, styles: { opacity: 1, visibility: 'visible', transform: 'none' } },
     { selector: '.fb-cmf *, .fb-cmf *::before, .fb-cmf *::after', styles: { boxSizing: 'border-box' } },
     {
       selector: '.fb-cmf :focus-visible',
@@ -138,7 +140,7 @@ export function getDialogRules(vars = {}) {
     },
     { selector: '.fb-cmf header .fb-cmf-close', styles: { flex: '0 0 auto', padding: 0 } },
     {
-      selector: '.fb-cmf .cmf-iconbtn, .fb-cmf header .fb-cmf-close button',
+      selector: '.fb-cmf .cmf-iconbtn',
       styles: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -155,7 +157,7 @@ export function getDialogRules(vars = {}) {
       },
     },
     {
-      selector: '.fb-cmf .cmf-iconbtn:hover, .fb-cmf header .fb-cmf-close button:hover',
+      selector: '.fb-cmf .cmf-iconbtn:hover',
       styles: { backgroundColor: 'var(--cmf-hover)' },
     },
 
@@ -464,7 +466,58 @@ export function getDialogRules(vars = {}) {
     },
     { selector: '.fb-cmf .cmf-footer__spacer', styles: { flex: '1 1 auto' } },
     {
-      selector: '.fb-cmf .cmf-status, .fb-cmf .fileResults',
+      selector: '#fbcmf .cmf-btn, .fb-cmf .cmf-btn, div#fbcmf footer > button',
+      styles: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '6px var(--cmf-s-3, 12px)',
+        border: 'none',
+        borderRadius: 'var(--cmf-r-md, 6px)',
+        fontFamily: 'inherit',
+        fontSize: '12px',
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'background-color .1s linear, color .1s linear, filter .1s linear',
+        backgroundColor: 'var(--cmf-btn-2-bg, var(--secondary-button-background))',
+        color: 'var(--cmf-btn-2-tx, var(--secondary-button-text))',
+      },
+    },
+    {
+      selector: '#fbcmf .cmf-btn--primary, .fb-cmf .cmf-btn--primary',
+      styles: {
+        paddingInline: 'var(--cmf-s-4, 16px)',
+        backgroundColor: 'var(--cmf-accent, #0866ff)',
+        color: 'var(--cmf-on-accent, #ffffff)',
+      },
+    },
+    { selector: '#fbcmf .cmf-btn--primary:hover, .fb-cmf .cmf-btn--primary:hover', styles: { filter: 'brightness(.92)' } },
+    {
+      selector: '#fbcmf .cmf-btn--secondary, .fb-cmf .cmf-btn--secondary',
+      styles: {
+        backgroundColor: 'var(--cmf-btn-2-bg, var(--secondary-button-background))',
+        color: 'var(--cmf-btn-2-tx, var(--secondary-button-text))',
+      },
+    },
+    { selector: '#fbcmf .cmf-btn--secondary:hover, .fb-cmf .cmf-btn--secondary:hover', styles: { filter: 'brightness(.94)' } },
+    {
+      selector: '#fbcmf .cmf-btn--ghost, .fb-cmf .cmf-btn--ghost',
+      styles: {
+        paddingInline: '0',
+        backgroundColor: 'transparent',
+        color: 'var(--cmf-text-2, var(--secondary-text))',
+        fontWeight: 500,
+      },
+    },
+    {
+      selector: '#fbcmf .cmf-btn--ghost:hover, .fb-cmf .cmf-btn--ghost:hover',
+      styles: {
+        color: 'var(--cmf-danger, #e41e3f)',
+        backgroundColor: 'transparent',
+      },
+    },
+    {
+      selector: '.fb-cmf .cmf-status',
       styles: {
         minHeight: '14px',
         paddingTop: 'var(--cmf-s-2)',
@@ -522,79 +575,5 @@ export function getDialogRules(vars = {}) {
       },
     },
 
-    // ------------------------------------------- legacy fieldset fallback
-    {
-      selector: '.fb-cmf fieldset',
-      styles: {
-        margin: '0.5rem',
-        padding: '0.5rem',
-        borderStyle: 'solid',
-        borderColor: 'var(--cmf-border-soft)',
-      },
-    },
-    { selector: '.fb-cmf fieldset *', styles: { fontSize: '0.8125rem' } },
-    {
-      selector: '.fb-cmf fieldset legend',
-      styles: {
-        fontSize: '0.95rem',
-        width: '95%',
-        padding: '0 0.5rem 0.125rem 0.5rem',
-        lineHeight: 2.5,
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        borderRadius: '0.5rem 0.5rem 0 0',
-      },
-    },
-    {
-      selector: '.fb-cmf fieldset legend:hover, .fb-cmf fieldset label:hover',
-      styles: {
-        backgroundColor: 'var(--cmf-hover)',
-        cursor: 'pointer',
-      },
-    },
-    {
-      selector: '.fb-cmf fieldset.visible, .fb-cmf fieldset.visible legend',
-      styles: { borderColor: 'var(--cmf-border)' },
-    },
-    {
-      selector: '.fb-cmf fieldset.hidden, .fb-cmf fieldset.hidden legend',
-      styles: { borderColor: 'var(--cmf-border-soft)' },
-    },
-    { selector: '.fb-cmf fieldset.hidden *:not(legend)', styles: { display: 'none' } },
-    {
-      selector: '.fb-cmf fieldset.visible legend::after',
-      styles: 'content: "\\2212"; float: right;',
-    },
-    {
-      selector: '.fb-cmf fieldset.hidden legend::after',
-      styles: 'content: "\\002B"; float: right;',
-    },
-    {
-      selector: '.fb-cmf fieldset label',
-      styles: {
-        display: 'inline-block',
-        padding: '0.125rem 0',
-        color: 'var(--cmf-text)',
-        fontWeight: 'normal',
-        width: '100%',
-      },
-    },
-    {
-      selector: '.fb-cmf fieldset label input',
-      styles: {
-        margin: '0 0.5rem 0 0.5rem',
-        verticalAlign: 'baseline',
-      },
-    },
-    { selector: '.fb-cmf fieldset label[disabled]', styles: { color: 'darkgrey' } },
-    { selector: '.fb-cmf fieldset textarea', styles: { width: '100%', height: '12rem' } },
-    {
-      selector: '.fb-cmf fieldset select',
-      styles: {
-        border: '1px solid var(--cmf-border)',
-        margin: '0 0.5rem 0 0.5rem',
-        verticalAlign: 'baseline',
-      },
-    },
   ]);
 }
