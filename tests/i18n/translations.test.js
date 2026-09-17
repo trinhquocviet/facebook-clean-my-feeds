@@ -32,7 +32,7 @@ describe('i18n Module & Locales', () => {
       const enKeys = Object.keys(translations.en);
       expect(enKeys.length).toBe(86);
       expect(translations.en.SPONSORED).toBe('Sponsored');
-      expect(translations.en.DLG_TITLE).toBe('Clean my feeds');
+      expect(translations.en.DLG_TITLE).toBe('Clean my feeds - simplified UI');
       expect(translations.en.LANGUAGE_DIRECTION).toBe('ltr');
       expect(translations.en.DLG_RESET_ALL).toBe('Reset all');
       expect(translations.en.DLG_FILTER_ENABLED).toBe('Enabled');
@@ -95,7 +95,7 @@ describe('i18n Module & Locales', () => {
     it('should fall back to English if language code is not found or empty', () => {
       const fallback = getTranslation('unknown-LANG');
       expect(fallback.SPONSORED).toBe('Sponsored');
-      expect(fallback.DLG_TITLE).toBe('Clean my feeds');
+      expect(fallback.DLG_TITLE).toBe('Clean my feeds - simplified UI');
       expect(Object.keys(fallback).length).toBe(86);
 
       const emptyFallback = getTranslation('');
