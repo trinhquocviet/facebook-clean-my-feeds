@@ -20,12 +20,12 @@ import {
 import { toggleHiddenElements as toggleVisibilityBatch } from './visibility-toggle.js';
 
 /**
- * Factory creating post obscuring and feed filtering operations
- * @param {Object} optionsOrVars - Application state / VARS object
+ * Normalizes input parameters into an obscurer context containing { VARS, getKeyWords }.
+ * @param {Object} optionsOrVars - Application state / VARS object or context container
  * @param {Object|Function} [maybeKeyWords] - Translations dictionary or getter function
- * @returns {Object} Post obscurer API methods
+ * @returns {{ VARS: Object, getKeyWords: Function }}
  */
-export function createPostObscurer(optionsOrVars, maybeKeyWords) {
+export function normalizeObscurerContext(optionsOrVars, maybeKeyWords) {
   let VARS, getKeyWords;
   if (optionsOrVars && optionsOrVars.VARS) {
     VARS = optionsOrVars.VARS;
@@ -38,8 +38,18 @@ export function createPostObscurer(optionsOrVars, maybeKeyWords) {
       ? maybeKeyWords
       : () => maybeKeyWords;
   }
+  return { VARS, getKeyWords };
+}
 
-  const ctx = { VARS, getKeyWords };
+/**
+ * Factory creating post obscuring and feed filtering operations
+ * @param {Object} optionsOrVars - Application state / VARS object
+ * @param {Object|Function} [maybeKeyWords] - Translations dictionary or getter function
+ * @returns {Object} Post obscurer API methods
+ */
+export function createPostObscurer(optionsOrVars, maybeKeyWords) {
+  const ctx = normalizeObscurerContext(optionsOrVars, maybeKeyWords);
+  const { VARS } = ctx;
 
   /**
    * Core logic for hiding an individual post or feature without consecutive grouping

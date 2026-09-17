@@ -6,6 +6,15 @@
 import { get, set } from 'idb-keyval';
 
 /**
+ * Validates whether the IndexedDB configuration has required database parameters.
+ * @param {Object} dbVars - IndexedDB store configuration
+ * @returns {boolean} True if store configuration is valid
+ */
+function isValidStoreConfig(dbVars) {
+  return Boolean(dbVars && dbVars.DBKey && dbVars.ostore);
+}
+
+/**
  * Loads serialized options from IndexedDB storage.
  *
  * @param {Object} dbVars - IndexedDB store configuration ({ DBKey, ostore }).
@@ -13,7 +22,7 @@ import { get, set } from 'idb-keyval';
  * @returns {Promise<Object|null>} Parsed options object or null if not found/error.
  */
 export async function loadOptionsFromStorage(dbVars, logPrefix = '-- fbcmf :: ') {
-  if (!dbVars || !dbVars.DBKey || !dbVars.ostore) {
+  if (!isValidStoreConfig(dbVars)) {
     return null;
   }
   try {
@@ -38,7 +47,7 @@ export async function loadOptionsFromStorage(dbVars, logPrefix = '-- fbcmf :: ')
  * @returns {Promise<boolean>} True if saved successfully, false otherwise.
  */
 export async function saveOptionsToStorage(dbVars, options, logPrefix = '-- fbcmf :: ', isDebug = false) {
-  if (!dbVars || !dbVars.DBKey || !dbVars.ostore) {
+  if (!isValidStoreConfig(dbVars)) {
     return false;
   }
   try {

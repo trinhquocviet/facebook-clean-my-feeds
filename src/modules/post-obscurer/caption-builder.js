@@ -12,6 +12,16 @@ import {
 } from '@/constants/index.js';
 
 /**
+ * Resolves the verbosity caption prefix from the active locale dictionary.
+ * @param {Object} ctx - Obscurer context { getKeyWords, KeyWords }
+ * @returns {string} Verbosity prefix string
+ */
+export function getVerbosityPrefix(ctx) {
+  const KeyWords = (typeof ctx?.getKeyWords === 'function' ? ctx.getKeyWords() : ctx?.KeyWords) || {};
+  return (KeyWords.VERBOSITY_MESSAGE && KeyWords.VERBOSITY_MESSAGE[1]) || '';
+}
+
+/**
  * Creates a <details><summary> caption wrapper and moves the post inside it
  * @param {HTMLElement} post - Element to wrap
  * @param {string} reason - Obscuring reason text
@@ -20,11 +30,10 @@ import {
  * @returns {HTMLElement} The created <details> element
  */
 export function buildDetailsCaption(post, reason, marker = '', ctx) {
-  const { VARS, getKeyWords } = ctx;
+  const { VARS } = ctx;
   const elDetails = document.createElement('details');
   const elSummary = document.createElement('summary');
-  const KeyWords = (typeof getKeyWords === 'function' ? getKeyWords() : ctx.KeyWords) || {};
-  const verbosityPrefix = (KeyWords.VERBOSITY_MESSAGE && KeyWords.VERBOSITY_MESSAGE[1]) || '';
+  const verbosityPrefix = getVerbosityPrefix(ctx);
   const elText = document.createTextNode(verbosityPrefix + reason);
 
   elSummary.appendChild(elText);

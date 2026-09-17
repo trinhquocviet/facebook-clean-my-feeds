@@ -6,6 +6,18 @@
  */
 
 /**
+ * Builds the combined CSS selector targeting hidden post containers.
+ * @param {Object} VARS - Application state
+ * @returns {string} Selector query string
+ */
+function buildHiddenElementsSelector(VARS) {
+  return [VARS.hideAtt, VARS.cssHideEl, VARS.cssHideNumberOfShares]
+    .filter(Boolean)
+    .map((attr) => `[${attr}]`)
+    .join(', ');
+}
+
+/**
  * Toggles debug visibility attribute across all obscured containers, blocks, and shares
  * using an optimized single-pass DOM query.
  * @param {Object} ctx - Obscurer context { VARS }
@@ -14,21 +26,17 @@ export function toggleHiddenElements(ctx) {
   const { VARS } = ctx;
   if (!VARS) return;
 
-  const selectorParts = [];
-  if (VARS.hideAtt) selectorParts.push(`[${VARS.hideAtt}]`);
-  if (VARS.cssHideEl) selectorParts.push(`[${VARS.cssHideEl}]`);
-  if (VARS.cssHideNumberOfShares) selectorParts.push(`[${VARS.cssHideNumberOfShares}]`);
+  const selector = buildHiddenElementsSelector(VARS);
+  if (!selector) return;
 
-  if (selectorParts.length === 0) return;
-
-  const elements = document.querySelectorAll(selectorParts.join(', '));
+  const elements = document.querySelectorAll(selector);
   const isDebug = Boolean(VARS.Options && VARS.Options.VERBOSITY_DEBUG);
 
-  for (let i = 0; i < elements.length; i++) {
+  for (const element of elements) {
     if (isDebug) {
-      elements[i].setAttribute(VARS.showAtt, '');
+      element.setAttribute(VARS.showAtt, '');
     } else {
-      elements[i].removeAttribute(VARS.showAtt);
+      element.removeAttribute(VARS.showAtt);
     }
   }
 }

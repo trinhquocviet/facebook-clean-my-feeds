@@ -73,6 +73,7 @@ export async function getUserOptions(ctx) {
  * @param {number} [retryIntervalMs=5] - Polling retry interval.
  */
 export function initLanguageAndOptions(ctx, retryIntervalMs = 5) {
+  if (!ctx) return;
   if (typeof document !== 'undefined' && document.head) {
     getUserOptions(ctx);
   } else if (typeof setTimeout === 'function') {
