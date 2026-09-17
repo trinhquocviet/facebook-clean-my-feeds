@@ -21,6 +21,10 @@ Key points of this version:
 
 ---
 
+<p align="center">
+  <img src="docs/demo-v5.03.jpg" alt="FB - Clean My Feeds" style="max-height: 600px;">
+</p>
+
 ## Features
 
 - **News Feed**: Hides sponsored posts, suggested posts, "People you may know", and Reels.
