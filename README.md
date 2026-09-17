@@ -1,10 +1,63 @@
-# FB - Clean My Feeds
+# FB - Clean My Feeds (Simplified UI)
 
-Mainly hides sponsored and certain suggested posts in Facebook's News Feed, Groups Feed, Watch (Videos) Feed and Marketplace. Also filters out posts and videos using partial text match.
+[![Userscript](https://img.shields.io/badge/Userscript-Tampermonkey%20%7C%20Violentmonkey-green)](https://github.com/trinhquocviet/facebook-clean-my-feeds)
+[![Version](https://img.shields.io/badge/version-5.03.00-blue)](package.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Works with most languages (i.e. not 100% reliant on dictionary of words)
+A userscript for Tampermonkey and Violentmonkey that hides sponsored posts, suggested content, Reels, and unwanted items across Facebook feeds.
 
-User-interface languages supported:
+---
+
+## About This Fork
+
+This repository is a fork of [zbluebugz/facebook-clean-my-feeds](https://github.com/zbluebugz/facebook-clean-my-feeds) (Greasy Fork [#431970](https://greasyfork.org/en/scripts/431970-fb-clean-my-feeds)).
+
+The original version was inactive for a long time, which is the reason for this fork.
+
+Key points of this version:
+- Maintains the rules to detect Facebook posts.
+- Removes and simplifies configuration options to focus on the main functions.
+- Refactored into a modular codebase with local browser storage.
+
+---
+
+<p align="center">
+  <img src="docs/demo-v5.03.jpg" alt="FB - Clean My Feeds" style="max-height: 600px;">
+</p>
+
+## Features
+
+- **News Feed**: Hides sponsored posts, suggested posts, "People you may know", and Reels.
+- **Groups Feed**: Hides sponsored posts, suggestions, and posts from groups you have not joined.
+- **Videos Feed**: Hides sponsored videos, duplicate video cards, and live broadcasts; option to disable Reels auto-looping.
+- **Marketplace**: Hides sponsored listings, with price and description text filters.
+- **Profile / Pages**: Option to hide posts from profiles and pages you do not follow.
+- **Text & RegEx Filters**: Block posts matching custom keywords or regular expressions per feed or globally.
+- **Auto-redirect**: Option to automatically redirect to Facebook's chronological "Most Recent" feed.
+
+---
+
+## Installation
+
+### Prerequisites
+Install a userscript manager extension in your browser: Violentmonkey, Tampermonkey
+
+### Install Script
+Click to install the userscript from the latest release: **[Install FB - Clean My Feeds](https://github.com/trinhquocviet/facebook-clean-my-feeds/releases/latest/download/fb-clean-my-feeds.user.js)**
+
+---
+
+## Video Ads Note
+
+This userscript does not block in-stream video ads (pre-roll, mid-roll, end-roll). To block video ads, you can use [uBlock Origin](https://github.com/gorhill/uBlock) with this filter rule:
+```adblock
+facebook.com##+js(set, Object.prototype.scrubber, undefined)
+```
+
+---
+
+## User-interface languages supported
+
 - English
 - Português (Portugal & Brazil)
 - Deutsch (Germany)
@@ -29,24 +82,40 @@ User-interface languages supported:
 - Україна (Ukraine)
 - България (Bulgaria)
 
-JavaScript code to use with Tampermonkey, Greasemonkey, Violentmonkey, Firemonkey, etc to hide certain parts of FB.
+---
 
-Files in the "greasyfork-release" folder are the versions released to [Greasy Fork](https://greasyfork.org/en/scripts/431970-fb-clean-my-feeds) for other people to use.
+## Documentation
 
-Files in the "beta" folder are the backup of previous versions
+Additional technical documentation is available in the [`docs/`](docs/) directory:
 
-Versions 3.01 - 3.11: 
-- Change options via the Script manager.
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: Module structure, build pipeline, storage, and observer lifecycle.
+- **[Simplified UI & Configuration Guide](docs/SIMPLIFIED_UI_AND_CONFIGS.md)**: Details on the simplified options and modal guide.
+- **[Developer & Contributing Guide](docs/DEVELOPMENT.md)**: Local setup, build scripts, test execution, and localization instructions.
 
-Versions 3.12+ & 4.xx: 
-- Change options via the Clean My Feeds button in Facebook.
+---
 
+## Development
 
-Currently, mobile devices, Safari and Internet Explorer are not supported.
+```bash
+# Install dependencies
+bun install
 
-## Tip
-fb-cmf userscript does _not_ block video ads (begin-roll, mid-roll, end-roll), however there's a work-around.
-1) Install [uBlock Origin](https://github.com/gorhill/uBlock) in your browser(s)
-2) In uBO, goto "My filters" tab and paste in the following rule: `facebook.com##+js(set, Object.prototype.scrubber, undefined)`
+# Run unit tests
+bun test
 
-Note: I have not tested this in other content/ad-blockers.
+# Build userscript distribution to dist/
+bun run build
+
+# Watch mode for development
+bun run dev
+```
+
+*Note: Automated builds output to `dist/fb-clean-my-feeds.user.js`.*
+
+---
+
+## Credits & License
+
+- **Original Creator**: [zbluebugz](https://github.com/zbluebugz/facebook-clean-my-feeds)
+- **Fork Maintainer**: [trinhquocviet](https://github.com/trinhquocviet)
+- **License**: [MIT License](LICENSE)
