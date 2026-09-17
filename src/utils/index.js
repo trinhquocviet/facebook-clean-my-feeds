@@ -28,11 +28,6 @@ export {
 } from './dom.js';
 
 export {
-  isDarkMode,
-  calculateLuminance
-} from './theme.js';
-
-export {
   buildStylesheet,
   objectToCss,
   compileRules
