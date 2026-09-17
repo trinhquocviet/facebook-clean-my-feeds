@@ -72,7 +72,7 @@ function buildRow(input, text, { locked = false } = {}) {
 function labelFor(cbName, KeyWords) {
   const kw = KeyWords[cbName];
   if (kw) return Array.isArray(kw) ? Array.from(kw).join(', ') : kw;
-  if (['NF_SPONSORED', 'GF_SPONSORED', 'VF_SPONSORED', 'MP_SPONSORED'].includes(cbName)) return KeyWords.SPONSORED;
+  if (cbName.endsWith('_SPONSORED')) return KeyWords.SPONSORED;
   return cbName;
 }
 
@@ -226,6 +226,43 @@ export function createSection(key, title, ctx) {
 }
 
 /**
+ * Builds a single textarea element (and optional wrapper label) for the filter panel.
+ * @param {{name:string, labelKey?:string, rows?:number}} f - Field definition
+ * @param {Object} ctx - Context object
+ * @returns {HTMLElement} Form field or textarea element
+ */
+function buildFilterTextareaField(f, ctx) {
+  const { KeyWords, VARS } = ctx;
+  const ta = document.createElement('textarea');
+  ta.className = 'cmf-textarea';
+  ta.name = f.name; // INVARIANT §2.2
+  ta.rows = f.rows || 3;
+  ta.placeholder = KeyWords.DLG_BLOCK_NEW_LINE || '';
+  ta.setAttribute('data-cmf-filter-dependent', '');
+  const val = (VARS.Options && VARS.Options[f.name]) || '';
+  ta.value = val.split(VARS.SEP).join('\n');
+
+  if (f.labelKey) {
+    const labelText = KeyWords[f.labelKey] || f.labelKey;
+    const field = document.createElement('div');
+    field.className = 'cmf-field';
+    const lb = document.createElement('label');
+    lb.className = 'cmf-field__label';
+    lb.textContent = labelText;
+    ta.title = labelText;
+    ta.setAttribute('aria-label', labelText);
+    field.appendChild(lb);
+    field.appendChild(ta);
+    return field;
+  }
+
+  const defaultTitle = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE || '';
+  ta.title = defaultTitle;
+  ta.setAttribute('aria-label', defaultTitle);
+  return ta;
+}
+
+/**
  * Per-section text-filter panel with live Enabled/RegEx flags.
  * @param {string} prefix - 'NF' | 'GF' | 'VF' | 'MP' | 'PP' | 'GLOBAL'
  * @param {Array<{name:string, labelKey?:string, rows?:number}>} fields
@@ -233,7 +270,7 @@ export function createSection(key, title, ctx) {
  * @returns {HTMLDivElement}
  */
 export function createFilterPanel(prefix, fields, ctx) {
-  const { KeyWords, VARS } = ctx;
+  const { KeyWords } = ctx;
   const panel = document.createElement('div');
   panel.className = 'cmf-filter';
   if (panel.dataset) {
@@ -256,33 +293,7 @@ export function createFilterPanel(prefix, fields, ctx) {
   panel.appendChild(head);
 
   for (const f of fields) {
-    const ta = document.createElement('textarea');
-    ta.className = 'cmf-textarea';
-    ta.name = f.name; // INVARIANT §2.2
-    ta.rows = f.rows || 3;
-    ta.placeholder = KeyWords.DLG_BLOCK_NEW_LINE || '';
-    ta.setAttribute('data-cmf-filter-dependent', '');
-    const val = (VARS.Options && VARS.Options[f.name]) || '';
-    ta.value = val.split(VARS.SEP).join('\n');
-
-    if (f.labelKey) {
-      const labelText = KeyWords[f.labelKey] || f.labelKey;
-      const field = document.createElement('div');
-      field.className = 'cmf-field';
-      const lb = document.createElement('label');
-      lb.className = 'cmf-field__label';
-      lb.textContent = labelText;
-      ta.title = labelText;
-      ta.setAttribute('aria-label', labelText);
-      field.appendChild(lb);
-      field.appendChild(ta);
-      panel.appendChild(field);
-    } else {
-      const defaultTitle = KeyWords.DLG_BLOCK_TEXT_FILTER_TITLE || '';
-      ta.title = defaultTitle;
-      ta.setAttribute('aria-label', defaultTitle);
-      panel.appendChild(ta);
-    }
+    panel.appendChild(buildFilterTextareaField(f, ctx));
   }
   return panel;
 }
