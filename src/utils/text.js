@@ -77,7 +77,7 @@ export function generateRandomString(length = 13) {
  * findFirstMatch('this is a sponsored post', ['ad', 'sponsored']); // 'sponsored'
  */
 export function findFirstMatch(targetText, searchTerms) {
-  if (typeof targetText !== 'string' || !Array.isArray(searchTerms)) {
+  if ((typeof targetText !== 'string' && !Array.isArray(targetText)) || !Array.isArray(searchTerms)) {
     return '';
   }
 

@@ -41,6 +41,7 @@ export const SECTIONS = [
     titleKey: 'DLG_NF',
     prefix: 'NF_',
     sponsored: 'NF_SPONSORED',
+    compound: { cb: 'NF_LIKES_MAXIMUM', input: 'NF_LIKES_MAXIMUM_COUNT' },
     filter: [{ name: 'NF_BLOCKED_TEXT' }],
   },
   {
@@ -143,11 +144,11 @@ function renderSection(cfg, ctx, frag) {
       if (!key.startsWith(cfg.prefix)) continue;
       if (/^(NF|GF|VF|MP|PP)_BLOCK/.test(key)) continue; // Handled in filter panel
       if (key === cfg.sponsored) continue;
-      if (key === 'NF_LIKES_MAXIMUM') {
-        rows.appendChild(createCheckboxAndInput(key, 'NF_LIKES_MAXIMUM_COUNT', ctx));
+      if (cfg.compound && key === cfg.compound.cb) {
+        rows.appendChild(createCheckboxAndInput(key, cfg.compound.input, ctx));
         continue;
       }
-      if (key === 'NF_LIKES_MAXIMUM_COUNT') continue;
+      if (cfg.compound && key === cfg.compound.input) continue;
       rows.appendChild(createSingleCB(key, ctx));
     }
   }
@@ -171,198 +172,229 @@ function renderSection(cfg, ctx, frag) {
 }
 
 /**
- * Creates or updates the options dialog DOM
- * @param {boolean} [languageChanged=false] - Whether this is a language switch re-render
+ * Creates the outer dialog container with header and empty content body.
+ * @param {Object} ctx - Context object
+ * @returns {{ dlg: HTMLElement, hdrTitle: HTMLElement, cnt: HTMLElement }}
+ */
+function createDialogShell(ctx) {
+  const { VARS, toggleDialog } = ctx;
+  const dlg = document.createElement('div');
+  dlg.id = 'fbcmf';
+  dlg.className = 'fb-cmf';
+  dlg.setAttribute('role', 'dialog');
+  dlg.setAttribute('aria-modal', 'true');
+  dlg.setAttribute('aria-labelledby', 'cmf-title');
+
+  const hdr = document.createElement('header');
+
+  const hdrIcon = document.createElement('div');
+  hdrIcon.className = 'fb-cmf-icon';
+  hdrIcon.innerHTML = VARS?.logoHTML || LOGO_HTML;
+  hdrIcon.setAttribute('aria-hidden', 'true');
+
+  const hdrTitle = document.createElement('div');
+  hdrTitle.className = 'fb-cmf-title';
+  hdrTitle.id = 'cmf-title';
+
+  const hdrClose = document.createElement('div');
+  hdrClose.className = 'fb-cmf-close';
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'cmf-iconbtn';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.innerHTML = VARS?.iconClose || ICON_CLOSE;
+  closeBtn.addEventListener('click', toggleDialog, false);
+  hdrClose.appendChild(closeBtn);
+
+  hdr.appendChild(hdrIcon);
+  hdr.appendChild(hdrTitle);
+  hdr.appendChild(hdrClose);
+  dlg.appendChild(hdr);
+
+  const cnt = document.createElement('div');
+  cnt.classList.add('content');
+  dlg.appendChild(cnt);
+
+  return { dlg, hdrTitle, cnt };
+}
+
+/**
+ * Creates the dialog footer with action buttons and file import input.
+ * @param {Object} ctx - Context object
+ * @returns {HTMLElement}
+ */
+function createFooter(ctx) {
+  const { KeyWords, postAtt } = ctx;
+  const footer = document.createElement('footer');
+  const actionsWrap = document.createElement('div');
+  actionsWrap.className = 'cmf-footer__actions';
+
+  const fileImport = document.createElement('input');
+  fileImport.setAttribute('type', 'file');
+  fileImport.setAttribute('id', `FI${postAtt}`);
+  fileImport.classList.add('fileInput');
+
+  const btnList = [
+    {
+      id: 'BTNReset',
+      text: KeyWords.DLG_RESET_ALL || KeyWords.DLG_BUTTONS[3],
+      cls: 'cmf-btn cmf-btn--ghost',
+      event: () => resetUserOptions(ctx),
+    },
+    { spacer: true },
+    {
+      id: 'BTNExport',
+      text: KeyWords.DLG_BUTTONS[1],
+      cls: 'cmf-btn cmf-btn--secondary',
+      event: () => exportUserOptions(ctx),
+    },
+    {
+      id: 'BTNImport',
+      text: KeyWords.DLG_BUTTONS[2],
+      cls: 'cmf-btn cmf-btn--secondary',
+      event: () => fileImport.click(),
+    },
+    {
+      id: 'BTNSave',
+      text: KeyWords.DLG_BUTTONS[0],
+      cls: 'cmf-btn cmf-btn--primary',
+      event: (e) => saveUserOptions(e, ctx),
+    },
+  ];
+
+  for (const item of btnList) {
+    if (item.spacer) {
+      const sp = document.createElement('span');
+      sp.className = 'cmf-footer__spacer';
+      actionsWrap.appendChild(sp);
+      continue;
+    }
+    const btnEl = document.createElement('button');
+    btnEl.type = 'button';
+    btnEl.setAttribute('id', item.id);
+    btnEl.className = item.cls;
+    btnEl.textContent = item.text;
+    btnEl.addEventListener('click', item.event, false);
+    actionsWrap.appendChild(btnEl);
+  }
+
+  footer.appendChild(actionsWrap);
+  footer.appendChild(fileImport);
+
+  const statusDiv = document.createElement('div');
+  statusDiv.classList.add('fileResults', 'cmf-status');
+  statusDiv.setAttribute('role', 'status');
+  statusDiv.setAttribute('aria-live', 'polite');
+  statusDiv.innerHTML = '&nbsp;';
+  footer.appendChild(statusDiv);
+
+  fileImport.addEventListener('change', (e) => importUserOptions(e, ctx), false);
+
+  return footer;
+}
+
+/**
+ * Renders the header title, version, and optional subtitle.
+ * @param {HTMLElement} hdrTitle - Header title container element
  * @param {Object} ctx - Context object
  */
-export function createDialog(languageChanged = false, ctx) {
-  const {
-    VARS,
-    KeyWords,
-    masterKeyWords,
-    SCRIPT_VERSION,
-    postAtt,
-    cloneKeywords,
-    toggleDialog,
-  } = ctx;
-
-  let dlg, hdr, hdr1, hdr2, hdr3, htxt, s, btn, cnt, div, footer;
-
-  if (languageChanged) {
-    VARS.language = VARS.Options.CMF_DIALOG_LANGUAGE;
-    cloneKeywords();
+function renderHeaderTitle(hdrTitle, ctx) {
+  const { masterKeyWords, SCRIPT_VERSION, VARS, KeyWords } = ctx;
+  while (hdrTitle.firstChild) {
+    hdrTitle.removeChild(hdrTitle.firstChild);
   }
 
-  if (languageChanged === false) {
-    // -- new dialog-box shell
-    dlg = document.createElement('div');
-    dlg.id = 'fbcmf';
-    dlg.className = 'fb-cmf';
-    dlg.setAttribute('role', 'dialog');
-    dlg.setAttribute('aria-modal', 'true');
-    dlg.setAttribute('aria-labelledby', 'cmf-title');
-
-    // -- header (logo + title + close button)
-    hdr = document.createElement('header');
-    hdr1 = document.createElement('div');
-    hdr1.className = 'fb-cmf-icon';
-    hdr1.innerHTML = VARS?.logoHTML || LOGO_HTML;
-    hdr1.setAttribute('aria-hidden', 'true');
-
-    hdr2 = document.createElement('div');
-    hdr2.className = 'fb-cmf-title';
-    hdr2.id = 'cmf-title';
-
-    hdr3 = document.createElement('div');
-    hdr3.className = 'fb-cmf-close';
-    btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'cmf-iconbtn';
-    btn.setAttribute('aria-label', 'Close');
-    btn.innerHTML = VARS?.iconClose || ICON_CLOSE;
-    btn.addEventListener('click', toggleDialog, false);
-    hdr3.appendChild(btn);
-
-    hdr.appendChild(hdr1);
-    hdr.appendChild(hdr2);
-    hdr.appendChild(hdr3);
-    dlg.appendChild(hdr);
-
-    // content container
-    cnt = document.createElement('div');
-    cnt.classList.add('content');
-  } else {
-    // -- existing dialog-box re-render after language switch
-    dlg = document.getElementById('fbcmf');
-    if (!dlg) return;
-    hdr = dlg.querySelector('header');
-    hdr2 = hdr.querySelector('.fb-cmf-title');
-    while (hdr2.firstChild) {
-      hdr2.removeChild(hdr2.firstChild);
-    }
-
-    cnt = dlg.querySelector('.content');
-    while (cnt.firstChild) {
-      cnt.removeChild(cnt.firstChild);
-    }
-  }
-
-  dlg.setAttribute('dir', KeyWords.LANGUAGE_DIRECTION || 'ltr');
-
-  // -- header - title block
-  htxt = document.createElement('div');
+  const htxt = document.createElement('div');
   htxt.className = 'cmf-header__title';
   htxt.textContent = masterKeyWords.translations.en.DLG_TITLE;
-  hdr2.appendChild(htxt);
+  hdrTitle.appendChild(htxt);
 
   const verWrap = document.createElement('div');
-  s = document.createElement('span');
+  const s = document.createElement('span');
   s.className = 'script-version';
   s.textContent = `${SCRIPT_VERSION}`;
   verWrap.appendChild(s);
-  hdr2.appendChild(verWrap);
+  hdrTitle.appendChild(verWrap);
 
   if (VARS.language !== 'en') {
     const stxt = document.createElement('small');
     stxt.className = 'cmf-header__subtitle';
     stxt.textContent = KeyWords.DLG_TITLE;
-    hdr2.appendChild(stxt);
+    hdrTitle.appendChild(stxt);
+  }
+}
+
+/**
+ * Updates button labels in the footer on language change.
+ * @param {HTMLElement} footer - Footer element
+ * @param {Object} KeyWords - Locale dictionary
+ */
+function updateFooterLabels(footer, KeyWords) {
+  if (!footer) return;
+  const labels = {
+    BTNSave: KeyWords.DLG_BUTTONS[0],
+    BTNExport: KeyWords.DLG_BUTTONS[1],
+    BTNImport: KeyWords.DLG_BUTTONS[2],
+    BTNReset: KeyWords.DLG_RESET_ALL || KeyWords.DLG_BUTTONS[3],
+  };
+  for (const [id, text] of Object.entries(labels)) {
+    const btn = footer.querySelector(`#${id}`);
+    if (btn) btn.textContent = text;
+  }
+}
+
+/**
+ * Batches and renders all sections into the content container.
+ * @param {HTMLElement} cnt - Content container element
+ * @param {Object} ctx - Context object
+ */
+function renderSectionsContent(cnt, ctx) {
+  const { KeyWords } = ctx;
+  while (cnt.firstChild) {
+    cnt.removeChild(cnt.firstChild);
   }
 
-  // DocumentFragment optimization: batch sections off-DOM
   const frag = document.createDocumentFragment();
   SECTIONS.forEach((cfg) => renderSection(cfg, ctx, frag));
   frag.appendChild(createNote(KeyWords.DLG_TIPS_CONTENT, 'cmf-tips'));
   cnt.appendChild(frag);
+}
 
-  if (languageChanged === false) {
-    dlg.appendChild(cnt);
+/**
+ * Creates or updates the options dialog DOM.
+ * @param {boolean} [languageChanged=false] - Whether this is a language switch re-render
+ * @param {Object} ctx - Context object
+ */
+export function createDialog(languageChanged = false, ctx) {
+  const { VARS, KeyWords, cloneKeywords } = ctx;
 
-    // -- Actions (buttons) + status footer
-    footer = document.createElement('footer');
-    const actionsWrap = document.createElement('div');
-    actionsWrap.className = 'cmf-footer__actions';
+  let dlg;
+  let hdrTitle;
+  let cnt;
 
-    // -- file input field is hidden, but triggered by the Import button.
-    const fileImport = document.createElement('input');
-    fileImport.setAttribute('type', 'file');
-    fileImport.setAttribute('id', `FI${postAtt}`);
-    fileImport.classList.add('fileInput');
+  if (languageChanged) {
+    VARS.language = VARS.Options.CMF_DIALOG_LANGUAGE;
+    cloneKeywords();
 
-    const btnList = [
-      {
-        id: 'BTNReset',
-        text: KeyWords.DLG_RESET_ALL || KeyWords.DLG_BUTTONS[3],
-        cls: 'cmf-btn cmf-btn--ghost',
-        event: () => resetUserOptions(ctx),
-      },
-      { spacer: true },
-      {
-        id: 'BTNExport',
-        text: KeyWords.DLG_BUTTONS[1],
-        cls: 'cmf-btn cmf-btn--secondary',
-        event: () => exportUserOptions(ctx),
-      },
-      {
-        id: 'BTNImport',
-        text: KeyWords.DLG_BUTTONS[2],
-        cls: 'cmf-btn cmf-btn--secondary',
-        event: () => fileImport.click(),
-      },
-      {
-        id: 'BTNSave',
-        text: KeyWords.DLG_BUTTONS[0],
-        cls: 'cmf-btn cmf-btn--primary',
-        event: (e) => saveUserOptions(e, ctx),
-      },
-    ];
+    dlg = document.getElementById('fbcmf');
+    if (!dlg) return;
 
-    for (const item of btnList) {
-      if (item.spacer) {
-        const sp = document.createElement('span');
-        sp.className = 'cmf-footer__spacer';
-        actionsWrap.appendChild(sp);
-        continue;
-      }
-      const btnEl = document.createElement('button');
-      btnEl.type = 'button';
-      btnEl.setAttribute('id', item.id);
-      btnEl.className = item.cls;
-      btnEl.textContent = item.text;
-      btnEl.addEventListener('click', item.event, false);
-      actionsWrap.appendChild(btnEl);
-    }
+    hdrTitle = dlg.querySelector('.fb-cmf-title');
+    cnt = dlg.querySelector('.content');
+    updateFooterLabels(dlg.querySelector('footer'), KeyWords);
+  } else {
+    const shell = createDialogShell(ctx);
+    dlg = shell.dlg;
+    hdrTitle = shell.hdrTitle;
+    cnt = shell.cnt;
 
-    footer.appendChild(actionsWrap);
-    footer.appendChild(fileImport);
-
-    // -- save/export/import/reset status/results
-    div = document.createElement('div');
-    div.classList.add('fileResults', 'cmf-status');
-    div.setAttribute('role', 'status');
-    div.setAttribute('aria-live', 'polite');
-    div.innerHTML = '&nbsp;';
-    footer.appendChild(div);
-
+    const footer = createFooter(ctx);
     dlg.appendChild(footer);
     document.body.appendChild(dlg);
-
-    // -- add event listener to file input field
-    fileImport.addEventListener('change', (e) => importUserOptions(e, ctx), false);
-    bindSectionEvents(ctx);
-  } else {
-    // -- language changed
-    const footerEl = dlg.querySelector('footer');
-    if (footerEl) {
-      let b = footerEl.querySelector('#BTNSave');
-      if (b) b.textContent = KeyWords.DLG_BUTTONS[0];
-      b = footerEl.querySelector('#BTNExport');
-      if (b) b.textContent = KeyWords.DLG_BUTTONS[1];
-      b = footerEl.querySelector('#BTNImport');
-      if (b) b.textContent = KeyWords.DLG_BUTTONS[2];
-      b = footerEl.querySelector('#BTNReset');
-      if (b) b.textContent = KeyWords.DLG_RESET_ALL || KeyWords.DLG_BUTTONS[3];
-    }
-    bindSectionEvents(ctx);
   }
+
+  dlg.setAttribute('dir', KeyWords.LANGUAGE_DIRECTION || 'ltr');
+  renderHeaderTitle(hdrTitle, ctx);
+  renderSectionsContent(cnt, ctx);
+  bindSectionEvents(ctx);
 }

@@ -36,3 +36,4 @@ coverage/
 .agents
 temp
 tasks
+graphify-out

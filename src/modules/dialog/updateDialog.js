@@ -6,57 +6,62 @@
 
 import { refreshFilterGates } from './toggle.js';
 
+const SYNC_RULES = [
+  {
+    selector: 'input[type="checkbox"][cbtype="T"]',
+    apply: (el, val) => {
+      el.checked = Boolean(val);
+    },
+  },
+  {
+    selector: 'input[type="radio"]',
+    apply: (el, val) => {
+      el.checked = el.value === val;
+    },
+  },
+  {
+    selector: 'textarea',
+    apply: (el, val, VARS) => {
+      el.value = String(val).replaceAll(VARS.SEP, '\n');
+    },
+  },
+  {
+    selector: 'input[type="text"]',
+    apply: (el, val) => {
+      el.value = val;
+    },
+  },
+  {
+    selector: 'select',
+    apply: (el, val) => {
+      el.value = val;
+      if (el.value !== val) {
+        for (const option of el.options) {
+          option.selected = option.value === val;
+        }
+      }
+    },
+  },
+];
+
 /**
- * Updates all dialog input elements to match VARS.Options values
+ * Updates all dialog input elements to match VARS.Options values.
  * @param {Object} ctx - Context object
  */
 export function updateDialog(ctx) {
   const { VARS } = ctx;
   const root = document.getElementById('fbcmf');
-  let content = root?.querySelector('.content');
-  if (content) {
-    // -- toggle checkboxes
-    let cbs = Array.from(content.querySelectorAll('input[type="checkbox"][cbtype="T"]'));
-    cbs.forEach(cb => {
-      if (VARS.Options.hasOwnProperty(cb.name)) {
-        cb.checked = VARS.Options[cb.name];
+  const content = root?.querySelector('.content');
+  if (!content || !VARS?.Options) return;
+
+  SYNC_RULES.forEach(({ selector, apply }) => {
+    const elements = content.querySelectorAll(selector);
+    elements.forEach((el) => {
+      if (Object.prototype.hasOwnProperty.call(VARS.Options, el.name)) {
+        apply(el, VARS.Options[el.name], VARS);
       }
     });
-    // -- radios
-    let rbs = content.querySelectorAll('input[type="radio"]');
-    rbs.forEach(rb => {
-      if (VARS.Options.hasOwnProperty(rb.name) && (rb.value === VARS.Options[rb.name])) {
-        rb.checked = VARS.Options[rb.name];
-      }
-    });
-    // -- textareas
-    let tas = Array.from(content.querySelectorAll('textarea'));
-    tas.forEach(ta => {
-      if (VARS.Options.hasOwnProperty(ta.name)) {
-        ta.value = VARS.Options[ta.name].replaceAll(VARS.SEP, '\n');
-      }
-    });
-    // -- plain inputs
-    let inputs = Array.from(content.querySelectorAll('input[type="text"]'));
-    inputs.forEach(inp => {
-      if (VARS.Options.hasOwnProperty(inp.name)) {
-        inp.value = VARS.Options[inp.name];
-      }
-    });
-    // -- selects
-    let selects = Array.from(content.querySelectorAll('select'));
-    selects.forEach(select => {
-      if (VARS.Options.hasOwnProperty(select.name)) {
-        for (let i = 0; i < select.options.length; i++) {
-          const option = select.options[i];
-          if (option.value === VARS.Options[select.name]) {
-            option.selected = true;
-          } else {
-            option.selected = false;
-          }
-        }
-      }
-    });
-    refreshFilterGates(root);
-  }
+  });
+
+  refreshFilterGates(root);
 }
