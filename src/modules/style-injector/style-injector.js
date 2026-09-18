@@ -17,7 +17,22 @@ import {
 } from '@/styles/index.js';
 
 /**
- * Creates or updates the dynamic stylesheet with randomized attribute names.
+ * Creates or updates the dynamic userscript stylesheet with randomized attribute names.
+ *
+ * ## Anti-Detection & Stealth Design
+ * Facebook scripts actively monitor the DOM for known adblocking or extension markers.
+ * If static attribute names (like `data-hidden` or `data-cmf-ad`) were used, Facebook's scripts
+ * could query them, hide extension controls, or alert users.
+ *
+ * To remain stealthy:
+ * 1. Each session generates cryptographically isolated random alphanumeric attribute names:
+ *    - `VARS.hideAtt`: Marks parent post container to hide internal contents via CSS.
+ *    - `VARS.hideWithNoCaptionAtt`: Hides container elements directly (e.g. Marketplace item cards).
+ *    - `VARS.cssHideEl`: Hides secondary ad blocks and banners.
+ *    - `VARS.cssHideNumberOfShares`: Hides share count counters.
+ *    - `VARS.showAtt`: Overrides hiding rules during debug inspection mode.
+ * 2. Compiles declarative CSS rules from `styles/index.js`, interpolating the randomized attributes.
+ * 3. Injects or replaces the stylesheet inside `document.head`.
  *
  * @param {Object} VARS - Application state object
  * @param {Document} [doc=document] - DOM document
@@ -28,7 +43,7 @@ export function addCSS(VARS, doc = document) {
   let isNewCSS = true;
 
   if (VARS.cssID !== '') {
-    // - Reset the existing Stylesheet
+    // Reset the existing stylesheet without removing node from DOM
     elStylesheet = doc.getElementById(VARS.cssID);
     if (elStylesheet) {
       elStylesheet.replaceChildren();
@@ -37,7 +52,7 @@ export function addCSS(VARS, doc = document) {
   }
 
   if (isNewCSS) {
-    // - Create the new Stylesheet head + classnames
+    // Generate new random stylesheet ID and attribute tokens
     VARS.cssID = generateRandomString().toUpperCase();
     elStylesheet = doc.createElement('style');
     elStylesheet.setAttribute('type', 'text/css');
@@ -47,12 +62,12 @@ export function addCSS(VARS, doc = document) {
       head.appendChild(elStylesheet);
     }
 
-    // - remember <element> attribute names (for other functions to use)
-    VARS.hideAtt = generateRandomString(); // - the parent element - hides the nth level down element
-    VARS.hideWithNoCaptionAtt = generateRandomString(); // - the element to hide - where there's no child element
-    VARS.cssHideEl = generateRandomString(); // - the element to hide - where there's no child element
-    VARS.cssHideNumberOfShares = generateRandomString(); // - hide "# shares" on posts.
-    VARS.showAtt = generateRandomString(); // - for revealing hidden elements.
+    // Assign randomized attributes for session stealth
+    VARS.hideAtt = generateRandomString(); // Parent post hide attribute
+    VARS.hideWithNoCaptionAtt = generateRandomString(); // Direct element hide (no caption)
+    VARS.cssHideEl = generateRandomString(); // Generic block hide attribute
+    VARS.cssHideNumberOfShares = generateRandomString(); // Shares counter hide attribute
+    VARS.showAtt = generateRandomString(); // Debug reveal attribute
   }
 
   // Build all CSS rules from declarative modules
@@ -79,19 +94,25 @@ export function addCSS(VARS, doc = document) {
 }
 
 /**
- * Amends stylesheet and DOM elements with button/dialog positioning styles.
+ * Amends stylesheet and DOM elements with button and dialog positioning styles.
+ *
+ * ## Layout Offsets
+ * - Maps `CMF_BTN_OPTION` (0: bottom-left, 1: top-right, 2: disabled) to `data-cmf-pos`.
+ * - Maps `CMF_DIALOG_OPTION` (0: left, 1: right) to `data-cmf-dlg`.
+ * - When top-right placement is selected, dynamically injects a `margin-right: 42px;` offset
+ *   into Facebook's top banner navigation (`[role="banner"]`) so the toggle button does not
+ *   overlap the user's notification bell or account menu.
  *
  * @param {Object} VARS - Application state object
- * @param {Object} masterKeyWords - Defaults keywords object
+ * @param {Object} masterKeyWords - Defaults keywords object containing option defaults
  * @param {Document} [doc=document] - DOM document
  */
 export function addExtraCSS(VARS, masterKeyWords, doc = document) {
-  // -- button location
+  // Read configured or default button location (0: bottom-left, 1: top-right, 2: disabled)
   let cmfBtnLocation = masterKeyWords?.defaults?.CMF_BTN_OPTION ?? '0';
-  // -- dialog location
+  // Read configured or default dialog location (0: left, 1: right)
   let cmfDlgLocation = masterKeyWords?.defaults?.CMF_DIALOG_OPTION ?? '0';
 
-  // -- read in the settings
   if (VARS.Options && Object.prototype.hasOwnProperty.call(VARS.Options, 'CMF_BTN_OPTION')) {
     if (VARS.Options.CMF_BTN_OPTION.toString() !== '') {
       cmfBtnLocation = VARS.Options.CMF_BTN_OPTION;
@@ -105,10 +126,10 @@ export function addExtraCSS(VARS, masterKeyWords, doc = document) {
   cmfBtnLocation = cmfBtnLocation.toString();
   cmfDlgLocation = cmfDlgLocation.toString();
 
-  // Grab the existing Stylesheet and amend it
+  // Grab the existing stylesheet to append conditional offset rules
   const elStylesheet = doc.getElementById(VARS.cssID);
 
-  // --- Set data attributes for CSS position classes ---
+  // Set data attributes for CSS positioning classes
   const btnEl = doc.querySelector('.fb-cmf-toggle');
   if (btnEl) {
     const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
@@ -120,7 +141,7 @@ export function addExtraCSS(VARS, masterKeyWords, doc = document) {
     dlgEl.setAttribute('data-cmf-dlg', cmfDlgLocation === '1' ? 'right' : 'left');
   }
 
-  // --- Banner navigation fallback (conditional, requires DOM check) ---
+  // If top-right button location is chosen, shift FB banner icons left by 42px to prevent collision
   if (cmfBtnLocation === '1' && doc.querySelector('[role="banner"]')) {
     const bannerCSS = buildStylesheet([{
       selector: 'div[role="banner"] > div:last-of-type div[role="navigation"]',

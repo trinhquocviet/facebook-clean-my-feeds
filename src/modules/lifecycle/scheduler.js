@@ -10,10 +10,22 @@
  */
 
 /**
- * Calculates adaptive sleep duration based on no-change loop iterations.
+ * Calculates adaptive sleep duration based on consecutive no-change loop iterations.
  *
- * @param {number} noChangeCounter - Consecutive loops without DOM changes
- * @returns {number} Sleep duration in milliseconds
+ * ## Sleep Ramping Algorithm
+ * To achieve both instantaneous response times during active user browsing and minimal CPU/battery
+ * usage when reading or idle, the scheduler dynamically steps through delay tiers:
+ * - 0 - 15 clean ticks: **50ms** (fast polling immediately after page render or scroll)
+ * - 16 - 30 clean ticks: **75ms**
+ * - 31 - 45 clean ticks: **100ms**
+ * - 46 - 60 clean ticks: **150ms**
+ * - 61+ clean ticks: **1000ms** (idle standby mode)
+ *
+ * Any DOM mutation that modifies `innerHTML.length` by >= 16 characters or a user scroll
+ * event > 20px immediately resets `noChangeCounter` back to 0, snapping the loop back to 50ms.
+ *
+ * @param {number} noChangeCounter - Number of consecutive iterations without structural DOM changes
+ * @returns {number} Sleep interval in milliseconds before the next check
  */
 export function calculateSleepDuration(noChangeCounter) {
   if (noChangeCounter < 16) return 50;
@@ -26,12 +38,21 @@ export function calculateSleepDuration(noChangeCounter) {
 /**
  * Creates and initializes the lifecycle scheduler for feed processing.
  *
- * @param {Object} options
- * @param {Object} options.VARS - Application state
- * @param {Function} options.setFeedSettings - Feed route detector
- * @param {Object} options.cleaners - Map of feed cleaner functions
+ * ## Lifecycle & Event Triggers
+ * 1. **Adaptive Timing Loop**: Uses recursive `setTimeout` whose delay is calculated by `calculateSleepDuration`.
+ * 2. **Scroll Wake-Up**: Listens for window `scroll` events. If delta Y exceeds 20px, interrupts idle sleep
+ *    and immediately executes `processPage('scrolling')`.
+ * 3. **History Navigation (`popstate`)**: Reacts to browser back/forward buttons, triggering route re-evaluation.
+ * 4. **SPA URL Polling**: Facebook uses HTML5 `history.pushState` without firing standard page loads.
+ *    A lightweight 500ms `setInterval` compares `VARS.prevURL` to `window.location.href` to catch client-side
+ *    transitions (e.g. clicking from News Feed to Marketplace or Groups).
+ *
+ * @param {Object} options - Configuration and dependencies
+ * @param {Object} options.VARS - Shared mutable state
+ * @param {Function} options.setFeedSettings - Route detector that parses URL and updates boolean flags
+ * @param {Object} options.cleaners - Map of feed cleaner functions bound to current context
  * @param {Window} [options.windowObj=window] - Browser window object
- * @returns {Object} Scheduler instance with { start, stop, processPage }
+ * @returns {Object} Scheduler controller instance with `{ start, stop, processPage }`
  */
 export function createScheduler({
   VARS,
@@ -45,19 +66,25 @@ export function createScheduler({
   let timerId = null;
   let intervalId = null;
 
+  /**
+   * Main execution cycle evaluating URL state and invoking the active feed cleaner.
+   *
+   * @param {string} [eventType='timing'] - Trigger source: 'url-changed', 'scrolling', or 'timing'
+   */
   function processPage(eventType = 'timing') {
     const currentTime = new Date().getTime();
     const elapsedTime = currentTime - lastCleaningTime;
 
     if (eventType === 'url-changed') {
+      // Re-evaluate current URL route flags
       setFeedSettings();
     } else if (eventType === 'scrolling') {
-      // Wake-up on scroll
+      // Immediate wake-up on scroll: bypass elapsed time throttle
     } else if (elapsedTime < sleepDuration) {
       return;
     }
 
-    // Delegate to active feed cleaner
+    // Delegate processing to the cleaner matching current route flags
     if (VARS.isNF) {
       cleaners.mopUpTheNewsFeed?.();
     } else if (VARS.isGF) {
@@ -74,6 +101,7 @@ export function createScheduler({
       cleaners.mopUpTheProfilePage?.();
     }
 
+    // If currently on an active Facebook feed, calculate next adaptive sleep duration
     if (VARS.isAF) {
       sleepDuration = calculateSleepDuration(VARS.noChangeCounter);
     }
@@ -84,9 +112,13 @@ export function createScheduler({
     }
   }
 
+  /**
+   * Starts the background scheduler, binding scroll, popstate, and SPA URL poll listeners.
+   */
   function start() {
     if (!windowObj) return;
 
+    // Scroll listener with 20px threshold to wake up from idle sleep
     windowObj.addEventListener?.('scroll', () => {
       const currentScrollY = windowObj.scrollY;
       const scrollingDistance = Math.abs(currentScrollY - prevScrollY);
@@ -96,10 +128,12 @@ export function createScheduler({
       }
     });
 
+    // Browser back/forward navigation
     windowObj.addEventListener?.('popstate', () => {
       processPage('url-changed');
     });
 
+    // SPA client-side pushState detection polling (500ms)
     if (windowObj.setInterval) {
       intervalId = windowObj.setInterval(() => {
         if (VARS.prevURL !== windowObj.location?.href) {
@@ -108,9 +142,13 @@ export function createScheduler({
       }, 500);
     }
 
+    // Initial boot tick
     processPage('url-changed');
   }
 
+  /**
+   * Stops the scheduler, clearing active intervals and pending timeouts.
+   */
   function stop() {
     if (windowObj && intervalId && windowObj.clearInterval) {
       windowObj.clearInterval(intervalId);

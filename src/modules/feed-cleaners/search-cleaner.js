@@ -18,9 +18,23 @@ import {
 } from '@/modules/detection/index.js';
 
 /**
- * Mops up and purges unwanted content from Facebook Search Feed.
+ * Mops up and purges unwanted content from the Facebook Search Feed.
+ *
+ * ## Strategy
+ * The Facebook search results feed shares post container characteristics with the News Feed,
+ * but renders within a flatter hierarchy (`div[role="feed"] > div > div`).
+ * This cleaner applies News Feed blocked text rules and sponsored ad detection to query results,
+ * grouping consecutive hidden search items via `VARS.echoCount`.
  *
  * @param {Object} context - Standard runtime context
+ * @param {Object} context.VARS - Application state
+ * @param {Object} context.KeyWords - Localized keywords
+ * @param {Object} context.postObscurer - Obscurer utilities (nf_hidePost, hideBlock, etc.)
+ * @param {Function} [context.isTheHouseDirty] - Dirty check function
+ * @param {Function} [context.sf_isTheHouseDirty] - Search feed dirty check function
+ * @param {Object} context.masterKeyWords - Keyword master dictionary
+ * @param {Document} [context.doc=document] - DOM document
+ * @param {Window} [context.windowObj=window] - Browser window
  * @param {Document} [overrideDoc] - Optional document override
  */
 export function mopUpTheSearchFeed({

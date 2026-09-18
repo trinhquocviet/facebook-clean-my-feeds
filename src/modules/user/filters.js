@@ -1,9 +1,22 @@
+/**
+ * User Keyword Filters Compilation Module
+ * Part of FB - Clean My Feeds
+ *
+ * Compiles newline- or delimiter-separated user keyword strings into
+ * pre-tokenized and lowercase-cached arrays for rapid matching during feed processing.
+ *
+ * @module modules/user/filters
+ */
+
 import { FILTER_SEPARATOR } from '@/constants/index.js';
 
 const FILTER_PREFIXES = ['NF', 'GF', 'VF', 'PP', 'GLOBAL'];
 
 /**
- * Creates an empty canonical filter rules object.
+ * Creates an empty canonical filter rules state object.
+ *
+ * Initializes token arrays and boolean enablement flags for all feed streams.
+ *
  * @returns {Object} Empty canonical filters state
  */
 function createInitialFilterState() {
@@ -25,10 +38,16 @@ function createInitialFilterState() {
 }
 
 /**
- * Splits text into raw tokens and lowercase tokens.
- * @param {string} text - Raw delimited filter string
- * @param {string} sep - Delimiter string
- * @returns {{ tokens: string[], tokensLC: string[] }}
+ * Splits raw delimited text into original tokens and lowercase tokens.
+ *
+ * ## Performance Optimization
+ * Caching lowercase tokens (`tokensLC`) during option compilation avoids repeatedly
+ * calling `.toLowerCase()` on hundreds of regex and keyword patterns during continuous
+ * scroll iterations.
+ *
+ * @param {string} text - Raw delimited filter string from user textarea
+ * @param {string} sep - Delimiter string (usually newline '\n' or '¦¦')
+ * @returns {{ tokens: string[], tokensLC: string[] }} Tuple of raw and lowercase tokens
  */
 function compileTokens(text, sep) {
   const tokens = text.split(sep);
@@ -37,11 +56,14 @@ function compileTokens(text, sep) {
 }
 
 /**
- * Compiles feed keyword filter rules from user options.
+ * Compiles feed keyword filter rules from user options into the canonical runtime Filters object.
  *
- * @param {Object} options - User options dictionary.
- * @param {string} [sep=FILTER_SEPARATOR] - Token delimiter (usually '\n' or '¦¦').
- * @returns {Object} Canonical Filters object.
+ * Populates token arrays for News Feed, Groups Feed, Video Feed, Profile Pages,
+ * Global filters, and Marketplace price/description filters.
+ *
+ * @param {Object} options - User options dictionary
+ * @param {string} [sep=FILTER_SEPARATOR] - Token delimiter (usually '\n' or '¦¦')
+ * @returns {Object} Canonical Filters object ready for runtime text matching
  */
 export function compileFilterRules(options = {}, sep = FILTER_SEPARATOR) {
   const filters = createInitialFilterState();

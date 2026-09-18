@@ -2,8 +2,19 @@
  * Post Obscurer Orchestrator
  * Part of FB - Clean My Feeds
  *
- * Implements high-level post hiding strategies across news feed, groups feed,
- * watch video feed, and standalone UI features following SOLID principles.
+ * ## Hiding Strategy & Architecture
+ * When an unwanted post is detected, FB - Clean My Feeds supports two distinct modes:
+ * 1. **Collapsible Obscuring (`VERBOSITY_LEVEL = '1' | '2'`)**:
+ *    Wraps the post element in a `<details><summary>` container displaying the rejection reason
+ *    (e.g. "[Clean My Feeds] Sponsored"). Users can click the summary to inspect the original post.
+ * 2. **Silent Purge (`VERBOSITY_LEVEL = '0'`)**:
+ *    Directly applies `hideAtt` (`display: none !important`), completely collapsing the post without
+ *    any visual placeholder.
+ *
+ * In Debug mode (`VERBOSITY_DEBUG`), a mini `<h6>` tag is injected and `showAtt` is stamped to
+ * highlight filtered items with diagnostic styles.
+ *
+ * @module modules/post-obscurer/post-obscurer
  */
 
 import { postAtt } from '@/constants/index.js';
@@ -21,6 +32,7 @@ import { toggleHiddenElements as toggleVisibilityBatch } from './visibility-togg
 
 /**
  * Normalizes input parameters into an obscurer context containing { VARS, getKeyWords }.
+ *
  * @param {Object} optionsOrVars - Application state / VARS object or context container
  * @param {Object|Function} [maybeKeyWords] - Translations dictionary or getter function
  * @returns {{ VARS: Object, getKeyWords: Function }}
@@ -42,7 +54,8 @@ export function normalizeObscurerContext(optionsOrVars, maybeKeyWords) {
 }
 
 /**
- * Factory creating post obscuring and feed filtering operations
+ * Factory creating post obscuring and feed filtering operations.
+ *
  * @param {Object} optionsOrVars - Application state / VARS object
  * @param {Object|Function} [maybeKeyWords] - Translations dictionary or getter function
  * @returns {Object} Post obscurer API methods
@@ -52,10 +65,11 @@ export function createPostObscurer(optionsOrVars, maybeKeyWords) {
   const { VARS } = ctx;
 
   /**
-   * Core logic for hiding an individual post or feature without consecutive grouping
+   * Core logic for hiding an individual post or feature without consecutive grouping.
+   *
    * @param {HTMLElement} post - Element to hide
    * @param {string} reason - Reason for hiding
-   * @param {string|boolean} [marker=''] - Post marker attribute value
+   * @param {string|boolean} [marker=''] - Post marker attribute value (used for style queries)
    * @param {boolean} [revealInDebug=true] - Whether to apply showAtt in debug mode
    */
   function hideSingleElement(post, reason, marker = '', revealInDebug = true) {
@@ -75,28 +89,47 @@ export function createPostObscurer(optionsOrVars, maybeKeyWords) {
   }
 
   /**
-   * Hides a non-feed feature (e.g. stories tray, survey box)
+   * Hides a non-feed feature (e.g. stories tray, survey box).
+   *
+   * @param {HTMLElement} post - Element to hide
+   * @param {string} reason - Rejection reason
+   * @param {string|boolean} [marker=''] - Marker value
    */
   function hideFeature(post, reason, marker = '') {
     hideSingleElement(post, reason, marker, false);
   }
 
   /**
-   * Hides a video post in watch videos feed
+   * Hides a video post in watch videos feed.
+   *
+   * @param {HTMLElement} post - Video post container
+   * @param {string} reason - Rejection reason
+   * @param {string|boolean} [marker=''] - Marker value
    */
   function vf_hidePost(post, reason, marker = '') {
     hideSingleElement(post, reason, marker, true);
   }
 
   /**
-   * Hides a regular post in news feed or search feed
+   * Hides a regular post in news feed or search feed.
+   *
+   * @param {HTMLElement} post - Feed post element
+   * @param {string} reason - Rejection reason
+   * @param {string|boolean} [marker='~'] - Marker value ('~' indicates standard news feed post)
    */
   function nf_hidePost(post, reason, marker = '~') {
     hideSingleElement(post, reason, marker, true);
   }
 
   /**
-   * Hides a group feed post with consecutive count grouping
+   * Hides a group feed post with consecutive count grouping support.
+   *
+   * In group feeds, when `VERBOSITY_LEVEL === '2'`, adjacent hidden posts
+   * are collapsed into a single summary bar ("X hidden posts").
+   *
+   * @param {HTMLElement} post - Group post element
+   * @param {string} reason - Rejection reason
+   * @param {string|boolean} marker - Marker value
    */
   function gf_hidePost(post, reason, marker) {
     post.setAttribute(postAtt, sanitizeReason(reason));
@@ -113,7 +146,11 @@ export function createPostObscurer(optionsOrVars, maybeKeyWords) {
   }
 
   /**
-   * Hides a generic block and flags its anchor element
+   * Hides a generic block and flags its anchor element.
+   *
+   * @param {HTMLElement} block - Container element to hide
+   * @param {HTMLElement} link - Anchor element to tag with reason
+   * @param {string} reason - Rejection reason
    */
   function hideBlock(block, link, reason) {
     block.setAttribute(VARS.cssHideEl, '');

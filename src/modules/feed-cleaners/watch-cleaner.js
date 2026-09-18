@@ -27,9 +27,33 @@ import {
 } from '@/modules/detection/index.js';
 
 /**
- * Mops up and purges unwanted content from the Watch Videos Feed.
+ * Mops up and purges unwanted content from Facebook Watch / Videos Feeds.
+ *
+ * ## Video Feed Variations (`VARS.vfType`)
+ * 1. **`videos`**: Main Facebook Watch stream (`:scope > div > div:not([class]) > div`).
+ * 2. **`search`**: Video search results feed (`div[role="feed"] > div[role="article"]`).
+ * 3. **`item`**: Dedicated single video page watch feed (`div[id="watch_feed"] > ...`).
+ *
+ * ## Processing Details
+ * - **Placeholder Skip**: Posts with fewer than 3 descendants (`countDescendants(post) < 3`)
+ *   are skipped as incomplete or skeleton loader elements.
+ * - **Link Rewriting**: Calls `vf_setPostLinkToOpenInNewTab` so clicking video posts opens in a new tab.
+ * - **Deduplication**: `vf_hideDuplicateVideos` detects when Facebook displays identical videos
+ *   multiple times in the same session, hiding duplicates and keeping the first instance.
+ * - **Live & Instagram Filters**: Hides live video streams and cross-posted Instagram videos.
+ * - **Sponsored Block Scrubbing**: Removes secondary sponsored suggestions ("Watch more videos by...")
+ *   tethered beneath video player containers.
  *
  * @param {Object} context - Standard runtime context
+ * @param {Object} context.VARS - Application state
+ * @param {Object} context.KeyWords - Localized keywords
+ * @param {Object} context.postObscurer - Obscurer methods (vf_hidePost, hideBlock, etc.)
+ * @param {Function} [context.isTheHouseDirty] - Dirty check function
+ * @param {Function} [context.vf_isTheHouseDirty] - Videos feed dirty check function
+ * @param {Object} context.masterKeyWords - Keyword master dictionary
+ * @param {string} [context.log=''] - Log prefix
+ * @param {Document} [context.doc=document] - DOM document
+ * @param {Window} [context.windowObj=window] - Browser window
  */
 export function mopUpTheWatchVideosFeed({
   VARS,
@@ -59,6 +83,7 @@ export function mopUpTheWatchVideosFeed({
     let query;
     let queryBlocks;
 
+    // Route selectors by feed layout type
     if (VARS.vfType === 'videos') {
       query = ':scope > div > div:not([class]) > div';
       queryBlocks = ':scope > div > div > div > div > div:nth-of-type(2) > div';
@@ -75,12 +100,14 @@ export function mopUpTheWatchVideosFeed({
     if (VARS.vfType !== 'search') {
       const posts = container.querySelectorAll(query);
       for (const post of posts) {
+        // Skip skeleton placeholder cards
         if (countDescendants(post) < 3) {
           continue;
         }
 
         let hideReason = '';
 
+        // Rewrite permalink anchor to open in new tab
         if (VARS.vfType === 'videos' && post[postPropDS] === undefined) {
           vf_setPostLinkToOpenInNewTab(post, doc);
         }
@@ -121,13 +148,14 @@ export function mopUpTheWatchVideosFeed({
           if (VARS.hideAnInfoBox) {
             scrubInfoBoxes(post, VARS, KeyWords, masterKeyWords, hideBlock);
           }
+          // Remove sponsored ad box attached underneath the video player
           vf_scrubSponsoredBlock(post, KeyWords, hideBlock);
         }
 
         vf_hideSponsoredBlock(post, query, queryBlocks, VARS, log);
       }
     } else {
-      // Search videos
+      // Search videos results feed
       const posts = doc.querySelectorAll(query);
       for (const post of posts) {
         let hideReason = '';
@@ -152,6 +180,7 @@ export function mopUpTheWatchVideosFeed({
     VARS.noChangeCounter = 0;
   }
 
+  // Handle active media modal dialog
   if (elDialog) {
     if (VARS.Options?.NF_ANIMATED_GIFS_PAUSE) {
       swatTheMosquitos(elDialog, windowObj);
