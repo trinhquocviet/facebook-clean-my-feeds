@@ -12,16 +12,25 @@ import { hasSizeChanged } from '@/utils/index.js';
 import { mainColumnAtt } from '@/constants/index.js';
 
 /**
- * Checks if News Feed main column or article dialog has changed.
+ * Checks if News Feed main column or article modal dialog has changed in size.
  *
- * @param {Object} VARS - Application state
+ * ## Mechanism
+ * Instead of observing thousands of micro-mutations via MutationObserver, the userscript
+ * queries key root feed landmarks and compares their `innerHTML.length` against the value
+ * stamped on `mainColumnAtt`.
+ *
+ * Uses `hasSizeChanged(previousLength, currentLength)` which enforces a 16-character tolerance
+ * threshold: minor fluctuations (e.g. timestamp updates like "1m" -> "2m" or like counter increments)
+ * are ignored to prevent unnecessary full-feed scan sweeps.
+ *
+ * @param {Object} VARS - Application state (increments `noChangeCounter` on clean ticks)
  * @param {Document} [doc=document] - DOM document
- * @returns {Array<HTMLElement|null>} [mainColumn, elDialog]
+ * @returns {Array<HTMLElement|null>} `[mainColumn, elDialog]` tuple where non-null indicates dirty
  */
 export function isTheHouseDirty(VARS, doc = document) {
   const arrReturn = [null, null];
 
-  // -- main column / content (feed)
+  // Primary News Feed stream column (adjacent to navigation)
   const mainColumnQuery = 'div[role="navigation"] ~ div[role="main"]';
   const mainColumn = doc.querySelector(mainColumnQuery);
   if (mainColumn) {
@@ -32,7 +41,7 @@ export function isTheHouseDirty(VARS, doc = document) {
     }
   }
 
-  // -- dialog (article popup)
+  // Active photo/post media dialog overlay
   const elDialog = doc.querySelector('div[role="dialog"]');
   if (elDialog) {
     if (elDialog.hasAttribute(mainColumnAtt) === false) {
@@ -47,11 +56,14 @@ export function isTheHouseDirty(VARS, doc = document) {
 }
 
 /**
- * Checks if Groups Feed main column or dialog has changed.
+ * Checks if Groups Feed main column or dialog has changed in size.
+ *
+ * Supports both multi-group aggregated feeds (`div[role="navigation"] ~ div[role="main"]`)
+ * and dedicated single group wall pages (`div[role="main"] div[role="feed"]`).
  *
  * @param {Object} VARS - Application state
  * @param {Document} [doc=document] - DOM document
- * @returns {Array<HTMLElement|null>} [mainColumn, elDialog]
+ * @returns {Array<HTMLElement|null>} `[mainColumn, elDialog]` tuple
  */
 export function gf_isTheHouseDirty(VARS, doc = document) {
   const arrReturn = [null, null];
@@ -65,7 +77,7 @@ export function gf_isTheHouseDirty(VARS, doc = document) {
       arrReturn[0] = mainColumn;
     }
   } else {
-    // -- inside a group profile ...
+    // Single group profile feed container
     const mainColumnQueryGP = 'div[role="main"] div[role="feed"]';
     const mainColumnGP = doc.querySelector(mainColumnQueryGP);
     if (mainColumnGP) {
@@ -77,7 +89,7 @@ export function gf_isTheHouseDirty(VARS, doc = document) {
     }
   }
 
-  // -- dialog (article popup)
+  // Check active modal dialog
   const elDialog = doc.querySelector('div[role="dialog"]');
   if (elDialog) {
     if (elDialog.hasAttribute(mainColumnAtt) === false) {
@@ -92,14 +104,20 @@ export function gf_isTheHouseDirty(VARS, doc = document) {
 }
 
 /**
- * Checks if Marketplace feed or viewing item container has changed.
+ * Checks if Marketplace feed or viewing item container has changed in size.
+ *
+ * ## Item View Dialog Quirks
+ * When inspecting a Marketplace item, Facebook often sets `[hidden]` on the background
+ * container and mounts a sibling dialog: `div[hidden] ~ div[class*="__"] div[role="dialog"]`.
+ * This checker probes both the floating dialog and the persistent main column.
  *
  * @param {Object} VARS - Application state
  * @param {Document} [doc=document] - DOM document
- * @returns {HTMLElement|null}
+ * @returns {HTMLElement|null} Changed container element, or null if clean
  */
 export function mp_isTheHouseDirty(VARS, doc = document) {
   if (VARS.mpType === 'item') {
+    // Floating item details dialog mounted over hidden background
     const mainColumnDM = doc.querySelector('div[hidden] ~ div[class*="__"] div[role="dialog"]');
     if (mainColumnDM) {
       if (mainColumnDM.hasAttribute(mainColumnAtt)) {
@@ -111,6 +129,7 @@ export function mp_isTheHouseDirty(VARS, doc = document) {
       }
     }
 
+    // Fallback: persistent Marketplace item layout
     const mainColumnPM = doc.querySelector('div[role="navigation"] ~ div[role="main"]');
     if (mainColumnPM) {
       if (mainColumnPM.hasAttribute(mainColumnAtt)) {
@@ -122,6 +141,7 @@ export function mp_isTheHouseDirty(VARS, doc = document) {
       }
     }
   } else {
+    // Browse / Category / Landing feed
     const mainColumn = doc.querySelector(`[${mainColumnAtt}]`);
     if (mainColumn) {
       if (hasSizeChanged(mainColumn.getAttribute(mainColumnAtt), mainColumn.innerHTML.length)) {
@@ -141,11 +161,13 @@ export function mp_isTheHouseDirty(VARS, doc = document) {
 }
 
 /**
- * Checks if Search Feed results column has changed.
+ * Checks if Search Feed results column has changed in size.
+ *
+ * Search results mount under `div[role="region"] ~ div[role="main"]`.
  *
  * @param {Object} VARS - Application state
  * @param {Document} [doc=document] - DOM document
- * @returns {HTMLElement|null}
+ * @returns {HTMLElement|null} Changed search container element, or null if clean
  */
 export function sf_isTheHouseDirty(VARS, doc = document) {
   const query = 'div[role="region"] ~ div[role="main"]';
@@ -164,11 +186,14 @@ export function sf_isTheHouseDirty(VARS, doc = document) {
 }
 
 /**
- * Checks if Videos Feed main column or item dialog has changed.
+ * Checks if Videos Feed main column or item dialog has changed in size.
+ *
+ * Queries nested video streams and selects the innermost main container
+ * (`mainColumns[mainColumns.length - 1]`).
  *
  * @param {Object} VARS - Application state
  * @param {Document} [doc=document] - DOM document
- * @returns {Array<HTMLElement|null>} [mainColumn, elDialog]
+ * @returns {Array<HTMLElement|null>} `[mainColumn, elDialog]` tuple
  */
 export function vf_isTheHouseDirty(VARS, doc = document) {
   const arrReturn = [null, null];
@@ -201,11 +226,13 @@ export function vf_isTheHouseDirty(VARS, doc = document) {
 }
 
 /**
- * Checks if Profile Page feed or dialog has changed.
+ * Checks if Profile Page feed or dialog has changed in size.
+ *
+ * Monitors `div[role="main"]` and active media dialogs on user profile timelines.
  *
  * @param {Object} VARS - Application state
  * @param {Document} [doc=document] - DOM document
- * @returns {Array<HTMLElement|null>} [mainColumn, elDialog]
+ * @returns {Array<HTMLElement|null>} `[mainColumn, elDialog]` tuple
  */
 export function pp_isTheHouseDirty(VARS, doc = document) {
   const arrReturn = [null, null];

@@ -2,8 +2,31 @@
  * Feed Router Module
  * Part of FB - Clean My Feeds
  *
- * Inspects page URL, sets feed type flags on application state (VARS),
- * updates toggle button visibility, and strips tracking parameters.
+ * ## Route Classification Architecture
+ * Facebook is a dynamic Single Page Application (SPA) that does not reload the page
+ * when navigating between sections (e.g. from News Feed to Watch or Groups).
+ * The Feed Router classifies `location.pathname` and `location.search` into boolean flags
+ * (`isNF`, `isGF`, `isVF`, `isMF`, `isSF`, `isRF`, `isPP`) and detailed sub-types.
+ *
+ * ## Context Mapping:
+ * - **News Feed (`isNF`)**: `/` or `/home.php` (excluding `?filter=groups`).
+ * - **Groups Feed (`isGF`)**:
+ *   - `/groups/feed`: `groups` (aggregated stream)
+ *   - `/groups/search`: `search`
+ *   - `?filter=groups&sk=h_chr`: `groups-recent`
+ *   - `/<group-name>`: `group` (single group wall)
+ * - **Watch Videos (`isVF`)**:
+ *   - `/watch`: `videos`
+ *   - `/watch/search`: `search`
+ *   - `?v=` or `?ref=seach`: `item` (single video viewing layout)
+ * - **Marketplace (`isMF`)**:
+ *   - `/marketplace`: `marketplace` (main landing)
+ *   - `/item/` or `/commerce/listing/`: `item`
+ *   - `/category/` or deep paths: `category`
+ *   - `/search`: `search`
+ * - **Search (`isSF`)**: `/search/top`, `/search/posts`, `/search/pages`
+ * - **Reels (`isRF`)**: `/reel/*` (active when reels enhancement options enabled)
+ * - **Profile (`isPP`)**: `/profile.php` or single-segment username handles (`/<handle>`)
  *
  * @module modules/feed-router/feed-router
  */
@@ -11,7 +34,9 @@
 import { resetFeedFlags, resetEchoState } from '@/state/index.js';
 
 /**
- * Removes tracking parameters from links on page (e.g. `/?ref=`).
+ * Removes tracking parameters from links across the document (e.g. `/?ref=`).
+ *
+ * Decontaminates anchor hrefs in bulk when entering a new route or feed section.
  *
  * @param {Document} [doc=document] - DOM document
  */
@@ -26,13 +51,19 @@ export function stopTrackingDirtIntoMyHouse(doc = typeof document !== 'undefined
 /**
  * Inspects window location and updates feed context flags on VARS.
  *
- * @param {Object} options
- * @param {Object} options.VARS - Application state
- * @param {Window} [options.windowObj=window] - Window object
- * @param {Document} [options.doc=document] - Document object
- * @param {boolean} [options.forceUpdate=false] - Force update even if URL hasn't changed
- * @param {Function} [options.onMarketplaceEnter] - Callback triggered when entering Marketplace
- * @returns {boolean} True if feed settings changed/updated, false otherwise
+ * Checks if the current URL has changed since the last inspection tick. If so:
+ * 1. Resets previous feed flags.
+ * 2. Classifies the route into appropriate feed domains and sub-types.
+ * 3. Shows or hides the floating settings toggle button (`btnToggleEl`).
+ * 4. Resets consecutive post grouping counter (`echoCount`) and `noChangeCounter`.
+ *
+ * @param {Object} options - Router options
+ * @param {Object} options.VARS - Shared application state
+ * @param {Window} [options.windowObj=window] - Browser window object
+ * @param {Document} [options.doc=document] - DOM document
+ * @param {boolean} [options.forceUpdate=false] - Force update even if URL appears unchanged
+ * @param {Function} [options.onMarketplaceEnter] - Callback triggered upon entering Marketplace
+ * @returns {boolean} True if feed route changed or forced; false if URL is unchanged
  */
 export function setFeedSettings(options) {
   const {
@@ -57,8 +88,8 @@ export function setFeedSettings(options) {
     resetFeedFlags(VARS);
 
     if (VARS.prevPathname === '/' || VARS.prevPathname === '/home.php') {
-      // -- news feed
-      // -- nb: "Feeds (most recent)" combines a few feeds into one ... apply NF rules to all, except Groups.
+      // News feed root
+      // Note: "Feeds (most recent)" combines feeds; apply NF rules to all except Groups
       if (VARS.prevQuery.indexOf('?filter=groups') < 0) {
         VARS.isNF = true;
       } else {
@@ -66,7 +97,7 @@ export function setFeedSettings(options) {
         VARS.gfType = 'groups-recent';
       }
     } else if (VARS.prevPathname.indexOf('/groups/') >= 0) {
-      // -- groups feed
+      // Groups section
       VARS.isGF = true;
       if (VARS.prevPathname.indexOf('/groups/feed') >= 0) {
         VARS.gfType = 'groups';
@@ -78,7 +109,7 @@ export function setFeedSettings(options) {
         VARS.gfType = 'group';
       }
     } else if (VARS.prevPathname.indexOf('/watch') >= 0) {
-      // -- watch videos feed
+      // Watch video feed
       VARS.isVF = true;
       if (VARS.prevPathname.indexOf('/watch/search') >= 0) {
         VARS.vfType = 'search';
@@ -88,7 +119,7 @@ export function setFeedSettings(options) {
         VARS.vfType = 'videos';
       }
     } else if (VARS.prevPathname.indexOf('/marketplace') >= 0) {
-      // -- marketplace
+      // Marketplace feed
       VARS.isMF = true;
       if (typeof onMarketplaceEnter === 'function') {
         onMarketplaceEnter();
@@ -120,12 +151,14 @@ export function setFeedSettings(options) {
     } else if (VARS.prevPathname.indexOf('/profile.php') >= 0) {
       VARS.isPP = true;
     } else if (VARS.prevPathname.substring(1).length > 1 && VARS.prevPathname.substring(1).indexOf('/') < 0) {
+      // User profile vanity handle: /username (single path segment without extra slashes)
       VARS.isPP = true;
     }
 
+    // isAF (Is Any Feed): True if currently viewing any supported Facebook stream
     VARS.isAF = (VARS.isNF || VARS.isGF || VARS.isVF || VARS.isMF || VARS.isSF || VARS.isRF || VARS.isPP);
 
-    // when to display the cmf button
+    // Display or hide floating Clean My Feeds settings toggle button
     if (VARS.isAF) {
       if (VARS.btnToggleEl) {
         VARS.btnToggleEl.setAttribute(VARS.showAtt, '');
@@ -136,10 +169,10 @@ export function setFeedSettings(options) {
       }
     }
 
-    // - reset consecutive count of hidden posts
+    // Reset consecutive count of hidden posts
     resetEchoState(VARS);
 
-    // -- reset the no-change-counter
+    // Reset no-change-counter to trigger fast initial polling in the new view
     VARS.noChangeCounter = 0;
 
     return true;

@@ -20,7 +20,26 @@ import {
 /**
  * Mops up and purges unwanted content from Facebook Profile pages.
  *
+ * ## Strategy
+ * User timeline wall posts render inside `div[role="main"]` with a specific column hierarchy:
+ * `div[role="main"] > div > div > div > div:nth-of-type(2) > div:not([class]) > div > div[class]`.
+ * This cleaner applies blocked keyword filters, suppresses animated GIF posts,
+ * pauses animated GIF comments, and removes regulatory info overlays.
+ *
+ * ## Fast Exit Gate
+ * If no profile-related options (`PP_BLOCKED_ENABLED`, `GLOBAL_BLOCKED_ENABLED`,
+ * `PP_ANIMATED_GIFS_POSTS`, `PP_ANIMATED_GIFS_PAUSE`) are active, exits immediately without
+ * running expensive DOM queries or dirty checks.
+ *
  * @param {Object} context - Standard runtime context
+ * @param {Object} context.VARS - Application state
+ * @param {Object} context.KeyWords - Localized keywords
+ * @param {Object} context.postObscurer - Obscurer utilities (nf_hidePost, hideBlock, etc.)
+ * @param {Function} [context.isTheHouseDirty] - Dirty check function
+ * @param {Function} [context.pp_isTheHouseDirty] - Profile page dirty check function
+ * @param {Object} context.masterKeyWords - Keyword master dictionary
+ * @param {Document} [context.doc=document] - DOM document
+ * @param {Window} [context.windowObj=window] - Browser window
  * @param {Document} [overrideDoc] - Optional document override
  */
 export function mopUpTheProfilePage({
@@ -39,6 +58,7 @@ export function mopUpTheProfilePage({
     VARS.Options?.PP_ANIMATED_GIFS_POSTS ||
     VARS.Options?.PP_ANIMATED_GIFS_PAUSE;
 
+  // Fast exit if no profile page features are toggled on
   if (!proceed) {
     return;
   }
@@ -57,6 +77,7 @@ export function mopUpTheProfilePage({
   } = postObscurer || {};
 
   if (mainColumn) {
+    // Query individual user timeline wall posts
     const query = 'div[role="main"] > div > div > div > div:nth-of-type(2) > div:not([class]) > div > div[class]';
     const posts = actualDoc ? Array.from(actualDoc.querySelectorAll(query)) : [];
 
@@ -99,6 +120,7 @@ export function mopUpTheProfilePage({
     VARS.noChangeCounter = 0;
   }
 
+  // Handle media/photo modal dialog if currently active
   if (elDialog) {
     if (VARS.Options?.PP_ANIMATED_GIFS_PAUSE) {
       swatTheMosquitos(elDialog, windowObj);

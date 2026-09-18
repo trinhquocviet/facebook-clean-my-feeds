@@ -1,3 +1,29 @@
+/**
+ * FB - Clean My Feeds (Main Entry Point)
+ *
+ * ## Bootstrap Sequence & Architecture
+ * 1. **Execution Timing**: Runs at `@run-at document-start` to inject styles and intercept feed rendering
+ *    before Facebook's client scripts finish loading.
+ * 2. **State & Storage**:
+ *    - Creates an IndexedDB store handle (`idb-keyval`) for persistence.
+ *    - Initializes application state (`createInitialState`).
+ * 3. **Non-DOM Early Initialization**:
+ *    - Initiates options loading and language detection (`initLanguageAndOptions`).
+ *    - Assembles the post obscuring pipeline (`createPostObscurer`).
+ *    - Inverts control by composing feed cleaners and route-specific dirty checkers (`createFeedCleaners`).
+ * 4. **DOM-Ready Ignition (`startUp`)**:
+ *    - Polls until `document.head`, `document.body`, and `VARS.optionsReady` are all resolved.
+ *    - Registers Tampermonkey / Violentmonkey userscript menu command (`GM.registerMenuCommand`).
+ *    - Injects dynamic anti-fingerprinting stylesheets (`addCSS`, `addExtraCSS`).
+ *    - Mounts the VanJS settings dialog and floating toggle trigger (`buildMoppingDialog`).
+ *    - Detects Chromium browser engine to calibrate Reels control layout offsets.
+ *    - Pre-compiles multi-lingual sponsored and reels keywords into search trees (`buildDictionaries`).
+ *    - Launches the adaptive scheduler loop (`createScheduler(...).start()`).
+ *    - Enforces chronological feed redirection if configured (`registerRedirToMostRecent`).
+ *
+ * @module index
+ */
+
 import { createStore } from 'idb-keyval';
 import {
   masterKeyWords,
@@ -43,7 +69,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
 (async function () {
   'use strict';
 
-  // TM doesn't like spaces in version number, so convert to human-readable format
+  // Format version string for userscript managers (replacing hyphens with spaces)
   const SCRIPT_VERSION = `v${GM.info.script.version.replaceAll('-', ' ')}`;
   const log = '-- fbcmf :: ';
 
@@ -58,11 +84,15 @@ import { createScheduler } from './modules/lifecycle/index.js';
   // State initialization
   const VARS = createInitialState();
   let KeyWords = {};
+
+  /**
+   * Refreshes the active translation dictionary when language preference updates.
+   */
   function cloneKeywords() {
     KeyWords = getTranslation(VARS.language);
   }
 
-  // Post obscurer
+  // Post obscurer service
   const postObscurer = createPostObscurer(VARS, () => KeyWords);
   const { toggleHiddenElements } = postObscurer;
 
@@ -77,19 +107,31 @@ import { createScheduler } from './modules/lifecycle/index.js';
     });
   }
 
+  /**
+   * Pre-compiles global cross-lingual sponsored and reels dictionaries.
+   */
   function buildDictionaries() {
     VARS.dictionarySponsored = buildSponsoredDictionary();
     VARS.dictionaryReelsAndShortVideos = buildReelsDictionary();
   }
 
+  /**
+   * Injects dynamic CSS rules with randomized attribute tokens.
+   */
   function addCSS() {
     injectCSS(VARS);
   }
 
+  /**
+   * Injects positioning rules for floating toggle button and options dialog.
+   */
   function addExtraCSS() {
     injectExtraCSS(VARS, masterKeyWords);
   }
 
+  /**
+   * Loads options from IndexedDB, applying schema defaults and compiling filters.
+   */
   async function getUserOptions() {
     return loadUserOptionsCore({
       VARS,
@@ -100,13 +142,15 @@ import { createScheduler } from './modules/lifecycle/index.js';
     });
   }
 
-  // Run non-DOM dependent initialization
+  // Run early non-DOM dependent initialization
   setLanguageAndOptions();
 
   const doc = typeof document !== 'undefined' ? document : null;
   const win = typeof window !== 'undefined' ? window : null;
 
-  // Dialog toggle handler
+  /**
+   * Toggles visibility of the settings configuration modal dialog.
+   */
   function toggleDialog() {
     if (!doc) return;
     const elDialog = doc.getElementById('fbcmf');
@@ -118,7 +162,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
     }
   }
 
-  // Feed cleaners assembly
+  // Bind dirty checker functions to active state and DOM document
   const dirtyChecker = {
     isTheHouseDirty: () => isTheHouseDirty(VARS, doc),
     gf_isTheHouseDirty: () => gf_isTheHouseDirty(VARS, doc),
@@ -128,6 +172,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
     pp_isTheHouseDirty: () => pp_isTheHouseDirty(VARS, doc)
   };
 
+  // Instantiate feed cleaners via IoC factory
   const cleaners = createFeedCleaners({
     VARS,
     getKeyWords: () => KeyWords,
@@ -150,7 +195,9 @@ import { createScheduler } from './modules/lifecycle/index.js';
     mp_stopTrackingDirtIntoMyHouse
   } = cleaners;
 
-  // Route updater
+  /**
+   * Classifies current location and updates feed context flags on VARS.
+   */
   function setFeedSettings(forceUpdate = false) {
     return updateFeedSettings({
       VARS,
@@ -161,6 +208,9 @@ import { createScheduler } from './modules/lifecycle/index.js';
     });
   }
 
+  /**
+   * Evaluates chronological feed redirection (`/?sk=h_chr`).
+   */
   function registerRedirToMostRecent() {
     checkRedirToMostRecent({ VARS, windowObj: win });
   }
@@ -168,13 +218,20 @@ import { createScheduler } from './modules/lifecycle/index.js';
   let firstRun = true;
   let scheduler = null;
 
+  /**
+   * Startup ignition loop: awaits DOM and options readiness before mounting UI and scheduler.
+   */
   function startUp() {
     if (document.head && document.body && VARS.optionsReady) {
       if (firstRun) {
+        // Register userscript menu command in extension popup
         GM.registerMenuCommand(KeyWords.GM_MENU_SETTINGS, toggleDialog);
+
+        // Inject randomized CSS stylesheets
         addCSS();
         window.setTimeout(addExtraCSS, 150);
 
+        // Build and mount settings UI dialog
         buildMoppingDialog({
           VARS,
           KeyWords,
@@ -208,6 +265,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
         VARS.isChromium = !!unsafeWindow.chrome && /Chrome|CriOS/.test(navigator.userAgent);
         buildDictionaries();
 
+        // Instantiate and start adaptive lifecycle scheduler
         scheduler = createScheduler({
           VARS,
           setFeedSettings,
@@ -226,8 +284,10 @@ import { createScheduler } from './modules/lifecycle/index.js';
         firstRun = false;
       }
 
+      // Check if user should be redirected to chronological feed
       registerRedirToMostRecent();
     } else {
+      // Retry in 10ms until head, body, and storage options are ready
       setTimeout(startUp, 10);
     }
   }

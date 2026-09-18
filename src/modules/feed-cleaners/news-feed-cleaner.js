@@ -37,9 +37,41 @@ import {
 import { mainColumnAtt } from '@/constants/index.js';
 
 /**
- * Mops up and purges unwanted content from the News Feed.
+ * Mops up and purges unwanted content from the Facebook News Feed.
+ *
+ * ## Pipeline Execution Waterfall
+ * 1. **Dirty Check Guard**: Calls `isTheHouseDirty()` to verify if the main feed column
+ *    or an active photo/media modal dialog has changed in length. Returns immediately if clean.
+ * 2. **Header & Sidebar Mopping**:
+ *    - Scrubs the top tablist (Stories, Reels, Rooms) if `NF_TABLIST_STORIES_REELS_ROOMS` is set.
+ *    - Scrubs feedback surveys if `NF_SURVEY` is enabled.
+ *    - Purges right sidebar console tables (Sponsored ads & suggested pages/people).
+ * 3. **News Feed Post Stream**:
+ *    - Queries candidate post elements via `nf_getCollectionOfPosts()`.
+ *    - Detects empty innerHTML (Facebook virtualization clearing posts during fast scrolling).
+ *    - Fast-paths already-hidden posts (`nf_isPostAlreadyHidden`).
+ *    - Executes `doLightDusting` to strip telemetry parameters (`__cft__`, `__tn__`) from links.
+ *    - Evaluates detection rules in order of computational efficiency and structural specificity:
+ *      Reels/Short Videos -> Single short reel -> Paid partnerships -> People you may know ->
+ *      Suggestions -> Follow/Participate -> Sponsored Paid By -> Events -> Stories ->
+ *      Animated GIFs -> Sponsored (shadow root / canvas / xlink / length heuristic) ->
+ *      Blocked keywords/regex -> Like count ceiling.
+ *    - **Priority Note**: Sponsored detection runs before text blocking because sponsored ads
+ *      often contain promotional keywords; categorizing as "Sponsored" provides better audit clarity.
+ * 4. **Post Obscuring & Secondary Actions**:
+ *    - Hides flagged posts using `nf_hidePost`.
+ *    - For surviving posts: pauses mosquito GIFs, scrubs regulatory info boxes, and suppresses share counts.
+ * 5. **State Stamping**:
+ *    - Updates `mainColumnAtt` with current length and resets `noChangeCounter`.
  *
  * @param {Object} context - Standard runtime context
+ * @param {Object} context.VARS - Application global state
+ * @param {Object} context.KeyWords - Localized dictionary of hide reasons
+ * @param {Object} context.postObscurer - Obscurer utilities (nf_hidePost, hideFeature, etc.)
+ * @param {Function} context.isTheHouseDirty - Dirty checker for news feed
+ * @param {Object} context.masterKeyWords - Keyword master dictionary for info boxes
+ * @param {Document} [context.doc=document] - DOM document
+ * @param {Window} [context.windowObj=window] - Browser window
  */
 export function mopUpTheNewsFeed({
   VARS,
@@ -63,7 +95,7 @@ export function mopUpTheNewsFeed({
   } = postObscurer;
 
   if (mainColumn) {
-    // Tablist - Stories / Reels / Rooms
+    // Stage 1: Scrub top-of-feed tabs (Stories / Reels / Rooms) & surveys
     if (VARS.Options?.NF_TABLIST_STORIES_REELS_ROOMS) {
       nf_scrubTheTabbies(VARS, KeyWords, hideFeature, doc);
     }
@@ -71,33 +103,34 @@ export function mopUpTheNewsFeed({
       nf_scrubTheSurvey(KeyWords, hideFeature, doc);
     }
 
-    // Sidebar Sponsored
+    // Stage 2: Scrub right-hand sidebar "console table" sections
     if (VARS.Options?.NF_SPONSORED) {
       nf_cleanTheConsoleTable('Sponsored', KeyWords, nf_hidePost, doc);
     }
-
-    // Sidebar Suggestions
     if (VARS.Options?.NF_SUGGESTIONS) {
       nf_cleanTheConsoleTable('Suggestions', KeyWords, nf_hidePost, doc);
     }
 
-    // News Feed Stream
+    // Stage 3: Scan news feed stream posts
     const posts = nf_getCollectionOfPosts(doc);
 
     for (const post of posts) {
+      // Skip posts empty of HTML (Facebook DOM virtualization prunes content during scrolling)
       if (post.innerHTML.length === 0) {
-        // Facebook clearing out DOM during scroll
         continue;
       }
 
       let hideReason = '';
       let isSponsoredPost = false;
 
+      // Fast check: skip posts already wrapped in an obscurer <details> element
       if (nf_isPostAlreadyHidden(post)) {
         hideReason = 'hidden';
       } else {
+        // Strip tracking telemetry parameters from anchor hrefs
         doLightDusting(post, VARS);
 
+        // Classification Rule Waterfall:
         if (hideReason === '' && VARS.Options?.NF_REELS_SHORT_VIDEOS) {
           hideReason = nf_isReelsAndShortVideos(post, KeyWords, VARS);
         }
@@ -131,13 +164,16 @@ export function mopUpTheNewsFeed({
         if (hideReason === '' && VARS.Options?.NF_ANIMATED_GIFS_POSTS) {
           hideReason = nf_hasAnimatedGifContent(post, KeyWords);
         }
+        // Placed here due to overlap between sponsored indicators and other content rules
         if (hideReason === '' && VARS.Options?.NF_SPONSORED && isSponsored(post, VARS, doc)) {
           isSponsoredPost = true;
           hideReason = KeyWords.SPONSORED;
         }
+        // Sponsored takes priority over blocked text when both keywords match
         if (hideReason === '' && (VARS.Options?.NF_BLOCKED_ENABLED || VARS.Options?.GLOBAL_BLOCKED_ENABLED)) {
           hideReason = nf_isBlockedText(post, VARS, doc);
         }
+        // Likes maximum threshold check executes last
         if (hideReason === '' && VARS.Options?.NF_LIKES_MAXIMUM && VARS.Options.NF_LIKES_MAXIMUM !== '') {
           hideReason = nf_postExceedsLikeCount(post, KeyWords, VARS);
         }
@@ -148,6 +184,7 @@ export function mopUpTheNewsFeed({
           nf_hidePost(post, hideReason, isSponsoredPost);
         }
       } else {
+        // Post is kept visible: execute in-post scrubbers
         if (VARS.Options?.NF_ANIMATED_GIFS_PAUSE) {
           swatTheMosquitos(post, windowObj);
         }
@@ -160,10 +197,12 @@ export function mopUpTheNewsFeed({
       }
     }
 
+    // Stamp main column with current HTML length to throttle redundant passes
     mainColumn.setAttribute(mainColumnAtt, mainColumn.innerHTML.length.toString());
     VARS.noChangeCounter = 0;
   }
 
+  // Handle media/photo modal dialog if currently active in the DOM
   if (elDialog) {
     if (VARS.Options?.NF_ANIMATED_GIFS_PAUSE) {
       swatTheMosquitos(elDialog, windowObj);

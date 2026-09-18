@@ -23,16 +23,28 @@ import {
 /**
  * Creates and binds all feed cleaners to the application state context.
  *
- * @param {Object} options
+ * ## Dependency Injection Pattern
+ * Rather than importing mutable global state directly across all feed cleaner modules,
+ * `createFeedCleaners` acts as an IoC (Inversion of Control) container. It bundles:
+ * - Application mutable state (`VARS`)
+ * - Reactive keyword retrieval (`getKeyWords()`)
+ * - Obscurer operations (`postObscurer`)
+ * - Specialized dirty check functions (`dirtyChecker.*`)
+ * - Document and Window environments (enabling seamless unit testing in JSDOM)
+ *
+ * Returns a high-level API where each method (e.g. `mopUpTheNewsFeed()`) can be invoked
+ * without parameters by the router or scheduler.
+ *
+ * @param {Object} options - Configuration and dependency bag
  * @param {Object} options.VARS - Application state
- * @param {Function} options.getKeyWords - Returns current localized keywords
+ * @param {Function} options.getKeyWords - Function returning current localized keywords
  * @param {Object} options.masterKeyWords - Keyword master dictionary
  * @param {Object} options.postObscurer - Post obscurer methods
- * @param {Object} options.dirtyChecker - Dirty check methods
+ * @param {Object} options.dirtyChecker - Dirty check methods collection
  * @param {string} [options.log=''] - Log prefix
  * @param {Document} [options.doc=document] - DOM document
  * @param {Window} [options.windowObj=window] - Browser window object
- * @returns {Object} Cleaners map
+ * @returns {Object} Map of bound cleaner functions ready for scheduler execution
  */
 export function createFeedCleaners({
   VARS,
@@ -44,6 +56,7 @@ export function createFeedCleaners({
   doc = typeof document !== 'undefined' ? document : null,
   windowObj = typeof window !== 'undefined' ? window : null
 }) {
+  // Helper closure binding route-specific dirty checker into runtime context
   const getContext = (dirtyFn) => ({
     VARS,
     KeyWords: getKeyWords ? getKeyWords() : {},

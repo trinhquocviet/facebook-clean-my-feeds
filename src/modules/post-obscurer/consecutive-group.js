@@ -2,8 +2,24 @@
  * Consecutive Post Grouping Submodule
  * Part of FB - Clean My Feeds
  *
- * Handles grouping consecutive obscured posts, updating count labels,
- * and managing group expansion/collapse event listeners.
+ * ## Architecture: Grouping Consecutive Obscured Posts
+ * In busy feeds (particularly high-volume Facebook Groups), 5 or 10 unwanted posts may
+ * appear consecutively (e.g. waves of suggested groups or reels).
+ * Displaying 10 separate collapsed `<details>` summary bars clutters the interface.
+ *
+ * ### CPID (Consecutive Post Identifier) Protocol:
+ * 1. **Initiation (`startConsecutiveGroup`)**:
+ *    When the first hidden post of a cluster is encountered (`VARS.echoCount === 1`),
+ *    a random token (`VARS.echoCPID`) is generated and stamped as `[postAttCPID]` on the post.
+ * 2. **Continuation (`continueConsecutiveGroup`)**:
+ *    Subsequent hidden posts (`VARS.echoCount >= 2`) receive the same `postAttCPID`.
+ *    A mini tag (`<h6>`) is inserted into each post, and the root summary text is dynamically
+ *    updated to reflect the running count (e.g. "3 [Clean My Feeds] Hidden Posts").
+ * 3. **Batch Expansion (`toggleConsecutiveElements`)**:
+ *    A click on the root summary queries all elements sharing that `[postAttCPID]` and
+ *    toggles their `showAtt` attribute simultaneously.
+ *
+ * @module modules/post-obscurer/consecutive-group
  */
 
 import { postAttCPID } from '@/constants/index.js';
@@ -15,7 +31,11 @@ import {
 } from './caption-builder.js';
 
 /**
- * Event listener for toggling the visibility of all posts within a consecutive group
+ * Event listener for toggling the visibility of all posts belonging to a consecutive group.
+ *
+ * When the user clicks the summary element of a grouped cluster, this finds the associated
+ * CPID and applies or removes `showAtt` across all posts in the group.
+ *
  * @param {Event} ev - Click event on summary element
  * @param {Object} ctx - Obscurer context { VARS }
  */
@@ -46,6 +66,9 @@ export function toggleConsecutiveElements(ev, ctx) {
 
 /**
  * Initializes a new consecutive group when the first consecutive post is encountered.
+ *
+ * Creates the primary `<details>` container and generates a unique `echoCPID` token.
+ *
  * @param {HTMLElement} elPostContent - Post content element
  * @param {string} reason - Obscuring reason text
  * @param {string|boolean} marker - Post marker value
@@ -61,7 +84,10 @@ function startConsecutiveGroup(elPostContent, reason, marker, ctx) {
 
 /**
  * Appends subsequent consecutive posts to the active group and updates the summary counter.
- * @param {HTMLElement} elPostContent - Post content element
+ *
+ * Updates root `<summary>` label to reflect the total number of collapsed posts in this cluster.
+ *
+ * @param {HTMLElement} elPostContent - Subsequent post element in cluster
  * @param {string} reason - Obscuring reason text
  * @param {Object} ctx - Obscurer context
  */
@@ -87,7 +113,11 @@ function continueConsecutiveGroup(elPostContent, reason, ctx) {
 }
 
 /**
- * Handles group feed consecutive post hiding and summary count accumulation
+ * Handles group feed post hiding with single-caption or grouped-caption routing.
+ *
+ * - If `VERBOSITY_LEVEL === '1'`, creates standalone `<details>` wrappers for each post.
+ * - If `VERBOSITY_LEVEL === '2'`, clusters adjacent hidden posts under a single cumulative `<details>`.
+ *
  * @param {HTMLElement} post - Group post container element
  * @param {string} reason - Obscuring reason text
  * @param {string|boolean} marker - Post marker value
@@ -98,13 +128,13 @@ export function handleConsecutiveGroup(post, reason, marker, ctx) {
   const elPostContent = post.querySelector('div');
   if (!elPostContent) return;
 
-  // Single caption mode (VERBOSITY_LEVEL === '1')
+  // Single caption mode (VERBOSITY_LEVEL === '1'): individual details per post
   if (VARS.Options?.VERBOSITY_LEVEL === '1') {
     buildDetailsCaption(elPostContent, reason, marker, ctx);
     return;
   }
 
-  // Consecutive caption mode (VERBOSITY_LEVEL === '2')
+  // Consecutive caption mode (VERBOSITY_LEVEL === '2'): group adjacent posts
   if (VARS.echoCount === 1) {
     startConsecutiveGroup(elPostContent, reason, marker, ctx);
   } else {

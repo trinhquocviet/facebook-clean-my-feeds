@@ -88,7 +88,8 @@ facebook.com##+js(set, Object.prototype.scrubber, undefined)
 
 Additional technical documentation is available in the [`docs/`](docs/) directory:
 
-- **[Architecture Guide](docs/ARCHITECTURE.md)**: Module structure, build pipeline, storage, and observer lifecycle.
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: Module structure, build pipeline, storage, adaptive scheduler, and observer lifecycle.
+- **[Detection Rules & Reverse-Engineering Guide](docs/DETECTION_RULES.md)**: Comprehensive breakdown of Facebook DOM detection rules, Shadow DOM traversal, SVG xlink caching, and tracking query heuristics.
 - **[Simplified UI & Configuration Guide](docs/SIMPLIFIED_UI_AND_CONFIGS.md)**: Details on the simplified options and modal guide.
 - **[Developer & Contributing Guide](docs/DEVELOPMENT.md)**: Local setup, build scripts, test execution, and localization instructions.
 

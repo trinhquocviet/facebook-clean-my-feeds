@@ -14,10 +14,14 @@ import { mainColumnAtt, postAtt, postAttMPSkip } from '@/constants/index.js';
 import { mp_doBlockingByBlockedText } from '@/modules/detection/index.js';
 
 /**
- * Hides a marketplace item box and stamps it with debug attributes.
+ * Hides a marketplace item box and stamps it with rejection and debug attributes.
+ *
+ * Sets `hideWithNoCaptionAtt` (pure CSS `display: none !important`) rather than
+ * wrapping in a `<details>` element, keeping the grid layout intact.
+ * If debug verbosity is enabled, attaches `showAtt` to visualize filtered items.
  *
  * @param {HTMLElement} box - Item container box
- * @param {string} reason - Rejection reason
+ * @param {string} reason - Rejection reason (e.g. "Sponsored", keyword match)
  * @param {Object} VARS - Application state
  */
 export function mp_hideBox(box, reason, VARS) {
@@ -29,7 +33,10 @@ export function mp_hideBox(box, reason, VARS) {
 }
 
 /**
- * Removes tracking parameters from Marketplace URLs (?ref=).
+ * Removes tracking and referral parameters (?ref=) from Marketplace links.
+ *
+ * Decontaminates anchor hrefs so that opening or copying Marketplace item links
+ * does not carry Facebook click-tracking telemetry.
  *
  * @param {Document} [doc=document] - DOM document
  */
@@ -42,10 +49,12 @@ export function mp_stopTrackingDirtIntoMyHouse(doc = typeof document !== 'undefi
 }
 
 /**
- * Hides sponsored item cards above category listings in Marketplace.
+ * Hides sponsored item cards appearing above or alongside category listings in Marketplace.
+ *
+ * Checks `postAttMPSkip` caching `innerHTML.length` to bypass redundant DOM updates on scroll.
  *
  * @param {Object} VARS - Application state
- * @param {Object} KeyWords - Translated keywords
+ * @param {Object} KeyWords - Localized keywords
  * @param {Document} [doc=document] - DOM document
  */
 export function mp_hideSponsoredItems(VARS, KeyWords, doc = typeof document !== 'undefined' ? document : null) {
@@ -67,8 +76,24 @@ export function mp_hideSponsoredItems(VARS, KeyWords, doc = typeof document !== 
 /**
  * Mops up and purges unwanted content from Facebook Marketplace.
  *
+ * ## Views Handled (`VARS.mpType`)
+ * 1. **`marketplace`**: Main Marketplace landing feed with grid listings and sponsored rows.
+ * 2. **`item`**: Individual item inspection dialog (`div[role="dialog"]`) or standalone page.
+ * 3. **`category` & `search`**: Category browse feeds and search result cards.
+ *
+ * ## Sanitization Sequence
+ * - Strips `?ref=` query tracking parameters from all item anchors (`mp_stopTrackingDirtIntoMyHouse`).
+ * - Scrubs sponsored cards, external sponsored banners (`/ads/about/?entry_product=ad_preferences`),
+ *   and non-marketplace promotional affiliate links.
+ * - Runs exact price blocking and partial description text blocking via `mp_doBlockingByBlockedText`.
+ *
  * @param {Object} context - Standard runtime context
- * @param {Document} [overrideDoc] - Optional document override
+ * @param {Object} context.VARS - Application global state
+ * @param {Object} context.KeyWords - Localized keywords
+ * @param {Function} [context.isTheHouseDirty] - Dirty check function
+ * @param {Function} [context.mp_isTheHouseDirty] - Marketplace dirty check function
+ * @param {Document} [context.doc=document] - DOM document
+ * @param {Document} [overrideDoc] - Optional document override for testing or iframe contexts
  */
 export function mopUpTheMarketplaceFeed({
   VARS,
@@ -84,6 +109,7 @@ export function mopUpTheMarketplaceFeed({
     return;
   }
 
+  // Decontaminate tracking URLs across the page
   mp_stopTrackingDirtIntoMyHouse(actualDoc);
 
   const hideBoxFn = (box, reason) => mp_hideBox(box, reason, VARS);
@@ -92,6 +118,7 @@ export function mopUpTheMarketplaceFeed({
     if (VARS.Options?.MP_SPONSORED) {
       mp_hideSponsoredItems(VARS, KeyWords, actualDoc);
 
+      // Query sponsored ad preference links and external promo links
       const queryHeadings = `div:not([${postAtt}]) > a[href="/ads/about/?entry_product=ad_preferences"], div:not([${postAtt}]) > object > a[href="/ads/about/?entry_product=ad_preferences"]`;
       const headings = actualDoc ? actualDoc.querySelectorAll(queryHeadings) : [];
 
@@ -123,6 +150,7 @@ export function mopUpTheMarketplaceFeed({
   }
 
   if (VARS.mpType === 'item') {
+    // Individual item dialog view: check for sponsored indicators in modal header
     if (VARS.Options?.MP_SPONSORED) {
       const elDialog = actualDoc ? actualDoc.querySelector('div[role="dialog"]') : null;
       if (elDialog) {
