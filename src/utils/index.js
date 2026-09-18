@@ -32,3 +32,8 @@ export {
   objectToCss,
   compileRules
 } from './css-builder.js';
+
+export {
+  isMobileHost,
+  isMobileDevice
+} from './environment.js';

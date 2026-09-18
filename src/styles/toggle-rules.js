@@ -73,6 +73,67 @@ export function getToggleRules(vars) {
       styles: { display: 'none !important' },
     },
 
+    // --- Toggle button: mobile header variant (docked after Facebook Menu) ---
+    {
+      selector: '.fb-cmf-toggle[data-cmf-pos="mobile-menu"], [aria-label="Facebook Menu"] + .fb-cmf-toggle, [aria-label="Facebook Menu"] + #fbcmfToggle',
+      styles: {
+        position: 'absolute !important',
+        top: 'auto !important',
+        bottom: 'auto !important',
+        left: 'auto !important',
+        right: 'calc(calc(45px * 2) + 5px) !important',
+        width: '45px !important',
+        height: '43px !important',
+        margin: '0 !important',
+        padding: '0 !important',
+        display: 'inline-flex !important',
+        alignItems: 'center !important',
+        justifyContent: 'center !important',
+        border: '0 !important',
+        borderRadius: '0 !important',
+        background: 'transparent !important',
+        boxShadow: 'none !important',
+        cursor: 'pointer !important',
+        zIndex: 1,
+        verticalAlign: 'middle !important',
+      },
+    },
+    {
+      selector: '.fb-cmf-toggle[data-cmf-pos="mobile-menu"]::before, [aria-label="Facebook Menu"] + .fb-cmf-toggle::before, [aria-label="Facebook Menu"] + #fbcmfToggle::before',
+      styles: {
+        content: '""',
+        position: 'absolute',
+        width: '35px',
+        height: '35px',
+        borderRadius: '50%',
+        backgroundColor: 'var(--secondary-button-background, rgba(228, 230, 235, 1.0))',
+        zIndex: -1,
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+      },
+    },
+    {
+      selector: '.__fb-dark-mode .fb-cmf-toggle[data-cmf-pos="mobile-menu"]::before, [data-theme="dark"] .fb-cmf-toggle[data-cmf-pos="mobile-menu"]::before, .dark-mode .fb-cmf-toggle[data-cmf-pos="mobile-menu"]::before, .dark-mode [aria-label="Facebook Menu"] + #fbcmfToggle::before',
+      styles: {
+        backgroundColor: 'var(--secondary-button-background, #3a3b3c)',
+      },
+    },
+    {
+      selector: '.fb-cmf-toggle[data-cmf-pos="mobile-menu"] svg, [aria-label="Facebook Menu"] + .fb-cmf-toggle svg, [aria-label="Facebook Menu"] + #fbcmfToggle svg',
+      styles: {
+        width: '20px !important',
+        height: '20px !important',
+        color: 'var(--primary-text, #080809) !important',
+      },
+    },
+    {
+      selector: '.__fb-dark-mode .fb-cmf-toggle[data-cmf-pos="mobile-menu"] svg, [data-theme="dark"] .fb-cmf-toggle[data-cmf-pos="mobile-menu"] svg, .dark-mode .fb-cmf-toggle[data-cmf-pos="mobile-menu"] svg, .dark-mode [aria-label="Facebook Menu"] + #fbcmfToggle svg',
+      styles: {
+        color: 'var(--primary-text, #e4e6eb) !important',
+      },
+    },
+
     // --- Dialog: position variant "left" (DEFAULT) ---
     {
       selector: '.fb-cmf[data-cmf-dlg="left"]',
@@ -95,6 +156,29 @@ export function getToggleRules(vars) {
         marginRight: '0',
         transformOrigin: 'top right',
       },
+    },
+
+    // --- Dialog: position variant "center" (MOBILE / SCREEN CENTERED) ---
+    {
+      selector: '.fb-cmf[data-cmf-dlg="center"]',
+      styles: {
+        top: '0 !important',
+        bottom: '0 !important',
+        left: '0.5rem !important',
+        right: '0.5rem !important',
+        margin: 'auto !important',
+        width: 'calc(100vw - 1rem) !important',
+        maxWidth: 'calc(100vw - 1rem) !important',
+        maxHeight: '80% !important',
+        height: 'auto !important',
+        transformOrigin: 'center center !important',
+      },
+    },
+
+    // --- Responsive viewport fallback (<= 768px) ---
+    {
+      selector: '@media (max-width: 768px)',
+      styles: '.fb-cmf, .fb-cmf[data-cmf-dlg="left"], .fb-cmf[data-cmf-dlg="right"], .fb-cmf[data-cmf-dlg="center"] { top: 0 !important; bottom: 0 !important; left: 0.5rem !important; right: 0.5rem !important; margin: auto !important; width: calc(100vw - 1rem) !important; max-width: calc(100vw - 1rem) !important; max-height: 80% !important; height: auto !important; transform-origin: center center !important; }',
     },
   ]);
 }

@@ -114,4 +114,37 @@ describe('modules/style-injector', () => {
     expect(btnPos).toBe('top-right');
     expect(dlgPos).toBe('right');
   });
+
+  it('addExtraCSS configures mobile-menu and center dialog variant on mobile devices', () => {
+    addCSS(VARS, mockDoc);
+    mockDoc.defaultView = {
+      location: { hostname: 'm.facebook.com' },
+    };
+
+    let btnPos = '';
+    let dlgPos = '';
+
+    mockDoc.querySelector = (sel) => {
+      if (sel === '.fb-cmf-toggle') {
+        return {
+          setAttribute: (k, v) => { if (k === 'data-cmf-pos') btnPos = v; }
+        };
+      }
+      return null;
+    };
+    mockDoc.getElementById = (id) => {
+      if (id === 'fbcmf') {
+        return {
+          setAttribute: (k, v) => { if (k === 'data-cmf-dlg') dlgPos = v; }
+        };
+      }
+      if (id === VARS.cssID) return styleEl;
+      return null;
+    };
+
+    addExtraCSS(VARS, masterKeyWords, mockDoc);
+
+    expect(btnPos).toBe('mobile-menu');
+    expect(dlgPos).toBe('center');
+  });
 });

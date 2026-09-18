@@ -35,7 +35,7 @@ export function getPostHideRules(vars) {
         marginBottom: '1rem !important',
         borderBottomLeftRadius: '8px',
         borderBottomRightRadius: '8px',
-        backgroundColor: 'var(--card-background)',
+        backgroundColor: 'var(--card-background, #ffffff)',
       },
     },
     // 4. Summary element styling
@@ -50,8 +50,8 @@ export function getPostHideRules(vars) {
         borderRadius: '0.5rem',
         fontStyle: 'italic',
         width: 'inherit',
-        color: 'var(--primary-text)',
-        backgroundColor: 'var(--card-background)',
+        color: 'var(--primary-text, #050505)',
+        backgroundColor: 'var(--card-background, #ffffff)',
       },
     },
     // 5. Summary element margin variant
@@ -142,7 +142,7 @@ export function getPostHideRules(vars) {
         fontStyle: 'italic',
         textAlign: 'center',
         fontWeight: 'normal',
-        backgroundColor: 'var(--card-background)',
+        backgroundColor: 'var(--card-background, #ffffff)',
       },
     },
     // 16. Number of shares
@@ -151,6 +151,19 @@ export function getPostHideRules(vars) {
       styles: {
         display: 'none !important',
       },
+    },
+    // 17. Dark mode overrides for post reveal and summary
+    {
+      selector: `.__fb-dark-mode details[${postAtt}][open] > div, [data-theme="dark"] details[${postAtt}][open] > div, .dark-mode details[${postAtt}][open] > div, .__fb-dark-mode details[${postAtt}] > summary, [data-theme="dark"] details[${postAtt}] > summary, .dark-mode details[${postAtt}] > summary, .__fb-dark-mode h6[${postAttTab}], [data-theme="dark"] h6[${postAttTab}], .dark-mode h6[${postAttTab}]`,
+      styles: {
+        backgroundColor: 'var(--card-background, #242526)',
+        color: 'var(--primary-text, #e4e6eb)',
+      },
+    },
+    // 18. Media prefers-color-scheme dark mode overrides
+    {
+      selector: '@media (prefers-color-scheme: dark)',
+      styles: `details[${postAtt}][open] > div, details[${postAtt}][open] > span > div, details[${postAtt}] > summary, h6[${postAttTab}] { background-color: var(--card-background, #242526); color: var(--primary-text, #e4e6eb); }`,
     },
   ]);
 }

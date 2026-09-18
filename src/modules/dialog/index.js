@@ -3,7 +3,13 @@
  * Part of FB - Clean My Feeds
  */
 
-import { createToggleButton, addLegendEvents, bindDialogKeys } from './toggle.js';
+import {
+  createToggleButton,
+  mountToggleButton,
+  dockMobileToggleButton,
+  addLegendEvents,
+  bindDialogKeys
+} from './toggle.js';
 import { createDialog } from './createDialog.js';
 
 /**
@@ -19,6 +25,8 @@ export function buildMoppingDialog(ctx) {
 
 export {
   createToggleButton,
+  mountToggleButton,
+  dockMobileToggleButton,
   addLegendEvents,
   createDialog,
   bindDialogKeys,

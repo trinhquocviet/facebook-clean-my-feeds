@@ -8,7 +8,7 @@
  * @module modules/style-injector
  */
 
-import { generateRandomString, buildStylesheet } from '@/utils/index.js';
+import { generateRandomString, buildStylesheet, isMobileDevice } from '@/utils/index.js';
 import { ICON_NEW_WINDOW_CLASS } from '@/constants/index.js';
 import {
   getPostHideRules,
@@ -128,17 +128,26 @@ export function addExtraCSS(VARS, masterKeyWords, doc = document) {
 
   // Grab the existing stylesheet to append conditional offset rules
   const elStylesheet = doc.getElementById(VARS.cssID);
+  const isMobile = isMobileDevice(doc);
 
   // Set data attributes for CSS positioning classes
   const btnEl = doc.querySelector('.fb-cmf-toggle');
   if (btnEl) {
     const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
-    btnEl.setAttribute('data-cmf-pos', posMap[cmfBtnLocation] || 'bottom-left');
+    if (isMobile && cmfBtnLocation !== '2') {
+      btnEl.setAttribute('data-cmf-pos', 'mobile-menu');
+    } else {
+      btnEl.setAttribute('data-cmf-pos', posMap[cmfBtnLocation] || 'bottom-left');
+    }
   }
 
   const dlgEl = doc.getElementById('fbcmf');
   if (dlgEl) {
-    dlgEl.setAttribute('data-cmf-dlg', cmfDlgLocation === '1' ? 'right' : 'left');
+    if (isMobile) {
+      dlgEl.setAttribute('data-cmf-dlg', 'center');
+    } else {
+      dlgEl.setAttribute('data-cmf-dlg', cmfDlgLocation === '1' ? 'right' : 'left');
+    }
   }
 
   // If top-right button location is chosen, shift FB banner icons left by 42px to prevent collision

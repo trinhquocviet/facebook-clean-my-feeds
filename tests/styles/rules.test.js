@@ -42,6 +42,22 @@ describe('styles/index', () => {
       const afterRule = rules.find(r => r.selector.includes('summary::after') && r.styles.includes('\\002B'));
       expect(afterRule).toBeDefined();
     });
+
+    test('includes card background fallbacks and dark mode overrides for post elements', () => {
+      const rules = getPostHideRules(dummyVars);
+      const revealRule = rules.find(r => r.selector.includes('details[cmfr][open] > div'));
+      expect(revealRule).toBeDefined();
+      expect(revealRule.styles).toContain('var(--card-background, #ffffff)');
+
+      const darkRule = rules.find(r => r.selector.includes('.dark-mode') && r.selector.includes('summary'));
+      expect(darkRule).toBeDefined();
+      expect(darkRule.styles).toContain('var(--card-background, #242526)');
+      expect(darkRule.styles).toContain('var(--primary-text, #e4e6eb)');
+
+      const mediaDarkRule = rules.find(r => r.selector.includes('@media (prefers-color-scheme: dark)'));
+      expect(mediaDarkRule).toBeDefined();
+      expect(mediaDarkRule.styles).toContain('var(--card-background, #242526)');
+    });
   });
 
   describe('getDialogRules', () => {
@@ -59,7 +75,7 @@ describe('styles/index', () => {
       const dialogMain = rules.find(r => r.selector === '.fb-cmf');
       expect(dialogMain).toBeDefined();
       expect(dialogMain.styles).toMatch(/position:\s*fixed/);
-      expect(dialogMain.styles).toContain('background-color: var(--card-background)');
+      expect(dialogMain.styles).toContain('background-color: var(--cmf-bg, var(--card-background, #ffffff))');
       expect(dialogMain.styles).toContain('transform: translateY(6px) scale(.98)');
       expect(dialogMain.styles).toContain('transition: transform .16s cubic-bezier(.2,0,.2,1)');
     });
@@ -101,11 +117,11 @@ describe('styles/index', () => {
 
     test('contains pure CSS dark mode rules supporting Facebook classes and media queries', () => {
       const rules = getDialogRules(dummyVars);
-      const darkSchemeRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf') && r.selector.includes('[data-theme="dark"] .fb-cmf'));
+      const darkSchemeRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf') && r.selector.includes('[data-theme="dark"] .fb-cmf') && r.selector.includes('.dark-mode .fb-cmf'));
       expect(darkSchemeRule).toBeDefined();
       expect(darkSchemeRule.styles).toContain('color-scheme: dark');
 
-      const darkInputsRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf .cmf-textarea') && r.selector.includes('[data-theme="dark"] .fb-cmf .cmf-textarea'));
+      const darkInputsRule = rules.find(r => r.selector.includes('.__fb-dark-mode .fb-cmf .cmf-textarea') && r.selector.includes('[data-theme="dark"] .fb-cmf .cmf-textarea') && r.selector.includes('.dark-mode .fb-cmf .cmf-textarea'));
       expect(darkInputsRule).toBeDefined();
       expect(darkInputsRule.styles).toContain('background-color: var(--card-background, #242526)');
       expect(darkInputsRule.styles).toContain('color: var(--primary-text, #e4e6eb)');
@@ -135,6 +151,27 @@ describe('styles/index', () => {
 
       const dlgRight = rules.find(r => r.selector.includes('data-cmf-dlg="right"'));
       expect(dlgRight).toBeDefined();
+    });
+
+    test('includes mobile docked button and center dialog position rules', () => {
+      const rules = getToggleRules(dummyVars);
+
+      const mobileMenuPos = rules.find(r => r.selector.includes('data-cmf-pos="mobile-menu"'));
+      expect(mobileMenuPos).toBeDefined();
+      expect(mobileMenuPos.styles).toContain('width: 45px');
+      expect(mobileMenuPos.styles).toContain('height: 43px');
+
+      const dockedToggle = rules.find(r => r.selector.includes('[aria-label="Facebook Menu"] + #fbcmfToggle'));
+      expect(dockedToggle).toBeDefined();
+
+      const dlgCenter = rules.find(r => r.selector.includes('data-cmf-dlg="center"'));
+      expect(dlgCenter).toBeDefined();
+      expect(dlgCenter.styles).toContain('margin: auto');
+      expect(dlgCenter.styles).toContain('max-height: 80%');
+
+      const mobileMedia = rules.find(r => r.selector.includes('@media (max-width: 768px)'));
+      expect(mobileMedia).toBeDefined();
+      expect(mobileMedia.styles).toContain('max-height: 80%');
     });
 
     test('does not contain dialog transitions or footer button rules', () => {

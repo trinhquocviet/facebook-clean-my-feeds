@@ -4,6 +4,7 @@
  */
 
 import { LOGO_HTML } from '@/constants/index.js';
+import { isMobileDevice } from '@/utils/index.js';
 
 const SURFACE_MAP = [
   [/^\/marketplace/, 'MP'],
@@ -131,20 +132,86 @@ export function bindDialogKeys(ctx) {
 export const addLegendEvents = bindSectionEvents;
 
 /**
- * Creates and appends the floating toggle button to document body
- * @param {Object} ctx - Context object
+ * Attempts to dock the toggle button directly after the native "Facebook Menu" button.
+ *
+ * @param {HTMLElement} btn - The toggle button element
+ * @param {Document} [doc=document] - DOM document
+ * @returns {boolean} True if successfully docked, false otherwise
  */
-export function createToggleButton(ctx) {
-  const { VARS, KeyWords, toggleDialog } = ctx;
-  let btn = document.createElement('button');
+export function dockMobileToggleButton(btn, doc = (typeof document !== 'undefined' ? document : null)) {
+  if (!btn || !doc || typeof doc.querySelector !== 'function') {
+    return false;
+  }
+  const menuBtn = doc.querySelector('[aria-label="Facebook Menu"]') || doc.querySelector('[data-action-id="32742"]');
+  if (menuBtn) {
+    if (btn.previousElementSibling !== menuBtn) {
+      if (typeof menuBtn.insertAdjacentElement === 'function') {
+        menuBtn.insertAdjacentElement('afterend', btn);
+      } else if (menuBtn.parentNode && typeof menuBtn.parentNode.insertBefore === 'function') {
+        menuBtn.parentNode.insertBefore(btn, menuBtn.nextSibling);
+      }
+    }
+    if (typeof btn.setAttribute === 'function') {
+      btn.setAttribute('data-cmf-pos', 'mobile-menu');
+    }
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Mounts the toggle button using the appropriate strategy (mobile header docking vs. desktop append).
+ *
+ * @param {HTMLElement} btn - Toggle button element
+ * @param {Object} [ctx={}] - Context object
+ * @param {Document} [doc=document] - DOM document
+ */
+export function mountToggleButton(btn, ctx = {}, doc = (typeof document !== 'undefined' ? document : null)) {
+  if (!btn || !doc) return;
+
+  const isMobile = isMobileDevice(doc);
+  if (isMobile) {
+    const docked = dockMobileToggleButton(btn, doc);
+    if (!docked) {
+      const target = doc.body || doc.documentElement;
+      if (target && typeof target.appendChild === 'function') {
+        target.appendChild(btn);
+      }
+      if (typeof btn.setAttribute === 'function') {
+        btn.setAttribute('data-cmf-pos', 'mobile-menu');
+      }
+    }
+  } else {
+    const target = doc.body || doc.documentElement;
+    if (target && typeof target.appendChild === 'function') {
+      target.appendChild(btn);
+    }
+  }
+}
+
+/**
+ * Creates and mounts the toggle button to the document.
+ *
+ * @param {Object} ctx - Context object
+ * @param {Document} [doc=document] - DOM document
+ */
+export function createToggleButton(ctx, doc = (typeof document !== 'undefined' ? document : null)) {
+  const { VARS, KeyWords, toggleDialog } = ctx || {};
+  const activeDoc = doc || (typeof document !== 'undefined' ? document : null);
+  if (!activeDoc || typeof activeDoc.createElement !== 'function') return;
+
+  let btn = activeDoc.createElement('button');
   btn.innerHTML = VARS?.logoHTML || LOGO_HTML;
   btn.id = 'fbcmfToggle';
-  btn.title = KeyWords.DLG_TITLE;
+  btn.title = KeyWords?.DLG_TITLE || 'Clean my feeds';
   btn.className = 'fb-cmf-toggle fb-cmf-icon';
-  const target = document.body || document.documentElement;
-  if (target) {
-    target.appendChild(btn);
+  if (typeof btn.addEventListener === 'function' && typeof toggleDialog === 'function') {
+    btn.addEventListener('click', toggleDialog, false);
   }
-  btn.addEventListener('click', toggleDialog, false);
-  VARS.btnToggleEl = btn;
+
+  mountToggleButton(btn, ctx, activeDoc);
+
+  if (VARS) {
+    VARS.btnToggleEl = btn;
+  }
 }

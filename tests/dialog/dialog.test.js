@@ -9,7 +9,12 @@ import {
   createFilterPanel,
   createNote,
 } from '@/modules/dialog/components.js';
-import { createToggleButton, addLegendEvents } from '@/modules/dialog/toggle.js';
+import {
+  createToggleButton,
+  addLegendEvents,
+  dockMobileToggleButton,
+  mountToggleButton,
+} from '@/modules/dialog/toggle.js';
 import { updateDialog } from '@/modules/dialog/updateDialog.js';
 import { buildMoppingDialog, bindDialogKeys } from '@/modules/dialog/index.js';
 import { saveUserOptions, exportUserOptions, importUserOptions, resetUserOptions } from '@/modules/dialog/actions.js';
@@ -343,6 +348,86 @@ describe('modules/dialog/toggle', () => {
     globalThis.document.getElementById = (id) => (id === 'fbcmf' ? mockRoot : null);
     addLegendEvents({});
     expect(mockSection.open).toBe(true);
+  });
+
+  test('dockMobileToggleButton inserts toggle after Facebook Menu button and sets data-cmf-pos', () => {
+    let insertedAfter = null;
+    let insertedNode = null;
+    const menuBtn = {
+      tagName: 'DIV',
+      getAttribute: (k) => (k === 'aria-label' ? 'Facebook Menu' : null),
+      insertAdjacentElement: (pos, el) => {
+        insertedAfter = pos;
+        insertedNode = el;
+      },
+      parentNode: null,
+    };
+    const mockDoc = {
+      querySelector: (sel) => (sel.includes('Facebook Menu') ? menuBtn : null),
+    };
+    const btn = {
+      setAttribute: (k, v) => { btn[k] = v; },
+      previousElementSibling: null,
+    };
+
+    const docked = dockMobileToggleButton(btn, mockDoc);
+    expect(docked).toBe(true);
+    expect(insertedAfter).toBe('afterend');
+    expect(insertedNode).toBe(btn);
+    expect(btn['data-cmf-pos']).toBe('mobile-menu');
+  });
+
+  test('dockMobileToggleButton returns false when Facebook Menu is not in DOM', () => {
+    const mockDoc = {
+      querySelector: () => null,
+    };
+    const btn = { setAttribute: () => {} };
+    const docked = dockMobileToggleButton(btn, mockDoc);
+    expect(docked).toBe(false);
+  });
+
+  test('mountToggleButton docks to Facebook Menu on mobile devices', () => {
+    let insertedAfter = null;
+    let insertedNode = null;
+    const menuBtn = {
+      tagName: 'DIV',
+      insertAdjacentElement: (pos, el) => {
+        insertedAfter = pos;
+        insertedNode = el;
+      },
+    };
+    const mockDoc = {
+      defaultView: {
+        location: { hostname: 'm.facebook.com' },
+      },
+      querySelector: (sel) => {
+        if (sel.includes('Facebook Menu')) return menuBtn;
+        return null;
+      },
+      body: { appendChild: () => {} },
+    };
+    const btn = {
+      setAttribute: (k, v) => { btn[k] = v; },
+      previousElementSibling: null,
+    };
+
+    mountToggleButton(btn, {}, mockDoc);
+    expect(insertedAfter).toBe('afterend');
+    expect(insertedNode).toBe(btn);
+    expect(btn['data-cmf-pos']).toBe('mobile-menu');
+  });
+
+  test('mountToggleButton appends to body when desktop', () => {
+    const appended = [];
+    const mockDoc = {
+      querySelector: () => null,
+      body: {
+        appendChild: (el) => appended.push(el),
+      },
+    };
+    const btn = { id: 'test-btn' };
+    mountToggleButton(btn, {}, mockDoc);
+    expect(appended).toContain(btn);
   });
 });
 

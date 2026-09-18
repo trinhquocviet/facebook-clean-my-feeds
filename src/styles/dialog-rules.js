@@ -46,7 +46,7 @@ export function getDialogRules(vars = {}) {
         padding: '0',
         border: '1px solid var(--cmf-border)',
         borderRadius: 'var(--cmf-r-lg)',
-        backgroundColor: 'var(--card-background)',
+        backgroundColor: 'var(--cmf-bg, var(--card-background, #ffffff))',
         color: 'var(--cmf-text)',
         fontFamily: 'inherit',
         fontSize: '13px',
@@ -529,11 +529,23 @@ export function getDialogRules(vars = {}) {
 
     // -------------------------------------------------------------- dark mode
     {
-      selector: '.__fb-dark-mode .fb-cmf, [data-theme="dark"] .fb-cmf',
-      styles: { colorScheme: 'dark' },
+      selector: '.__fb-dark-mode .fb-cmf, [data-theme="dark"] .fb-cmf, .dark-mode .fb-cmf',
+      styles: {
+        colorScheme: 'dark',
+        '--cmf-bg': 'var(--card-background, #242526)',
+        '--cmf-surface': 'var(--comment-background, #3a3b3c)',
+        '--cmf-text': 'var(--primary-text, #e4e6eb)',
+        '--cmf-text-2': 'var(--secondary-text, #b0b3b8)',
+        '--cmf-border': 'var(--divider, #3e4042)',
+        '--cmf-border-soft': 'var(--divider, #3e4042)',
+        '--cmf-hover': 'var(--hover-overlay, rgba(255, 255, 255, .1))',
+        '--cmf-btn-2-bg': 'var(--secondary-button-background, #3a3b3c)',
+        '--cmf-btn-2-tx': 'var(--secondary-button-text, #e4e6eb)',
+        backgroundColor: 'var(--cmf-bg, var(--card-background, #242526))',
+      },
     },
     {
-      selector: '.__fb-dark-mode .fb-cmf .cmf-textarea, .__fb-dark-mode .fb-cmf .cmf-num, .__fb-dark-mode .fb-cmf select, [data-theme="dark"] .fb-cmf .cmf-textarea, [data-theme="dark"] .fb-cmf .cmf-num, [data-theme="dark"] .fb-cmf select',
+      selector: '.__fb-dark-mode .fb-cmf .cmf-textarea, .__fb-dark-mode .fb-cmf .cmf-num, .__fb-dark-mode .fb-cmf select, [data-theme="dark"] .fb-cmf .cmf-textarea, [data-theme="dark"] .fb-cmf .cmf-num, [data-theme="dark"] .fb-cmf select, .dark-mode .fb-cmf .cmf-textarea, .dark-mode .fb-cmf .cmf-num, .dark-mode .fb-cmf select',
       styles: {
         backgroundColor: 'var(--card-background, #242526)',
         color: 'var(--primary-text, #e4e6eb)',
@@ -541,7 +553,7 @@ export function getDialogRules(vars = {}) {
     },
     {
       selector: '@media (prefers-color-scheme: dark)',
-      styles: '.fb-cmf { color-scheme: dark; }',
+      styles: '.fb-cmf { color-scheme: dark; --cmf-bg: var(--card-background, #242526); --cmf-surface: var(--comment-background, #3a3b3c); --cmf-text: var(--primary-text, #e4e6eb); --cmf-text-2: var(--secondary-text, #b0b3b8); --cmf-border: var(--divider, #3e4042); --cmf-border-soft: var(--divider, #3e4042); --cmf-hover: var(--hover-overlay, rgba(255, 255, 255, .1)); --cmf-btn-2-bg: var(--secondary-button-background, #3a3b3c); --cmf-btn-2-tx: var(--secondary-button-text, #e4e6eb); background-color: var(--cmf-bg, var(--card-background, #242526)); } .fb-cmf .cmf-textarea, .fb-cmf .cmf-num, .fb-cmf select { background-color: var(--card-background, #242526); color: var(--primary-text, #e4e6eb); }',
     },
 
     // --------------------------------------------------------- reduced motion
