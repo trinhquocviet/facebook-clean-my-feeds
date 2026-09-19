@@ -62,3 +62,17 @@ export function isMobileDOM(doc = (typeof document !== 'undefined' ? document : 
     doc.querySelector?.('div[data-type="vscroller"]')
   );
 }
+
+/**
+ * Checks if running on mobile Facebook WebLite/MSite architecture.
+ * Requires both a mobile hostname and confirmed mobile DOM layout markers.
+ *
+ * @param {Document} [doc=document] - DOM document
+ * @returns {boolean} True if running on m.facebook.com WebLite environment
+ *
+ * @example
+ * isMobileMSite(); // true on m.facebook.com with #screen-root or vscroller
+ */
+export function isMobileMSite(doc = (typeof document !== 'undefined' ? document : null)) {
+  return isMobileHost(doc) || isMobileDOM(doc);
+}

@@ -4,6 +4,7 @@
  */
 
 export * from './post-obscurer.js';
+export * from './mobile-post-obscurer.js';
 export * from './caption-builder.js';
 export * from './consecutive-group.js';
 export * from './visibility-toggle.js';

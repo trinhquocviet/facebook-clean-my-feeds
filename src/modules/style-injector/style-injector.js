@@ -12,6 +12,7 @@ import { generateRandomString, buildStylesheet, isMobileDevice } from '@/utils/i
 import { ICON_NEW_WINDOW_CLASS } from '@/constants/index.js';
 import {
   getPostHideRules,
+  getMobilePostRules,
   getDialogRules,
   getToggleRules
 } from '@/styles/index.js';
@@ -78,6 +79,7 @@ export function addCSS(VARS, doc = document) {
       showAtt: VARS.showAtt,
       cssHideNumberOfShares: VARS.cssHideNumberOfShares,
     }),
+    ...getMobilePostRules(VARS),
     ...getDialogRules({
       showAtt: VARS.showAtt,
       iconNewWindowClass: ICON_NEW_WINDOW_CLASS,

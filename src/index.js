@@ -57,12 +57,14 @@ import {
 } from './modules/feed-router/index.js';
 import {
   isTheHouseDirty,
+  m_isTheHouseDirty,
   gf_isTheHouseDirty,
   mp_isTheHouseDirty,
   sf_isTheHouseDirty,
   vf_isTheHouseDirty,
   pp_isTheHouseDirty
 } from './modules/dirty-checker/index.js';
+import { isMobileMSite } from './utils/index.js';
 import { createFeedCleaners } from './modules/feed-cleaners/index.js';
 import { createScheduler } from './modules/lifecycle/index.js';
 
@@ -83,6 +85,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
 
   // State initialization
   const VARS = createInitialState();
+  VARS.isMobile = isMobileMSite(typeof document !== 'undefined' ? document : null);
   let KeyWords = {};
 
   /**
@@ -164,7 +167,7 @@ import { createScheduler } from './modules/lifecycle/index.js';
 
   // Bind dirty checker functions to active state and DOM document
   const dirtyChecker = {
-    isTheHouseDirty: () => isTheHouseDirty(VARS, doc),
+    isTheHouseDirty: () => (VARS.isMobile ? m_isTheHouseDirty(VARS, doc) : isTheHouseDirty(VARS, doc)),
     gf_isTheHouseDirty: () => gf_isTheHouseDirty(VARS, doc),
     vf_isTheHouseDirty: () => vf_isTheHouseDirty(VARS, doc),
     mp_isTheHouseDirty: () => mp_isTheHouseDirty(VARS, doc),

@@ -4,3 +4,4 @@
  */
 
 export * from './dirty-checker.js';
+export * from './mobile-dirty-checker.js';

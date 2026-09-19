@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { isMobileHost, isMobileDevice } from '@/utils/index.js';
+import { isMobileHost, isMobileDevice, isMobileDOM, isMobileMSite } from '@/utils/index.js';
 
 describe('utils/environment', () => {
   describe('isMobileHost', () => {
@@ -111,6 +111,62 @@ describe('utils/environment', () => {
     it('returns false safely when doc or navigator is null', () => {
       expect(isMobileDevice(null)).toBe(false);
       expect(isMobileDevice({})).toBe(false);
+    });
+  });
+
+  describe('isMobileDOM', () => {
+    it('returns true when screen-root element is present', () => {
+      const mockDoc = {
+        getElementById: (id) => (id === 'screen-root' ? { id: 'screen-root' } : null),
+        querySelector: () => null
+      };
+      expect(isMobileDOM(mockDoc)).toBe(true);
+    });
+
+    it('returns true when vscroller is present', () => {
+      const mockDoc = {
+        getElementById: () => null,
+        querySelector: (sel) => (sel.includes('vscroller') ? { tagName: 'DIV' } : null)
+      };
+      expect(isMobileDOM(mockDoc)).toBe(true);
+    });
+
+    it('returns false when no mobile DOM markers exist', () => {
+      const mockDoc = {
+        getElementById: () => null,
+        querySelector: () => null
+      };
+      expect(isMobileDOM(mockDoc)).toBe(false);
+      expect(isMobileDOM(null)).toBe(false);
+    });
+  });
+
+  describe('isMobileMSite', () => {
+    it('returns true when host is mobile Facebook', () => {
+      const mockDoc = {
+        defaultView: { location: { hostname: 'm.facebook.com' } },
+        getElementById: () => null,
+        querySelector: () => null
+      };
+      expect(isMobileMSite(mockDoc)).toBe(true);
+    });
+
+    it('returns true when DOM has mobile markers', () => {
+      const mockDoc = {
+        defaultView: { location: { hostname: 'www.facebook.com' } },
+        getElementById: (id) => (id === 'screen-root' ? {} : null),
+        querySelector: () => null
+      };
+      expect(isMobileMSite(mockDoc)).toBe(true);
+    });
+
+    it('returns false on standard desktop without mobile host or DOM', () => {
+      const mockDoc = {
+        defaultView: { location: { hostname: 'www.facebook.com' } },
+        getElementById: () => null,
+        querySelector: () => null
+      };
+      expect(isMobileMSite(mockDoc)).toBe(false);
     });
   });
 });

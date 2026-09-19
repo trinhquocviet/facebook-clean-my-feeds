@@ -4,7 +4,7 @@
  */
 
 import { LOGO_HTML } from '@/constants/index.js';
-import { isMobileDevice } from '@/utils/index.js';
+import { isMobileDevice, isMobileMSite } from '@/utils/index.js';
 
 const SURFACE_MAP = [
   [/^\/marketplace/, 'MP'],
@@ -169,7 +169,7 @@ export function dockMobileToggleButton(btn, doc = (typeof document !== 'undefine
 export function mountToggleButton(btn, ctx = {}, doc = (typeof document !== 'undefined' ? document : null)) {
   if (!btn || !doc) return;
 
-  const isMobile = isMobileDevice(doc);
+  const isMobile = ctx?.VARS?.isMobile ?? (isMobileMSite(doc) || isMobileDevice(doc));
   if (isMobile) {
     const docked = dockMobileToggleButton(btn, doc);
     if (!docked) {

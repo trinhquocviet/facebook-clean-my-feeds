@@ -29,6 +29,7 @@ import {
   toggleConsecutiveElements
 } from './consecutive-group.js';
 import { toggleHiddenElements as toggleVisibilityBatch } from './visibility-toggle.js';
+import { createMobilePostObscurer } from './mobile-post-obscurer.js';
 
 /**
  * Normalizes input parameters into an obscurer context containing { VARS, getKeyWords }.
@@ -63,6 +64,10 @@ export function normalizeObscurerContext(optionsOrVars, maybeKeyWords) {
 export function createPostObscurer(optionsOrVars, maybeKeyWords) {
   const ctx = normalizeObscurerContext(optionsOrVars, maybeKeyWords);
   const { VARS } = ctx;
+
+  if (VARS?.isMobile) {
+    return createMobilePostObscurer(optionsOrVars, maybeKeyWords);
+  }
 
   /**
    * Core logic for hiding an individual post or feature without consecutive grouping.

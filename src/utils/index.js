@@ -36,5 +36,6 @@ export {
 export {
   isMobileHost,
   isMobileDevice,
-  isMobileDOM
+  isMobileDOM,
+  isMobileMSite
 } from './environment.js';

@@ -19,6 +19,7 @@ import {
   mp_stopTrackingDirtIntoMyHouse,
   mp_hideSponsoredItems
 } from './index.js';
+import { m_mopUpTheNewsFeed } from './mobile/index.js';
 
 /**
  * Creates and binds all feed cleaners to the application state context.
@@ -69,7 +70,9 @@ export function createFeedCleaners({
   });
 
   return {
-    mopUpTheNewsFeed: () => mopUpTheNewsFeed(getContext(dirtyChecker?.isTheHouseDirty)),
+    mopUpTheNewsFeed: () => (VARS?.isMobile
+      ? m_mopUpTheNewsFeed(getContext(dirtyChecker?.isTheHouseDirty))
+      : mopUpTheNewsFeed(getContext(dirtyChecker?.isTheHouseDirty))),
     mopUpTheGroupsFeed: () => mopUpTheGroupsFeed(getContext(dirtyChecker?.gf_isTheHouseDirty)),
     mopUpTheWatchVideosFeed: () => mopUpTheWatchVideosFeed(getContext(dirtyChecker?.vf_isTheHouseDirty)),
     mopUpTheMarketplaceFeed: () => mopUpTheMarketplaceFeed(getContext(dirtyChecker?.mp_isTheHouseDirty)),

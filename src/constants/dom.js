@@ -62,6 +62,30 @@ export const MAIN_COLUMN_ATT = 'cmfmc';
  */
 export const ICON_NEW_WINDOW_CLASS = 'cmf-link-new';
 
+/**
+ * Attribute placed on the internal hidden wrapper of an obscured mobile cell.
+ * @type {string}
+ */
+export const MOBILE_CONTENT_ATT = 'data-cmf-mobile-content';
+
+/**
+ * Attribute placed on the touch summary bar of an obscured mobile cell.
+ * @type {string}
+ */
+export const MOBILE_SUMMARY_ATT = 'data-cmf-mobile-summary';
+
+/**
+ * Attribute placed on the outer cell of an obscured mobile post to enforce height: auto !important.
+ * @type {string}
+ */
+export const MOBILE_COLLAPSED_ATT = 'data-cmf-mobile-collapsed';
+
+/**
+ * Attribute placed on adjacent 1px/2px spacer dividers when coupled with an obscured post.
+ * @type {string}
+ */
+export const MOBILE_DIVIDER_COLLAPSED_ATT = 'data-cmf-mobile-divider-collapsed';
+
 // ============================================================================
 // Backward Compatibility Bindings (camelCase matching historical userscript vars)
 // ============================================================================
@@ -74,3 +98,7 @@ export const postAttMPSkip = POST_ATT_MP_SKIP;
 export const rvAtt = REEL_VIDEO_ATT;
 export const mainColumnAtt = MAIN_COLUMN_ATT;
 export const iconNewWindowClass = ICON_NEW_WINDOW_CLASS;
+export const mobileContentAtt = MOBILE_CONTENT_ATT;
+export const mobileSummaryAtt = MOBILE_SUMMARY_ATT;
+export const mobileCollapsedAtt = MOBILE_COLLAPSED_ATT;
+export const mobileDividerCollapsedAtt = MOBILE_DIVIDER_COLLAPSED_ATT;

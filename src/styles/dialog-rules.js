@@ -556,6 +556,12 @@ export function getDialogRules(vars = {}) {
       styles: '.fb-cmf { color-scheme: dark; --cmf-bg: var(--card-background, #242526); --cmf-surface: var(--comment-background, #3a3b3c); --cmf-text: var(--primary-text, #e4e6eb); --cmf-text-2: var(--secondary-text, #b0b3b8); --cmf-border: var(--divider, #3e4042); --cmf-border-soft: var(--divider, #3e4042); --cmf-hover: var(--hover-overlay, rgba(255, 255, 255, .1)); --cmf-btn-2-bg: var(--secondary-button-background, #3a3b3c); --cmf-btn-2-tx: var(--secondary-button-text, #e4e6eb); background-color: var(--cmf-bg, var(--card-background, #242526)); } .fb-cmf .cmf-textarea, .fb-cmf .cmf-num, .fb-cmf select { background-color: var(--card-background, #242526); color: var(--primary-text, #e4e6eb); }',
     },
 
+    // --------------------------------------------------------- touch / mobile devices
+    {
+      selector: '@media (pointer: coarse), (max-width: 600px)',
+      styles: '.fb-cmf .cmf-row { min-height: 44px; padding: 10px var(--cmf-s-2); } .fb-cmf .cmf-section__summary { min-height: 48px; padding: 12px var(--cmf-s-3); } .fb-cmf .cmf-checkbox { width: 22px; height: 22px; } .fb-cmf .cmf-btn { min-height: 44px; padding: 10px var(--cmf-s-4); }',
+    },
+
     // --------------------------------------------------------- reduced motion
     {
       selector: '@media (prefers-reduced-motion: reduce)',
