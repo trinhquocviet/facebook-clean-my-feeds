@@ -229,7 +229,6 @@ import { createScheduler } from './modules/lifecycle/index.js';
 
         // Inject randomized CSS stylesheets
         addCSS();
-        window.setTimeout(addExtraCSS, 150);
 
         // Build and mount settings UI dialog
         buildMoppingDialog({
@@ -260,6 +259,9 @@ import { createScheduler } from './modules/lifecycle/index.js';
           mopUpTheSearchFeed,
           mopUpTheReelFeed
         });
+
+        // Set positioning attributes and extra CSS synchronously
+        addExtraCSS();
 
         // Chromium spacing adjustment for Reels controls
         VARS.isChromium = !!unsafeWindow.chrome && /Chrome|CriOS/.test(navigator.userAgent);

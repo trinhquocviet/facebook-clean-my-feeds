@@ -135,12 +135,23 @@ export const addLegendEvents = bindSectionEvents;
  * @param {Object} ctx - Context object
  */
 export function createToggleButton(ctx) {
-  const { VARS, KeyWords, toggleDialog } = ctx;
+  const { VARS, KeyWords, toggleDialog, masterKeyWords } = ctx;
   let btn = document.createElement('button');
   btn.innerHTML = VARS?.logoHTML || LOGO_HTML;
   btn.id = 'fbcmfToggle';
   btn.title = KeyWords.DLG_TITLE;
   btn.className = 'fb-cmf-toggle fb-cmf-icon';
+
+  const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
+  const cmfBtnLocation = (VARS?.Options?.CMF_BTN_OPTION ?? masterKeyWords?.defaults?.CMF_BTN_OPTION ?? '0').toString();
+  const posValue = posMap[cmfBtnLocation] || 'bottom-left';
+  if (typeof btn.setAttribute === 'function') {
+    btn.setAttribute('data-cmf-pos', posValue);
+  }
+  if (typeof document !== 'undefined' && document.documentElement && typeof document.documentElement.setAttribute === 'function') {
+    document.documentElement.setAttribute('data-cmf-pos', posValue);
+  }
+
   const target = document.body || document.documentElement;
   if (target) {
     target.appendChild(btn);

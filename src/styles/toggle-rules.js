@@ -67,6 +67,14 @@ export function getToggleRules(vars) {
       },
     },
 
+    // --- Facebook banner offset when toggle button is top-right ---
+    {
+      selector: 'body:has(.fb-cmf-toggle[data-cmf-pos="top-right"]) div[role="banner"] > div:last-of-type div[role="navigation"], html[data-cmf-pos="top-right"] div[role="banner"] > div:last-of-type div[role="navigation"], body:has(.fb-cmf-toggle[data-cmf-pos="top-right"]) [role="banner"] > div:last-of-type [role="navigation"], html[data-cmf-pos="top-right"] [role="banner"] > div:last-of-type [role="navigation"]',
+      styles: {
+        marginRight: '42px',
+      },
+    },
+
     // --- Toggle button: position variant "2" = disabled ---
     {
       selector: '.fb-cmf-toggle[data-cmf-pos="disabled"]',

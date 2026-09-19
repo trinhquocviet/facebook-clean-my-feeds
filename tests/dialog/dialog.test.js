@@ -301,6 +301,7 @@ describe('modules/dialog/toggle', () => {
   test('createToggleButton creates and appends toggle button to document.body', () => {
     let clicked = false;
     const bodyChildren = [];
+    const attrs = {};
     globalThis.document = {
       createElement: (tag) => ({
         tagName: tag.toUpperCase(),
@@ -309,13 +310,18 @@ describe('modules/dialog/toggle', () => {
         title: '',
         className: '',
         addEventListener: () => {},
+        setAttribute: (k, v) => { attrs[k] = v; },
+        getAttribute: (k) => attrs[k],
       }),
       body: {
         appendChild: (el) => bodyChildren.push(el),
       },
     };
     const mockCtx = {
-      VARS: { logoHTML: '<svg id="logo"></svg>' },
+      VARS: {
+        logoHTML: '<svg id="logo"></svg>',
+        Options: { CMF_BTN_OPTION: '1' },
+      },
       KeyWords: { DLG_TITLE: 'Clean my feeds' },
       toggleDialog: () => {
         clicked = true;
@@ -326,6 +332,7 @@ describe('modules/dialog/toggle', () => {
     expect(mockCtx.VARS.btnToggleEl.id).toBe('fbcmfToggle');
     expect(mockCtx.VARS.btnToggleEl.className).toBe('fb-cmf-toggle fb-cmf-icon');
     expect(mockCtx.VARS.btnToggleEl.title).toBe('Clean my feeds');
+    expect(attrs['data-cmf-pos']).toBe('top-right');
     expect(bodyChildren).toContain(mockCtx.VARS.btnToggleEl);
   });
 

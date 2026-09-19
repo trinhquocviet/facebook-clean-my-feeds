@@ -130,10 +130,15 @@ export function addExtraCSS(VARS, masterKeyWords, doc = document) {
   const elStylesheet = doc.getElementById(VARS.cssID);
 
   // Set data attributes for CSS positioning classes
+  const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
+  const posValue = posMap[cmfBtnLocation] || 'bottom-left';
+
   const btnEl = doc.querySelector('.fb-cmf-toggle');
   if (btnEl) {
-    const posMap = { '0': 'bottom-left', '1': 'top-right', '2': 'disabled' };
-    btnEl.setAttribute('data-cmf-pos', posMap[cmfBtnLocation] || 'bottom-left');
+    btnEl.setAttribute('data-cmf-pos', posValue);
+  }
+  if (doc.documentElement) {
+    doc.documentElement.setAttribute('data-cmf-pos', posValue);
   }
 
   const dlgEl = doc.getElementById('fbcmf');
@@ -142,13 +147,17 @@ export function addExtraCSS(VARS, masterKeyWords, doc = document) {
   }
 
   // If top-right button location is chosen, shift FB banner icons left by 42px to prevent collision
-  if (cmfBtnLocation === '1' && doc.querySelector('[role="banner"]')) {
-    const bannerCSS = buildStylesheet([{
-      selector: 'div[role="banner"] > div:last-of-type div[role="navigation"]',
-      styles: 'margin-right: 42px;'
-    }]);
-    if (bannerCSS.length > 0 && elStylesheet) {
-      elStylesheet.appendChild(doc.createTextNode(bannerCSS));
+  if (cmfBtnLocation === '1' && elStylesheet) {
+    const bannerSelector = 'div[role="banner"] > div:last-of-type div[role="navigation"]';
+    const stylesheetContent = elStylesheet.textContent || '';
+    if (!stylesheetContent.includes(bannerSelector)) {
+      const bannerCSS = buildStylesheet([{
+        selector: bannerSelector,
+        styles: 'margin-right: 42px;'
+      }]);
+      if (bannerCSS.length > 0) {
+        elStylesheet.appendChild(doc.createTextNode(bannerCSS));
+      }
     }
   }
 }

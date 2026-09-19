@@ -19,8 +19,13 @@ describe('modules/style-injector', () => {
       }
     };
 
+    const docAttrs = {};
     mockDoc = {
       head: headEl,
+      documentElement: {
+        setAttribute: (k, v) => { docAttrs[k] = v; },
+        getAttribute: (k) => docAttrs[k]
+      },
       getElementsByTagName: (tag) => (tag === 'head' ? [headEl] : []),
       getElementById: (id) => (styleEl && styleEl.id === id ? styleEl : null),
       createElement: (tag) => {
@@ -29,13 +34,22 @@ describe('modules/style-injector', () => {
         const el = {
           tagName: tag.toUpperCase(),
           id: '',
+          textContent: '',
           setAttribute: (k, v) => {
             attrs[k] = v;
             if (k === 'id') el.id = v;
           },
           getAttribute: (k) => attrs[k],
-          appendChild: (c) => { children.push(c); },
-          replaceChildren: () => { children.length = 0; },
+          appendChild: (c) => {
+            children.push(c);
+            if (c && typeof c.text === 'string') {
+              el.textContent += c.text;
+            }
+          },
+          replaceChildren: () => {
+            children.length = 0;
+            el.textContent = '';
+          },
           get children() { return children; }
         };
         return el;
@@ -113,5 +127,34 @@ describe('modules/style-injector', () => {
 
     expect(btnPos).toBe('top-right');
     expect(dlgPos).toBe('right');
+  });
+
+  it('addExtraCSS updates documentElement and injects banner CSS without [role="banner"] in DOM', () => {
+    addCSS(VARS, mockDoc);
+    VARS.Options = {
+      CMF_BTN_OPTION: '1',
+      CMF_DIALOG_OPTION: '0'
+    };
+
+    mockDoc.querySelector = (sel) => {
+      // Simulate reload where Facebook React has NOT rendered role="banner"
+      if (sel === '[role="banner"]') return null;
+      if (sel === '.fb-cmf-toggle') {
+        return {
+          setAttribute: () => {}
+        };
+      }
+      return null;
+    };
+
+    addExtraCSS(VARS, masterKeyWords, mockDoc);
+
+    expect(mockDoc.documentElement.getAttribute('data-cmf-pos')).toBe('top-right');
+    expect(styleEl.textContent).toContain('margin-right: 42px');
+
+    // Calling addExtraCSS again should not duplicate the rule
+    const lenBefore = styleEl.textContent.length;
+    addExtraCSS(VARS, masterKeyWords, mockDoc);
+    expect(styleEl.textContent.length).toBe(lenBefore);
   });
 });
