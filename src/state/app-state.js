@@ -101,6 +101,8 @@ export function createInitialState() {
     // ------------------------------------------------------------------------
     /** Browser detection flag for Chromium video controls accommodation */
     isChromium: false,
+    /** Flag indicating whether the current layout/host is Facebook Mobile (m.facebook.com) */
+    isMobile: false,
 
     // ------------------------------------------------------------------------
     // Dynamic Obfuscated CSS & Attribute Names

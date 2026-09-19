@@ -44,3 +44,21 @@ export function isMobileDevice(doc = (typeof document !== 'undefined' ? document
 
   return false;
 }
+
+/**
+ * Checks if the DOM tree contains Facebook Mobile layout markers (e.g. #screen-root or vscroller).
+ *
+ * @param {Document} [doc=document] - DOM document
+ * @returns {boolean} True if mobile DOM architecture is detected
+ *
+ * @example
+ * isMobileDOM(); // true if #screen-root or div[data-type="vscroller"] exists
+ */
+export function isMobileDOM(doc = (typeof document !== 'undefined' ? document : null)) {
+  if (!doc) return false;
+  return Boolean(
+    doc.getElementById?.('screen-root') ||
+    doc.querySelector?.('div[data-type="vscroller"][data-mcomponent="MContainer"]') ||
+    doc.querySelector?.('div[data-type="vscroller"]')
+  );
+}
