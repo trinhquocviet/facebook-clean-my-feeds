@@ -5,6 +5,7 @@ const STANDARD_METADATA_ORDER = [
   'name',
   'description',
   'namespace',
+  'homepageURL',
   'supportURL',
   'downloadURL',
   'updateURL',
