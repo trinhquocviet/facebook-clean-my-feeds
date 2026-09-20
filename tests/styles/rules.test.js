@@ -145,6 +145,14 @@ describe('styles/index', () => {
       const footerBtn = rules.find(r => r.selector.includes('.cmf-btn'));
       expect(footerBtn).toBeUndefined();
     });
+
+    test('contains declarative top-right banner offset rule', () => {
+      const rules = getToggleRules(dummyVars);
+      const bannerRule = rules.find(r => r.selector.includes('role="banner"') && r.selector.includes('top-right'));
+      expect(bannerRule).toBeDefined();
+      expect(bannerRule.selector).toContain(':has(.fb-cmf-toggle[data-cmf-pos="top-right"])');
+      expect(bannerRule.styles).toContain('margin-right: 42px');
+    });
   });
 });
 

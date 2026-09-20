@@ -393,7 +393,11 @@ export function createDialog(languageChanged = false, ctx) {
     document.body.appendChild(dlg);
   }
 
-  dlg.setAttribute('dir', KeyWords.LANGUAGE_DIRECTION || 'ltr');
+  if (typeof dlg.setAttribute === 'function') {
+    dlg.setAttribute('dir', KeyWords.LANGUAGE_DIRECTION || 'ltr');
+    const cmfDlgLocation = (ctx?.VARS?.Options?.CMF_DIALOG_OPTION ?? ctx?.masterKeyWords?.defaults?.CMF_DIALOG_OPTION ?? '0').toString();
+    dlg.setAttribute('data-cmf-dlg', cmfDlgLocation === '1' ? 'right' : 'left');
+  }
   renderHeaderTitle(hdrTitle, ctx);
   renderSectionsContent(cnt, ctx);
   bindSectionEvents(ctx);
