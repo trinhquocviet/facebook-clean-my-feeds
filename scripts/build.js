@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { minify } from 'terser';
-import { generateUserscriptHeader, resolveTargetVersion } from './utils/userscript.js';
+import { generateUserscriptHeader } from './utils/userscript.js';
 import { transformStyleObjects } from './utils/transform-styles.js';
 import packageJson from '../package.json';
 
@@ -24,6 +24,63 @@ if (!existsSync(SRC_FILE)) {
 
 if (!existsSync(OUTPUT_DIR)) {
   mkdirSync(OUTPUT_DIR, { recursive: true });
+}
+
+function cleanVersion(versionStr) {
+  if (!versionStr || typeof versionStr !== 'string') return '';
+  return versionStr
+    .trim()
+    .replace(/^refs\/tags\//i, '')
+    .replace(/^v/i, '')
+    .trim();
+}
+
+function resolveTargetVersion(defaultVersion = '') {
+  // 1. CLI argument (--version <ver>, -v <ver>, or --version=<ver>)
+  const argv = process.argv.slice(2);
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--version' || arg === '-v') {
+      if (argv[i + 1]) {
+        return cleanVersion(argv[i + 1]);
+      }
+    }
+    if (arg.startsWith('--version=')) {
+      return cleanVersion(arg.slice(10));
+    }
+  }
+
+  // 2. Explicit environment variables
+  if (process.env.USERSCRIPT_VERSION) {
+    return cleanVersion(process.env.USERSCRIPT_VERSION);
+  }
+  if (process.env.BUILD_VERSION) {
+    return cleanVersion(process.env.BUILD_VERSION);
+  }
+
+  // 3. GitHub Actions tag environment
+  if (process.env.GITHUB_REF_TYPE === 'tag' && process.env.GITHUB_REF_NAME) {
+    return cleanVersion(process.env.GITHUB_REF_NAME);
+  }
+  if (process.env.GITHUB_REF && process.env.GITHUB_REF.startsWith('refs/tags/')) {
+    return cleanVersion(process.env.GITHUB_REF);
+  }
+
+  // 4. Git exact tag on current commit
+  try {
+    const proc = Bun.spawnSync(['git', 'describe', '--tags', '--exact-match'], {
+      stderr: 'pipe',
+    });
+    if (proc.exitCode === 0) {
+      const tag = proc.stdout.toString().trim();
+      if (tag) return cleanVersion(tag);
+    }
+  } catch {
+    // Git command failed or untagged
+  }
+
+  // 5. Default fallback
+  return cleanVersion(defaultVersion);
 }
 
 const targetVersion = resolveTargetVersion(packageJson.version);
