@@ -1,5 +1,9 @@
 import { describe, test, expect } from 'bun:test';
-import { generateUserscriptHeader } from '../../scripts/utils/userscript.js';
+import {
+  generateUserscriptHeader,
+  cleanVersion,
+  resolveTargetVersion,
+} from '../../scripts/utils/userscript.js';
 
 describe('scripts/utils/userscript', () => {
   describe('generateUserscriptHeader', () => {
@@ -101,4 +105,96 @@ describe('scripts/utils/userscript', () => {
       expect(generateUserscriptHeader('invalid')).toBe('');
     });
   });
+
+  describe('cleanVersion', () => {
+    test('strips leading v prefix and trims whitespace', () => {
+      expect(cleanVersion('v5.03.01')).toBe('5.03.01');
+      expect(cleanVersion('V1.2.0 ')).toBe('1.2.0');
+      expect(cleanVersion('5.03.00')).toBe('5.03.00');
+    });
+
+    test('strips refs/tags/ prefix and optional v', () => {
+      expect(cleanVersion('refs/tags/v5.04.00')).toBe('5.04.00');
+      expect(cleanVersion('refs/tags/5.04.00')).toBe('5.04.00');
+    });
+
+    test('handles empty or non-string inputs safely', () => {
+      expect(cleanVersion('')).toBe('');
+      expect(cleanVersion(null)).toBe('');
+      expect(cleanVersion(undefined)).toBe('');
+    });
+  });
+
+  describe('resolveTargetVersion', () => {
+    test('resolves from CLI argument --version', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        argv: ['--version', 'v2.3.4'],
+      });
+      expect(version).toBe('2.3.4');
+    });
+
+    test('resolves from CLI argument -v', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        argv: ['-v', '3.0.0'],
+      });
+      expect(version).toBe('3.0.0');
+    });
+
+    test('resolves from CLI argument --version=<ver>', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        argv: ['--version=v4.1.2'],
+      });
+      expect(version).toBe('4.1.2');
+    });
+
+    test('resolves from USERSCRIPT_VERSION env var', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        env: { USERSCRIPT_VERSION: 'v5.0.0' },
+      });
+      expect(version).toBe('5.0.0');
+    });
+
+    test('resolves from BUILD_VERSION env var', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        env: { BUILD_VERSION: '5.1.0' },
+      });
+      expect(version).toBe('5.1.0');
+    });
+
+    test('resolves from GitHub Actions tag env (GITHUB_REF_NAME)', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        env: {
+          GITHUB_REF_TYPE: 'tag',
+          GITHUB_REF_NAME: 'v5.03.01',
+        },
+      });
+      expect(version).toBe('5.03.01');
+    });
+
+    test('resolves from GitHub Actions ref tag (refs/tags/v...)', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        env: {
+          GITHUB_REF: 'refs/tags/v5.03.02',
+        },
+      });
+      expect(version).toBe('5.03.02');
+    });
+
+    test('resolves from git tag function when provided', () => {
+      const version = resolveTargetVersion('1.0.0', {
+        getGitTag: () => 'v6.0.0',
+      });
+      expect(version).toBe('6.0.0');
+    });
+
+    test('falls back to defaultVersion when no tag, env, or cli arg is present', () => {
+      const version = resolveTargetVersion('5.03.00', {
+        argv: [],
+        env: {},
+        getGitTag: () => '',
+      });
+      expect(version).toBe('5.03.00');
+    });
+  });
 });
+

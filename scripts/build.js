@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { minify } from 'terser';
-import { generateUserscriptHeader } from './utils/userscript.js';
+import { generateUserscriptHeader, resolveTargetVersion } from './utils/userscript.js';
 import { transformStyleObjects } from './utils/transform-styles.js';
 import packageJson from '../package.json';
 
@@ -15,6 +15,7 @@ const projectRoot = join(__dirname, '..');
 const SRC_FILE = join(projectRoot, 'src', 'index.js');
 const OUTPUT_DIR = join(projectRoot, 'dist');
 const OUTPUT_FILE = join(OUTPUT_DIR, 'fb-clean-my-feeds.user.js');
+const OUTPUT_META_FILE = join(OUTPUT_DIR, 'fb-clean-my-feeds.meta.js');
 
 if (!existsSync(SRC_FILE)) {
   console.error(`Source entrypoint not found: ${SRC_FILE}`);
@@ -25,7 +26,8 @@ if (!existsSync(OUTPUT_DIR)) {
   mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-console.log('Building userscript with Bun...');
+const targetVersion = resolveTargetVersion(packageJson.version);
+console.log(`Building userscript with Bun (target version: ${targetVersion})...`);
 const startTime = performance.now();
 
 const styleTransformerPlugin = {
@@ -91,11 +93,16 @@ try {
 
   builtContent = minified.code;
 
-  // Prepend authoritative header using packageJson.userscript with packageJson.version reference
-  const header = generateUserscriptHeader(packageJson.userscript, packageJson.version);
+  // Prepend authoritative header using packageJson.userscript with resolved targetVersion
+  const metadataConfig = {
+    ...packageJson.userscript,
+    version: targetVersion,
+  };
+  const header = generateUserscriptHeader(metadataConfig, targetVersion);
   const finalContent = header + '\n' + builtContent;
 
   writeFileSync(OUTPUT_FILE, finalContent, 'utf-8');
+  writeFileSync(OUTPUT_META_FILE, header, 'utf-8');
 
   const duration = (performance.now() - startTime).toFixed(1);
   const sizeKb = (Buffer.byteLength(finalContent, 'utf-8') / 1024).toFixed(2);
