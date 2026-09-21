@@ -73,7 +73,7 @@ jobs:
           files: |
             dist/fb-clean-my-feeds.user.js
             dist/fb-clean-my-feeds.meta.js
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           generate_release_notes: true
           make_latest: "true"
           fail_on_unmatched_files: true
