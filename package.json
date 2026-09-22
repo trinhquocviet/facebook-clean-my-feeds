@@ -1,6 +1,6 @@
 {
   "name": "fb-clean-my-feeds",
-  "version": "5.03.00",
+  "version": "5.03.04",
   "description": "Hide Sponsored and Suggested posts in FB's News Feed, Groups Feed, Watch Videos Feed and Marketplace Feed",
   "main": "src/index.js",
   "type": "module",

@@ -247,14 +247,42 @@ export function isSponsored(post, VARS, doc = (typeof document !== 'undefined' ?
           )
         );
       }
+      if (elLinks.length === 0) {
+        // Fallback for layouts lacking standard wrappers
+        elLinks = Array.from(
+          post.querySelectorAll(
+            `span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+          )
+        );
+      }
+      if (elLinks.length === 0) {
+        // Ultimate fallback
+        elLinks = Array.from(
+          post.querySelectorAll(
+            `a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+          )
+        );
+      }
     } else if (VARS.isVF) {
       // Watch Videos feed structure
       elLinks = Array.from(
         post.querySelectorAll(`div > div > div > div > span > span > div > a[href*="${PARAM_FIND}"]`)
       );
+      if (elLinks.length === 0) {
+        elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
+      }
+      if (elLinks.length === 0) {
+        elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
+      }
     } else if (VARS.isSF) {
       // Search Feed article structure
       elLinks = Array.from(post.querySelectorAll(`div[role="article"] span > a[href*="${PARAM_FIND}"]`));
+      if (elLinks.length === 0) {
+        elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
+      }
+      if (elLinks.length === 0) {
+        elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
+      }
     }
 
     // Guard: > 0 means links found; < 10 excludes embedded / reshared posts
