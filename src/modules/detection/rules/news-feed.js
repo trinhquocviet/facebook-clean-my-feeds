@@ -9,6 +9,7 @@
  */
 
 import { cleanText, getFullNumber, querySelectorAllNoChildren } from '@/utils/index.js';
+import { isAdTrackingUrl } from '@/modules/detection/sponsored.js';
 
 /**
  * Detects "Groups you might like" discovery cards inserted into the feed.
@@ -129,6 +130,8 @@ export function nf_isSuggested(post, KeyWords, VARS) {
   } else if (nf_isGroupsYouMightLike(post)) {
     return KeyWords.NF_SUGGESTIONS;
   } else if (nf_isUnjoinedGroupPost(post)) {
+    return KeyWords.NF_SUGGESTIONS;
+  } else if (isAdTrackingUrl(post, VARS)) {
     return KeyWords.NF_SUGGESTIONS;
   }
 

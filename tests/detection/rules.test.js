@@ -78,6 +78,80 @@ describe('modules/detection/rules', () => {
 
       expect(nf_isUnjoinedGroupPost(mockPost)).toBe(true);
     });
+
+    describe('nf_isSuggested', () => {
+      it('returns reason when suggestion query matches text not starting with number', () => {
+        const mockSpan = {
+          children: [],
+          childElementCount: 0,
+          textContent: 'Suggested for you'
+        };
+        const mockPost = {
+          querySelector: () => null,
+          querySelectorAll: (sel) => {
+            if (sel.includes('div[aria-posinset]')) {
+              return [mockSpan];
+            }
+            return [];
+          }
+        };
+        expect(nf_isSuggested(mockPost, KeyWords, {})).toBe(KeyWords.NF_SUGGESTIONS);
+      });
+
+      it('returns empty string when suggestion query text starts with number (comment count)', () => {
+        const mockSpan = {
+          children: [],
+          childElementCount: 0,
+          textContent: '5 people commented on this'
+        };
+        const mockPost = {
+          querySelector: () => null,
+          querySelectorAll: (sel) => {
+            if (sel.includes('div[aria-posinset]')) {
+              return [mockSpan];
+            }
+            return [];
+          }
+        };
+        expect(nf_isSuggested(mockPost, KeyWords, {})).toBe('');
+      });
+
+      it('returns reason when nf_isGroupsYouMightLike matches', () => {
+        const mockPost = {
+          querySelector: () => null,
+          querySelectorAll: (sel) => {
+            if (sel.includes('/groups/discover')) {
+              return [{ href: '/groups/discover' }];
+            }
+            return [];
+          }
+        };
+        expect(nf_isSuggested(mockPost, KeyWords, {})).toBe(KeyWords.NF_SUGGESTIONS);
+      });
+
+      it('returns reason when isAdTrackingUrl detects ad parameter', () => {
+        const VARS = { isNF: true };
+        const longLink = 'https://www.facebook.com/ad/?__cft__[0]=' + 'z'.repeat(320);
+        const mockPost = {
+          querySelector: () => null,
+          querySelectorAll: (sel) => {
+            if (sel.includes('__cft__[0]=')) {
+              return [{ href: longLink }];
+            }
+            return [];
+          }
+        };
+        expect(nf_isSuggested(mockPost, KeyWords, VARS)).toBe(KeyWords.NF_SUGGESTIONS);
+      });
+
+      it('returns empty string for a clean post', () => {
+        const mockPost = {
+          querySelector: () => null,
+          querySelectorAll: () => []
+        };
+        expect(nf_isSuggested(mockPost, KeyWords, {})).toBe('');
+      });
+    });
   });
 
   describe('groups rules', () => {
