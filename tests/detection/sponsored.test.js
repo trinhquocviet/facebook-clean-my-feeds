@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import {
   isSponsored,
+  isAdTrackingUrl,
+  isSponsored_TrackingUrl,
   nf_isSponsored_Plain,
   nf_isSponsored_xlink,
   nf_isSponsored_ShadowRoot1,
@@ -122,6 +124,65 @@ describe('modules/detection/sponsored', () => {
       };
 
       expect(isSponsored(mockPost, VARS)).toBe(true);
+    });
+  });
+
+  describe('isAdTrackingUrl', () => {
+    it('returns false for null or invalid post element', () => {
+      expect(isAdTrackingUrl(null, VARS)).toBe(false);
+      expect(isAdTrackingUrl({}, VARS)).toBe(false);
+    });
+
+    it('returns true when link in News Feed meets length threshold (>= 311 chars)', () => {
+      VARS.isNF = true;
+      const longLink = 'https://www.facebook.com/ad/?__cft__[0]=' + 'a'.repeat(311);
+      const mockPost = {
+        querySelectorAll: (sel) => (sel.includes('__cft__[0]=') ? [{ href: longLink }] : [])
+      };
+      expect(isAdTrackingUrl(mockPost, VARS)).toBe(true);
+    });
+
+    it('returns false when link in News Feed is below length threshold (< 311 chars)', () => {
+      VARS.isNF = true;
+      const shortLink = 'https://www.facebook.com/ad/?__cft__[0]=' + 'a'.repeat(50);
+      const mockPost = {
+        querySelectorAll: (sel) => (sel.includes('__cft__[0]=') ? [{ href: shortLink }] : [])
+      };
+      expect(isAdTrackingUrl(mockPost, VARS)).toBe(false);
+    });
+
+    it('uses lower threshold for Watch Videos feed (>= 299 chars)', () => {
+      VARS.isNF = false;
+      VARS.isVF = true;
+      const mediumLink = 'https://www.facebook.com/watch/?__cft__[0]=' + 'b'.repeat(300);
+      const mockPost = {
+        querySelectorAll: (sel) => (sel.includes('__cft__[0]=') ? [{ href: mediumLink }] : [])
+      };
+      expect(isAdTrackingUrl(mockPost, VARS)).toBe(true);
+    });
+
+    it('uses lower threshold for Search Feed (>= 250 chars)', () => {
+      VARS.isNF = false;
+      VARS.isSF = true;
+      const searchLink = 'https://www.facebook.com/search/?__cft__[0]=' + 'c'.repeat(255);
+      const mockPost = {
+        querySelectorAll: (sel) => (sel.includes('__cft__[0]=') ? [{ href: searchLink }] : [])
+      };
+      expect(isAdTrackingUrl(mockPost, VARS)).toBe(true);
+    });
+
+    it('returns false when link count is 10 or greater (reshared / embedded post guard)', () => {
+      VARS.isNF = true;
+      const longLink = 'https://www.facebook.com/ad/?__cft__[0]=' + 'a'.repeat(350);
+      const links = Array.from({ length: 10 }, () => ({ href: longLink }));
+      const mockPost = {
+        querySelectorAll: (sel) => (sel.includes('__cft__[0]=') ? links : [])
+      };
+      expect(isAdTrackingUrl(mockPost, VARS)).toBe(false);
+    });
+
+    it('exports isSponsored_TrackingUrl as an exact alias', () => {
+      expect(isSponsored_TrackingUrl).toBe(isAdTrackingUrl);
     });
   });
 });

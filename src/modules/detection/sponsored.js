@@ -228,81 +228,112 @@ export function isSponsored(post, VARS, doc = (typeof document !== 'undefined' ?
 
   // Tier 5: Structural heuristic via __cft__[0]= tracking parameter length
   if (!isSponsoredPost) {
-    const PARAM_FIND = '__cft__[0]=';
-    const PARAM_MIN_SIZE = VARS.isSF ? 250 : VARS.isVF ? 299 : 311;
+    isSponsoredPost = isAdTrackingUrl(post, VARS);
+  }
 
-    let elLinks = [];
-    if (VARS.isNF || VARS.isGF) {
-      // News Feed & Groups Feed links
+  return isSponsoredPost;
+}
+
+/**
+ * Detects whether a post contains an ad-related tracking URL (__cft__[0]= heuristic).
+ *
+ * Facebook routes sponsored post interactions and ad attributions through
+ * server-side tracking parameters (__cft__[0]=...). The payload length varies
+ * across feed surfaces:
+ * - Search Feed (isSF): Threshold >= 250 characters
+ * - Watch Videos Feed (isVF): Threshold >= 299 characters
+ * - News Feed / Groups Feed (isNF, isGF): Threshold >= 311 characters
+ *
+ * Link Count Guard: Only posts with 1 to 9 links are checked. Posts with >= 10 links
+ * are complex reshared / embedded items that are extremely unlikely to be direct ads.
+ * Only the first 2 links are inspected to prevent false positives when Facebook dynamically
+ * mutates lower links during video playback.
+ *
+ * @param {HTMLElement} post - Feed post element
+ * @param {Object} [VARS] - Application state containing feed flags (isNF, isGF, isVF, isSF)
+ * @returns {boolean} True if post contains an ad tracking URL
+ */
+export function isAdTrackingUrl(post, VARS = {}) {
+  if (!post || typeof post.querySelectorAll !== 'function') return false;
+
+  const PARAM_FIND = '__cft__[0]=';
+  const PARAM_MIN_SIZE = VARS?.isSF ? 250 : VARS?.isVF ? 299 : 311;
+
+  let elLinks = [];
+  if (!VARS || VARS.isNF || VARS.isGF) {
+    // News Feed & Groups Feed links
+    elLinks = Array.from(
+      post.querySelectorAll(
+        `div[aria-posinset] span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+      )
+    );
+    if (elLinks.length === 0) {
+      // Fallback for layouts lacking aria-posinset
       elLinks = Array.from(
         post.querySelectorAll(
-          `div[aria-posinset] span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+          `div[aria-describedby] span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
         )
       );
-      if (elLinks.length === 0) {
-        // Fallback for layouts lacking aria-posinset
-        elLinks = Array.from(
-          post.querySelectorAll(
-            `div[aria-describedby] span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
-          )
-        );
-      }
-      if (elLinks.length === 0) {
-        // Fallback for layouts lacking standard wrappers
-        elLinks = Array.from(
-          post.querySelectorAll(
-            `span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
-          )
-        );
-      }
-      if (elLinks.length === 0) {
-        // Ultimate fallback
-        elLinks = Array.from(
-          post.querySelectorAll(
-            `a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
-          )
-        );
-      }
-    } else if (VARS.isVF) {
-      // Watch Videos feed structure
-      elLinks = Array.from(
-        post.querySelectorAll(`div > div > div > div > span > span > div > a[href*="${PARAM_FIND}"]`)
-      );
-      if (elLinks.length === 0) {
-        elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
-      }
-      if (elLinks.length === 0) {
-        elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
-      }
-    } else if (VARS.isSF) {
-      // Search Feed article structure
-      elLinks = Array.from(post.querySelectorAll(`div[role="article"] span > a[href*="${PARAM_FIND}"]`));
-      if (elLinks.length === 0) {
-        elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
-      }
-      if (elLinks.length === 0) {
-        elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
-      }
     }
+    if (elLinks.length === 0) {
+      // Fallback for layouts lacking standard wrappers
+      elLinks = Array.from(
+        post.querySelectorAll(
+          `span > a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+        )
+      );
+    }
+    if (elLinks.length === 0) {
+      // Ultimate fallback
+      elLinks = Array.from(
+        post.querySelectorAll(
+          `a[href*="${PARAM_FIND}"]:not([href^="/groups/"]):not([href*="section_header_type"])`
+        )
+      );
+    }
+  } else if (VARS.isVF) {
+    // Watch Videos feed structure
+    elLinks = Array.from(
+      post.querySelectorAll(`div > div > div > div > span > span > div > a[href*="${PARAM_FIND}"]`)
+    );
+    if (elLinks.length === 0) {
+      elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
+    }
+    if (elLinks.length === 0) {
+      elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
+    }
+  } else if (VARS.isSF) {
+    // Search Feed article structure
+    elLinks = Array.from(post.querySelectorAll(`div[role="article"] span > a[href*="${PARAM_FIND}"]`));
+    if (elLinks.length === 0) {
+      elLinks = Array.from(post.querySelectorAll(`span > a[href*="${PARAM_FIND}"]`));
+    }
+    if (elLinks.length === 0) {
+      elLinks = Array.from(post.querySelectorAll(`a[href*="${PARAM_FIND}"]`));
+    }
+  }
 
-    // Guard: > 0 means links found; < 10 excludes embedded / reshared posts
-    if (elLinks.length > 0 && elLinks.length < 10) {
-      // Inspect first 2 links only (FB alters 4th/5th links after video play)
-      const elMax = Math.min(2, elLinks.length);
+  // Guard: > 0 means links found; < 10 excludes embedded / reshared posts
+  if (elLinks.length > 0 && elLinks.length < 10) {
+    // Inspect first 2 links only (FB alters 4th/5th links after video play)
+    const elMax = Math.min(2, elLinks.length);
 
-      for (let i = 0; i < elMax; i++) {
-        const el = elLinks[i];
-        const pos = el.href ? el.href.indexOf(PARAM_FIND) : -1;
-        if (pos >= 0) {
-          if (el.href.slice(pos).length >= PARAM_MIN_SIZE) {
-            isSponsoredPost = true;
-            break;
-          }
+    for (let i = 0; i < elMax; i++) {
+      const el = elLinks[i];
+      const pos = el.href ? el.href.indexOf(PARAM_FIND) : -1;
+      if (pos >= 0) {
+        if (el.href.slice(pos).length >= PARAM_MIN_SIZE) {
+          return true;
         }
       }
     }
   }
 
-  return isSponsoredPost;
+  return false;
 }
+
+/**
+ * Backward-compatible alias for isAdTrackingUrl.
+ */
+export const isSponsored_TrackingUrl = isAdTrackingUrl;
 
