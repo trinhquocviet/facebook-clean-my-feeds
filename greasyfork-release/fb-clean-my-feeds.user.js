@@ -7555,6 +7555,11 @@ esversion: 8;
         }
       }, 500);
 
+      // -- watchdog: processPage()'s setTimeout chain dies if a call returns early
+      // -- (timer fired a bit too soon) or throws. Re-seed it at least every 1s.
+      // -- Duplicate chains are harmless: they hit the "called too early" check and stop.
+      setInterval(function () { processPage(); }, 1000); 
+
       // -- start scanning
       // -- (processPage will call setFeedSettings ..)
       processPage('url-changed');
